@@ -129,6 +129,13 @@ const talks = [
   ['추천 · 질문', '하쿠텐 오픈런 몇시가 좋아요?']
 ];
 
+const ratalkPosts = [
+  { id: 1, author: '역삼동 라오타', badge: '라이트', time: '1시간전', place: '반라이', score: '5.0', title: '', copy: '국물이 진해서 처음엔 놀랐는데 찍어먹으니까 괜찮던데요? 입문자도 먹을만 합니다, 웨이팅은 평일 1시쯤 도착해서 30분정도 기다렸어요 ㅠ', image: ramenPhotos.rich, likes: 12, comments: 8, popularity: 98 },
+  { id: 2, author: '통풍주의', badge: '라타', time: '3시간전', place: '웅성 X 코하루', score: '', title: '이번 주 웅성 콜라보 둘다 갈 예정이신 분?', copy: '국물이 진해서 처음엔 놀랐는데 찍어먹으니까 괜찮던데요? 입문자도 먹을만 합니다, 웨이팅은 평일 1시쯤 도착해서 30분정도 기다렸어요 ㅠ', image: '', likes: 0, comments: 8, popularity: 76 },
+  { id: 3, author: '익명의 라오타', badge: '라타', time: '3시간전', place: '하쿠텐', score: '4.8', title: '오늘 하쿠텐 오픈런 후기', copy: '면이 단단하고 국물이 깊어요. 첫 방문이라면 기본 메뉴부터 추천합니다.', image: ramenPhotos.clear, likes: 24, comments: 11, popularity: 120 },
+  { id: 4, author: '망원동 면치기', badge: '라이트', time: '5시간전', place: '멘야준', score: '4.7', title: '맑은 국물 좋아하면 여기', copy: '향이 세지 않고 끝맛이 깔끔해서 편하게 먹기 좋았어요.', image: ramenPhotos.hero, likes: 7, comments: 3, popularity: 45 }
+];
+
 const brothChoices = [
   { id: 'clear', title: '맑고 깔끔한 마무리', copy: '청탕(시오 · 쇼유)', image: ramenPhotos.clear },
   { id: 'rich', title: '진하고 묵직한 마무리', copy: '백탕(돈코츠 · 토리파이탄)', image: ramenPhotos.rich },
@@ -227,12 +234,9 @@ const prototypeScreens = {
 document.querySelector('#app').innerHTML = `
   <div class="experience-shell">
   <section class="splash-screen" aria-label="RATA 시작 화면">
-    <video class="splash-video" autoplay muted playsinline preload="auto" poster="/images/photos/splash-ramen.webp" aria-hidden="true">
+    <video class="splash-video" autoplay muted playsinline preload="auto" aria-label="라멘 온보딩 영상">
       <source src="/video/onboding.mp4" type="video/mp4">
     </video>
-    <div class="fake-status light"><strong>9:41</strong><span><i></i><i></i><i></i><b></b></span></div>
-    <div class="splash-brand"><img src="/brand/txt_logo_RATA.svg" alt="RATA"><p>먹을수록 선명해지는 나만의 라멘취향</p></div>
-    <img class="splash-foot" src="/brand/txt_logo_RATA.svg" alt="">
   </section>
 
   <section class="onboarding" aria-label="취향 온보딩" aria-hidden="true">
@@ -291,7 +295,10 @@ document.querySelector('#app').innerHTML = `
           <button class="icon-btn notify" aria-label="알림">${icon('bell', 23)}<i></i></button>
         </div>
       </div>
-      <div class="ticker"><b>라타 모드</b><span>육수·타래·면 같은 진한 스토리까지 보여요</span><span class="ticker-dot">●</span></div>
+      <div class="ticker" role="status">
+        <span class="ticker-message ticker-light"><b>라이트 모드</b><span>쉬운 설명과 추천 위주로 홈이 보여요</span><i>♫</i></span>
+        <span class="ticker-message ticker-rata"><b>라타 모드</b><span>육수·타래·면 같은 진한 스토리까지 보여요</span><i>●</i></span>
+      </div>
     </header>
 
     <section class="hero" id="top" aria-label="주요 소식 슬라이드">
@@ -370,7 +377,7 @@ document.querySelector('#app').innerHTML = `
 
     <nav class="bottom-nav" aria-label="하단 메뉴">
       <span class="nav-highlight" aria-hidden="true"></span>
-      ${[['home','메인'],['calendar','일정'],['map','지도'],['chat','라톡'],['user','마이']].map(([ic,label],i) => `<button class="nav-item ${i===0?'active':''}" data-nav="${label}">${icon(ic,23)}<span>${label}</span></button>`).join('')}
+      ${[['home','메인'],['calendar','일정'],['map','지도'],['ratalk','라톡'],['my','마이']].map(([key,label],i) => `<button class="nav-item ${i===0?'active':''}" data-nav="${label}"><img class="nav-off" src="/figma/nav-items/${key}_off.png" alt=""><img class="nav-on" src="/figma/nav-items/${key}_on.png" alt=""><span class="sr-only">${label}</span></button>`).join('')}
     </nav>
     <section class="prototype-screen" aria-hidden="true">
       <div class="prototype-canvas">
@@ -428,8 +435,47 @@ document.querySelector('#app').innerHTML = `
           </section>
         </div>
       </section>
+      <section class="live-ratalk-screen" hidden aria-label="라톡">
+        <header class="ratalk-header">
+          <div class="home-status dark-status"><strong>9:41</strong><span><i></i><i></i><i></i><b></b></span></div>
+          <div class="ratalk-titlebar"><h1>라톡</h1><div><button aria-label="알림">${icon('bell', 23)}</button><button aria-label="검색">${icon('search', 23)}</button></div></div>
+        </header>
+        <nav class="ratalk-categories" aria-label="라톡 분류">
+          <button class="active" data-talk-filter="all">전체</button><button data-talk-filter="plate">한 그릇</button><button data-talk-filter="story">이야기</button><button data-talk-filter="review">후기</button><button data-talk-filter="question">질문</button>
+        </nav>
+        <div class="ratalk-controls">
+          <div class="talk-sort-wrap"><button class="talk-sort" aria-expanded="false"><span>최신순</span>${icon('chevron', 16)}</button><div class="talk-sort-menu" hidden><button data-talk-sort="latest">최신순</button><button data-talk-sort="popular">인기순</button></div></div>
+          <button class="talk-place-filter">${icon('pin', 15)} 매장전체 ${icon('chevron', 14)}</button>
+        </div>
+        <div class="ratalk-feed">
+          ${ratalkPosts.map((post) => `<article class="ratalk-post" data-post-id="${post.id}" data-popularity="${post.popularity}" data-category="${post.image ? 'plate' : 'story'}">
+            <header><span class="talk-avatar"><img src="/brand/R_logo_RATA.svg" alt=""></span><strong>${post.author}</strong><em>${post.badge}</em><time>${post.time}</time></header>
+            ${post.image ? `<img class="talk-photo" src="${post.image}" alt="${post.place} 라멘">` : ''}
+            <div class="talk-post-body">${post.place ? `<p class="talk-place">${icon('pin', 15)} <b>${post.place}</b>${post.score ? `<span>★★★★★</span><strong>${post.score}</strong>` : ''}</p>` : ''}${post.title ? `<h2>${post.title}</h2>` : ''}<p class="talk-copy">${post.copy}</p></div>
+            <footer><button class="talk-like" aria-pressed="false">♡ <span>${post.likes}</span></button><button class="talk-comment">${icon('chat', 20)} <span>${post.comments}</span></button></footer>
+          </article>`).join('')}
+        </div>
+        <button class="ratalk-compose" aria-label="글쓰기">✎</button>
+      </section>
+      <section class="live-auth-screen" hidden aria-label="로그인">
+        <div class="auth-visual"><img src="/brand/R_logo_RATA.svg" alt="RATA"><h1>당신의<br>깊어질<br>취향을</h1></div>
+        <section class="auth-card">
+          <button class="auth-close" aria-label="닫기">×</button>
+          <header><h2 class="auth-title">로그인하고 취향을 이어가요</h2><p class="auth-subtitle">저장 · 댓글 · 글쓰기는 로그인 후 이용가능합니다.</p></header>
+          <form class="auth-form">
+            <label class="auth-name-field" hidden><span>이름</span><input name="name" autocomplete="name" placeholder="이름"></label>
+            <label><span>이메일</span><input name="email" type="email" autocomplete="email" placeholder="example@example.com"></label>
+            <label><span>비밀번호</span><input name="password" type="password" autocomplete="current-password" placeholder="8자 이상 입력"></label>
+            <button class="auth-submit" type="submit">로그인</button>
+          </form>
+          <div class="auth-divider"><span>간편로그인</span></div>
+          <div class="auth-socials"><button aria-label="구글 로그인">G</button><button class="naver" aria-label="네이버 로그인">N</button><button class="kakao" aria-label="카카오 로그인">●</button></div>
+          <footer><p>아직 계정이 없으신가요? <button class="auth-join">회원가입</button></p><p class="login-only">계정이나 비밀번호를 잊어버리셨나요? <button>e-mail/pw찾기</button></p></footer>
+        </section>
+      </section>
       <nav class="prototype-nav" aria-label="피그마 하단 메뉴">
-        ${['메인','일정','지도','라톡','마이'].map((label, index) => `<button data-prototype-nav="${index}" aria-label="${label}"></button>`).join('')}
+        <span class="nav-highlight" aria-hidden="true"></span>
+        ${[['home','메인'],['calendar','일정'],['map','지도'],['ratalk','라톡'],['my','마이']].map(([key,label], index) => `<button class="nav-item ${index===0?'active':''}" data-prototype-nav="${index}" aria-label="${label}"><img class="nav-off" src="/figma/nav-items/${key}_off.png" alt=""><img class="nav-on" src="/figma/nav-items/${key}_on.png" alt=""></button>`).join('')}
       </nav>
     </section>
     <div class="toast" role="status" aria-live="polite"></div>
@@ -523,10 +569,23 @@ const prototypeHotspots = document.querySelector('.prototype-hotspots');
 const prototypeNav = document.querySelector('.prototype-nav');
 const prototypeCanvas = document.querySelector('.prototype-canvas');
 const liveMapScreen = document.querySelector('.live-map-screen');
+const liveRatalkScreen = document.querySelector('.live-ratalk-screen');
+const liveAuthScreen = document.querySelector('.live-auth-screen');
 const storeSheet = document.querySelector('.store-sheet');
 const tasteModal = document.querySelector('.taste-modal');
 let rataMap;
 let mapMarkers = [];
+const authRoutes = new Set(['loginVisual', 'loginForm', 'join', 'joinInput', 'joinValid', 'socialLogin']);
+
+const prototypeImageCache = new Map();
+Object.entries(prototypeScreens).forEach(([name, screen]) => {
+  if (['map', 'mapSheet', 'ratalk'].includes(name) || authRoutes.has(name)) return;
+  const image = new Image();
+  image.decoding = 'async';
+  image.src = screen.src;
+  image.decode?.().catch(() => {});
+  prototypeImageCache.set(name, image);
+});
 
 const mapPlaces = [
   ['반라이', 37.5563, 126.9236, 'rich', true],
@@ -596,10 +655,25 @@ function openPrototype(name) {
   prototypeScreen.setAttribute('aria-hidden', 'false');
   document.body.classList.add('prototype-open');
   const isLiveMap = name === 'map' || name === 'mapSheet';
-  prototypeCanvas.hidden = isLiveMap;
+  const isLiveTalk = name === 'ratalk';
+  const isLiveAuth = authRoutes.has(name);
+  const isLiveScreen = isLiveMap || isLiveTalk || isLiveAuth;
+  prototypeCanvas.hidden = isLiveScreen;
   liveMapScreen.hidden = !isLiveMap;
+  liveRatalkScreen.hidden = !isLiveTalk;
+  liveAuthScreen.hidden = !isLiveAuth;
+  [liveMapScreen, liveRatalkScreen, liveAuthScreen].forEach((view) => view.classList.remove('route-enter'));
+  const liveView = isLiveMap ? liveMapScreen : isLiveTalk ? liveRatalkScreen : isLiveAuth ? liveAuthScreen : null;
+  if (liveView) {
+    void liveView.offsetWidth;
+    liveView.classList.add('route-enter');
+  }
   prototypeScreen.classList.toggle('map-open', isLiveMap);
   prototypeNav.classList.toggle('map-nav', isLiveMap);
+  prototypeNav.classList.toggle('talk-nav', isLiveTalk);
+  const navIndex = name.startsWith('calendar') ? 1 : isLiveMap ? 2 : isLiveTalk ? 3 : name.startsWith('my') ? 4 : 0;
+  prototypeNav.style.setProperty('--nav-index', navIndex);
+  prototypeNav.querySelectorAll('.nav-item').forEach((item, index) => item.classList.toggle('active', index === navIndex));
   prototypeNav.hidden = !screen.nav;
   if (isLiveMap) {
     prototypeHotspots.innerHTML = '';
@@ -609,8 +683,13 @@ function openPrototype(name) {
       if (name === 'mapSheet') showStoreSheet();
       else setSheetVisible(false);
     });
+  } else if (isLiveTalk) {
+    document.querySelector('.ratalk-feed').scrollTo({ top: 0 });
+  } else if (isLiveAuth) {
+    renderAuthView(name);
   } else {
-    prototypeImage.src = screen.src;
+    const cached = prototypeImageCache.get(name);
+    prototypeImage.src = cached?.src || screen.src;
     prototypeImage.alt = `${name} 화면`;
     prototypeHotspots.innerHTML = screen.hotspots.map(([label, left, top, width, height, target]) => `<button class="prototype-hotspot" aria-label="${label}" data-target="${target}" style="left:${left}px;top:${top}px;width:${width}px;height:${height}px"></button>`).join('');
     prototypeCanvas.classList.remove('screen-enter', 'sheet-screen-enter');
@@ -626,9 +705,14 @@ function closePrototype() {
   prototypeScreen.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('prototype-open');
   liveMapScreen.hidden = true;
+  liveRatalkScreen.hidden = true;
+  liveAuthScreen.hidden = true;
   prototypeCanvas.hidden = false;
+  bottomNav.style.setProperty('--nav-index', 0);
+  document.querySelectorAll('.bottom-nav .nav-item').forEach((item, index) => item.classList.toggle('active', index === 0));
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
   history.replaceState(null, '', `${location.pathname}?home`);
+  startTickerTimer();
 }
 
 prototypeHotspots.addEventListener('click', (event) => {
@@ -686,6 +770,72 @@ storeSheet.addEventListener('pointerup', (event) => {
   }
 });
 
+const talkSortButton = document.querySelector('.talk-sort');
+const talkSortMenu = document.querySelector('.talk-sort-menu');
+const ratalkFeed = document.querySelector('.ratalk-feed');
+talkSortButton.addEventListener('click', () => {
+  const open = talkSortMenu.hidden;
+  talkSortMenu.hidden = !open;
+  talkSortButton.setAttribute('aria-expanded', String(open));
+});
+document.querySelectorAll('[data-talk-sort]').forEach((button) => button.addEventListener('click', () => {
+  const mode = button.dataset.talkSort;
+  const posts = [...ratalkFeed.querySelectorAll('.ratalk-post')];
+  posts.sort((a, b) => mode === 'popular' ? Number(b.dataset.popularity) - Number(a.dataset.popularity) : Number(a.dataset.postId) - Number(b.dataset.postId));
+  posts.forEach((post, index) => {
+    post.style.animationDelay = `${index * 35}ms`;
+    ratalkFeed.append(post);
+  });
+  talkSortButton.querySelector('span').textContent = mode === 'popular' ? '인기순' : '최신순';
+  talkSortMenu.hidden = true;
+  talkSortButton.setAttribute('aria-expanded', 'false');
+  ratalkFeed.scrollTo({ top: 0, behavior: 'smooth' });
+}));
+document.querySelectorAll('[data-talk-filter]').forEach((button) => button.addEventListener('click', () => {
+  document.querySelectorAll('[data-talk-filter]').forEach((item) => item.classList.remove('active'));
+  button.classList.add('active');
+  const filter = button.dataset.talkFilter;
+  [...ratalkFeed.querySelectorAll('.ratalk-post')].forEach((post) => {
+    const visible = filter === 'all' || filter === post.dataset.category || (filter === 'review' && post.dataset.category === 'plate') || (filter === 'question' && post.dataset.category === 'story');
+    post.hidden = !visible;
+  });
+  ratalkFeed.scrollTo({ top: 0, behavior: 'smooth' });
+}));
+document.querySelectorAll('.talk-like').forEach((button) => button.addEventListener('click', () => {
+  const liked = button.classList.toggle('liked');
+  button.setAttribute('aria-pressed', String(liked));
+  const count = button.querySelector('span');
+  count.textContent = String(Number(count.textContent) + (liked ? 1 : -1));
+  button.firstChild.textContent = liked ? '♥ ' : '♡ ';
+}));
+document.querySelector('.ratalk-compose').addEventListener('click', () => openPrototype('writePhoto'));
+document.querySelector('.talk-place-filter').addEventListener('click', () => showToast('저장한 매장과 주변 매장을 함께 보고 있어요'));
+
+let currentAuthView = 'loginVisual';
+function renderAuthView(name) {
+  currentAuthView = name;
+  const joining = ['join', 'joinInput', 'joinValid'].includes(name);
+  liveAuthScreen.classList.toggle('join-view', joining);
+  document.querySelector('.auth-name-field').hidden = !joining;
+  document.querySelector('.auth-title').textContent = joining ? '회원가입하고 취향을 시작해요' : '로그인하고 취향을 이어가요';
+  document.querySelector('.auth-subtitle').textContent = joining ? '기본 정보만 입력하면 바로 시작할 수 있어요.' : '저장 · 댓글 · 글쓰기는 로그인 후 이용가능합니다.';
+  document.querySelector('.auth-submit').textContent = joining ? '가입하고 시작하기' : '로그인';
+  document.querySelector('.auth-join').closest('p').hidden = joining;
+  requestAnimationFrame(() => document.querySelector(joining ? '.auth-form input[name="name"]' : '.auth-form input[name="email"]')?.focus({ preventScroll: true }));
+}
+document.querySelector('.auth-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const form = new FormData(event.currentTarget);
+  if (!form.get('email') || !form.get('password') || (liveAuthScreen.classList.contains('join-view') && !form.get('name'))) {
+    showToast('입력 내용을 확인해주세요');
+    return;
+  }
+  showToast(liveAuthScreen.classList.contains('join-view') ? '가입이 완료됐어요' : '로그인했어요');
+  window.setTimeout(() => openPrototype('my'), 350);
+});
+document.querySelector('.auth-join').addEventListener('click', () => openPrototype('join'));
+document.querySelector('.auth-socials').addEventListener('click', () => showToast('간편로그인을 연결하고 있어요'));
+
 document.querySelectorAll('[data-toast]').forEach(btn => btn.addEventListener('click', () => showToast(btn.dataset.toast)));
 
 let toastTimer;
@@ -702,12 +852,28 @@ document.querySelector('.hero').addEventListener('pointerdown', () => clearInter
 
 const splash = document.querySelector('.splash-screen');
 const splashVideo = document.querySelector('.splash-video');
+const revealSplashVideo = () => splashVideo.classList.add('ready');
+if (splashVideo.readyState >= 2) revealSplashVideo();
+else splashVideo.addEventListener('loadeddata', revealSplashVideo, { once: true });
 const onboarding = document.querySelector('.onboarding');
 const onboardingTrack = document.querySelector('.onboarding-track');
 const onboardingProgress = [...document.querySelectorAll('.onboarding-progress i')];
 const stepCount = document.querySelector('.step-count');
 const query = new URLSearchParams(window.location.search);
 let onboardingStep = 0;
+let tickerTimer;
+
+function startTickerTimer() {
+  const header = document.querySelector('.app-header');
+  const ticker = document.querySelector('.ticker');
+  clearTimeout(tickerTimer);
+  header.classList.remove('ticker-hidden');
+  ticker.classList.remove('dismissed');
+  tickerTimer = window.setTimeout(() => {
+    ticker.classList.add('dismissed');
+    header.classList.add('ticker-hidden');
+  }, 10000);
+}
 
 const setOnboardingStep = (nextStep) => {
   onboardingStep = Math.max(0, Math.min(2, nextStep));
@@ -731,6 +897,7 @@ const enterHome = (remember = true) => {
   onboarding.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('onboarding-open');
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
+  startTickerTimer();
 };
 
 document.querySelectorAll('.broth-card').forEach(card => card.addEventListener('click', () => {
@@ -775,8 +942,7 @@ if (query.has('home')) {
 } else if (query.has('skipSplash')) {
   openOnboarding();
 } else if (!query.has('splash')) {
-  splashVideo.playbackRate = 2;
   splashVideo.addEventListener('ended', openOnboarding, { once: true });
-  window.setTimeout(openOnboarding, 6600);
+  window.setTimeout(openOnboarding, 13500);
   splash.addEventListener('click', openOnboarding, { once: true });
 }
