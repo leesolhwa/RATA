@@ -541,7 +541,10 @@ const mapPlaces = [
 function initMap() {
   if (rataMap) return;
   rataMap = L.map('rata-map', { zoomControl: false, attributionControl: false, minZoom: 12 }).setView([37.5556, 126.9238], 15);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  const tileUrl = ['localhost', '127.0.0.1'].includes(location.hostname)
+    ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+    : '/api/map-tile?z={z}&x={x}&y={y}';
+  L.tileLayer(tileUrl, {
     maxZoom: 19,
     attribution: '© OpenStreetMap'
   }).addTo(rataMap);
