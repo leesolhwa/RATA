@@ -1,6 +1,16 @@
 import './styles.css';
 
-const A = '#D62829';
+const ramenPhotos = {
+  hero: '/images/photos/hero-ramen.webp',
+  clear: '/images/photos/broth-clear.webp',
+  rich: '/images/photos/broth-rich.webp',
+  spicy: '/images/photos/broth-spicy.webp',
+  dipping: '/images/photos/style-tsukemen.webp',
+  mixed: '/images/photos/style-mazesoba.webp',
+  street: '/images/photos/news-street.webp',
+  newsMiso: '/images/photos/news-miso.webp',
+  newsShoyu: '/images/photos/news-shoyu.webp'
+};
 
 const icon = (name, size = 24) => {
   const paths = {
@@ -25,19 +35,19 @@ const heroSlides = [
     eyebrow: '이번 주, 주목할 한 그릇',
     title: '두 가게의 취향이<br>한 그릇으로 만나는 순간.',
     meta: '멘야 쇼유 × 코하루  |  10.3–10.5',
-    image: '/images/ramen-collab.svg'
+    image: ramenPhotos.hero
   },
   {
     eyebrow: '라타 에디터의 선택',
     title: '가을밤을 채우는<br>진한 미소 라멘.',
     meta: '라멘 소라  |  성수 · 서울',
-    image: '/images/ramen-miso.svg'
+    image: ramenPhotos.rich
   },
   {
     eyebrow: '새롭게 문을 열었어요',
     title: '맑은 국물에 담은<br>서울의 새로운 맛.',
     meta: '유즈시오  |  연남 · 서울',
-    image: '/images/ramen-shio.svg'
+    image: ramenPhotos.clear
   }
 ];
 
@@ -47,14 +57,13 @@ const dates = [
 
 const events = [
   { shop: '콜라보', dday: 'D-5', title: '멘야준의 육해공시리즈', meta: '10.3 — 10.4  |  서울 · 합정', image: heroSlides[0].image },
-  { shop: '팝업', dday: 'D-12', title: '유즈시오, 서울 첫 팝업', meta: '10.10 — 10.12  |  서울 · 성수', image: heroSlides[2].image },
-  { shop: '게스트', dday: 'D-20', title: '삿포로 미소 나이트', meta: '10.18 단 하루  |  서울 · 연남', image: heroSlides[1].image }
+  { shop: '콜라보', dday: 'D-5', title: '멘야준의 육해공시리즈', meta: '10.3 — 10.4  |  서울 · 합정', image: heroSlides[0].image }
 ];
 
 const news = [
-  { tag: 'NEW', place: '이케부쿠로 · 신촌', title: '멘야 이치도', copy: '오사카의 직수제자가 선보이는 원조 이에케 라멘', image: '/images/ramen-shio.svg' },
-  { tag: 'HOT', place: '츠케멘 · 망원', title: '츠케야 엔', copy: '최근 라타 언급량 150% 상승', image: '/images/ramen-miso.svg' },
-  { tag: 'HOT', place: '니보시 · 합정', title: '니보시팩토리', copy: '이게 시멘트야… 라멘이야…', image: '/images/ramen-collab.svg' }
+  { tag: 'NEW', place: '이에케 · 신촌', title: '멘야 이치도', copy: '오사카의 직수제자가 선보이는 원조 이에케 라멘', image: ramenPhotos.street },
+  { tag: 'HOT', place: '츠케멘 · 망원', title: '츠케야 엔', copy: '최근 라타 언급량 150% 상승', image: ramenPhotos.newsMiso },
+  { tag: 'HOT', place: '니보시 · 합정', title: '니보시팩토리', copy: '이게 시멘트야… 라멘이야…', image: ramenPhotos.newsShoyu }
 ];
 
 const rankings = [
@@ -73,17 +82,17 @@ const talks = [
 ];
 
 const brothChoices = [
-  { id: 'clear', title: '맑고 깔끔한 마무리', copy: '청탕 · 시오 · 쇼유', image: '/images/ramen-shio.svg' },
-  { id: 'rich', title: '진하고 묵직한 마무리', copy: '백탕 · 돈코츠 · 토리파이탄', image: '/images/ramen-collab.svg' },
-  { id: 'spicy', title: '얼큰하고 자극적인', copy: '카라돈코츠 · 미소 · 탄탄멘', image: '/images/ramen-miso.svg' },
-  { id: 'unknown', title: '잘 모르겠어요', copy: '다음 취향에서 얘기할게요!', image: '' }
+  { id: 'clear', title: '맑고 깔끔한 마무리', copy: '청탕(시오 · 쇼유)', image: ramenPhotos.clear },
+  { id: 'rich', title: '진하고 묵직한 마무리', copy: '백탕(돈코츠 · 토리파이탄)', image: ramenPhotos.rich },
+  { id: 'spicy', title: '얼큰하고 자극적인', copy: '카라돈코츠 · 미소 · 탄탄멘', image: ramenPhotos.spicy },
+  { id: 'unknown', title: '잘 모르겠어요', copy: '다음 취향에서 얘기할게요!', image: ramenPhotos.hero }
 ];
 
 const eatingChoices = [
-  { id: 'soup', title: '국물있는 라멘 (standard)', copy: '따스한 스프와 면을 같이! · 입문자 추천', image: '/images/ramen-shio.svg' },
-  { id: 'dip', title: '소스에 찍어먹는 츠케멘', copy: '찐한 소스에 면을 찍어먹어요 · 숙련자 추천', image: '/images/ramen-miso.svg' },
-  { id: 'mix', title: '비벼먹는 마제소바', copy: '국물없이 꾸덕하게 비벼먹어요', image: '/images/ramen-collab.svg' },
-  { id: 'all', title: '다 좋아요', copy: '가리지 않고 다 먹어요', image: '' }
+  { id: 'soup', title: '국물있는 라멘 (standard)', copy: '따스한 스프와 면을 같이! (입문자 추천)', image: ramenPhotos.clear },
+  { id: 'dip', title: '소스에 찍어먹는 츠케멘', copy: '찐한 소스에 면을 찍어먹어요 (숙련자 추천)', image: ramenPhotos.dipping },
+  { id: 'mix', title: '비벼먹는 마제소바', copy: '국물없이 꾸덕하게 비벼먹어요', image: ramenPhotos.mixed },
+  { id: 'all', title: '다 좋아요', copy: '가리지 않고 다 먹어요', image: ramenPhotos.newsMiso }
 ];
 
 document.querySelector('#app').innerHTML = `
@@ -101,10 +110,9 @@ document.querySelector('#app').innerHTML = `
     <div class="onboarding-window">
       <div class="onboarding-track">
         <article class="onboarding-page" data-step="0">
-          <div class="onboarding-title"><h1>어떤 국물 좋아하세요?</h1><p>3번만 답해주시면 첫 홈이 내 취향으로 채워져요.<br>나중에 언제든지 바꿀 수 있어요!</p></div>
+          <div class="onboarding-title"><h1>어떤 국물 좋아하세요 ?</h1><p>3번만 답해주시면 첫 홈이 내 취향으로 채워져요.<br>나중에 언제든지 바꿀 수 있어요!</p></div>
           <div class="broth-grid">
-            ${brothChoices.map((item, i) => `<button class="broth-card ${i === 1 ? 'selected' : ''} ${item.id === 'unknown' ? 'unknown' : ''}" data-broth="${item.id}" aria-pressed="${i === 1}" ${item.image ? `style="--choice-image:url('${item.image}')"` : ''}>
-              ${item.id === 'unknown' ? '<span class="thinking">🤔</span>' : ''}
+            ${brothChoices.map((item, i) => `<button class="broth-card ${i === 1 || i === 2 ? 'selected' : ''}" data-broth="${item.id}" aria-pressed="${i === 1 || i === 2}" style="--choice-image:url('${item.image}')">
               <span><strong>${item.title}</strong><small>${item.copy}</small></span>
             </button>`).join('')}
           </div>
@@ -115,7 +123,7 @@ document.querySelector('#app').innerHTML = `
           <div class="onboarding-title"><h1>어떻게 먹는게 좋아요?</h1><p>가게 추천과 일정 알림에 쓰여요.<br>하나만 골라주시면 금방 알아볼게요.</p></div>
           <div class="taste-list">
             ${eatingChoices.map((item, i) => `<button class="taste-option ${i === 1 ? 'selected' : ''}" data-eating="${item.id}" aria-pressed="${i === 1}">
-              <span class="taste-image ${item.id === 'all' ? 'emoji' : ''}" ${item.image ? `style="--choice-image:url('${item.image}')"` : ''}>${item.id === 'all' ? '😋' : ''}</span>
+              <span class="taste-image" style="--choice-image:url('${item.image}')"></span>
               <span class="taste-copy"><strong>${item.title}</strong><small>${item.copy}</small></span><i class="radio"></i>
             </button>`).join('')}
           </div>
@@ -129,7 +137,7 @@ document.querySelector('#app').innerHTML = `
               ['collab', '내 취향 콜라보 · 팝업 오픈', '방금 고른 국물 · 방식에 맞는 새 콜라보 · 팝업', true],
               ['shop', '좋아하는 가게 소식', '저장한 가게의 팝업 · 한정 · 시즌 메뉴 오픈 알림', true],
               ['near', '근처 팝업', '내 위치 반경 3km 안 팝업 오픈 소식을 알려드려요', false],
-              ['talk', '라타토크 인기글', '취향이 비슷한 라타의 인기글을 모아 알려드려요', false]
+              ['near2', '근처 팝업', '내 위치 반경 3km 안 팝업 오픈 소식을 알려드려요', false]
             ].map(([id,title,copy,on]) => `<div class="preference-row"><div><strong>${title}</strong><small>${copy}</small></div><button class="pref-toggle ${on ? 'on' : ''}" data-pref="${id}" aria-pressed="${on}" aria-label="${title} 알림 ${on ? '켜짐' : '꺼짐'}"><i></i></button></div>`).join('')}
           </div>
           <div class="onboarding-actions"><button class="primary-btn start-btn">시작하기</button><button class="secondary-btn onboarding-back">이전으로</button></div>
@@ -140,6 +148,7 @@ document.querySelector('#app').innerHTML = `
 
   <main class="phone-shell">
     <header class="app-header">
+      <div class="home-status"><strong>9:41</strong><span><i></i><i></i><i></i><b></b></span></div>
       <div class="header-top">
         <a href="#top" class="logo" aria-label="RATA 홈">RATA<span>.</span></a>
         <div class="header-actions">
@@ -166,10 +175,11 @@ document.querySelector('#app').innerHTML = `
       <div class="date-row" aria-label="날짜 선택">
         ${dates.map(([day,date], i) => `<button class="date-card ${i === 5 ? 'selected' : ''}" data-date="${date}"><small>${day}</small><strong>${date}</strong>${i > 4 ? '<i></i>' : ''}</button>`).join('')}
       </div>
-      <div class="events-wrap">
+      <div class="empty-schedule light-only"><strong>☹</strong><h3>이번날 등록된 일정이 없어요</h3><p>다른 날짜를 눌러 이번주 일정을 확인해보세요.</p></div>
+      <div class="events-wrap rata-only">
         <div class="events-track">
           ${events.map((event) => `<article class="event-card">
-            <img src="${event.image}" alt="${event.title} 더미 이미지">
+            <img src="${event.image}" alt="${event.title} 라멘 사진">
             <div class="event-copy"><div><span class="pill dark">${event.shop}</span><span class="dday">${event.dday}</span></div><h3>${event.title}</h3><p>${event.meta}</p></div>
             <button class="bookmark" aria-label="북마크">${icon('bookmark', 21)}</button>
           </article>`).join('')}
@@ -180,8 +190,23 @@ document.querySelector('#app').innerHTML = `
 
     <div class="divider"></div>
 
-    <section class="section news-section">
-      <div class="section-head compact"><div><p class="overline">TASTE NOW</p><h2>News & Hot</h2><p class="sub">요새 괜찮은 라멘집 찾고 계시진 않나요?</p></div></div>
+    <div class="light-only">
+      <section class="section today-section">
+        <div class="section-head compact"><div><h2>오늘의 라멘은?</h2><p class="sub">라멘이름을 몰라도 괜찮아요!</p></div></div>
+        <div class="today-grid">
+          ${[
+            [ramenPhotos.clear, '국물없이 비벼먹는', '꾸덕한 양념에 꼬들면'],
+            [ramenPhotos.dipping, '소스에 찍어먹는', '면의 식감이 더 살아나는'],
+            [ramenPhotos.mixed, '국물없이 비벼먹는', '꾸덕한 양념에 꼬들면'],
+            [ramenPhotos.rich, '소스에 찍어먹는', '면의 식감이 더 살아나는']
+          ].map(([image,title,copy]) => `<button class="today-card" style="--today:url('${image}')" data-toast="취향별 라멘 목록을 준비 중이에요"><strong>${title}</strong><span>${copy}</span></button>`).join('')}
+        </div>
+      </section>
+      <div class="divider"></div>
+    </div>
+
+    <section class="section news-section rata-only">
+      <div class="section-head compact"><div><h2>News&Hot</h2><p class="sub">요새 괜찮은 라멘집 찾고계시진 않나요?</p></div></div>
       <div class="news-track">
         ${news.map(item => `<button class="news-card" style="--image: url('${item.image}')" data-toast="${item.title} 상세 페이지를 준비 중이에요">
           <span class="pill outline">${item.tag}</span>
@@ -189,23 +214,22 @@ document.querySelector('#app').innerHTML = `
           <span class="round-arrow">${icon('arrow', 18)}</span>
         </button>`).join('')}
       </div>
-      <div class="swipe-hint"><span></span> 옆으로 넘겨보세요</div>
     </section>
 
-    <div class="divider"></div>
+    <div class="divider rata-only"></div>
 
-    <section class="section ranking-section">
-      <div class="section-head compact"><div><p class="overline">RAMEN CHART</p><h2>요즘 가장 많이 찾는 라멘집</h2><p class="sub">처음이라면 라타 인증 맛집부터!</p></div></div>
+    <section class="section ranking-section light-only">
+      <div class="section-head compact"><div><h2>요즘 가장 많이 찾는 라멘집</h2><p class="sub">처음이라면 라타인증 맛집부터!</p></div></div>
       <div class="tabs" role="tablist"><button class="tab active" data-sort="popular">인기순</button><button class="tab" data-sort="review">리뷰순</button></div>
       <ol class="ranking-list">
         ${rankings.map((r, i) => `<li data-index="${i}"><strong class="rank">${i + 1}</strong><div class="rank-copy"><small>${r[1]}</small><h3>${r[0]}</h3><p>${r[2]}</p></div><span class="interest">${r[3]}명<br>관심중</span></li>`).join('')}
       </ol>
     </section>
 
-    <div class="divider"></div>
+    <div class="divider light-only"></div>
 
-    <section class="section talk-section">
-      <div class="section-head compact"><div><p class="overline">COMMUNITY</p><h2>화제중인 라타토크</h2><p class="sub">라타들이 지금 가장 많이 이야기하는 주제예요</p></div></div>
+    <section class="section talk-section rata-only">
+      <div class="section-head compact"><div><h2>화제중인 라타토크</h2><p class="sub">라타들이 지금 가장 많이 이야기하는 주제예요</p></div></div>
       <ol class="talk-list">
         ${talks.map((talk, i) => `<li><span>${i + 1}</span><button data-toast="토크 상세 화면을 준비 중이에요"><small>${talk[0]}</small><strong>${talk[1]}</strong></button>${icon('chevron', 23)}</li>`).join('')}
       </ol>
@@ -243,17 +267,8 @@ const enableSwipe = (element, onLeft, onRight) => {
 };
 enableSwipe(document.querySelector('.hero'), () => setHero(heroIndex + 1), () => setHero(heroIndex - 1));
 
-let eventIndex = 0;
-const eventTrack = document.querySelector('.events-track');
 const miniDots = document.querySelector('.mini-dots');
-miniDots.innerHTML = events.map((_, i) => `<button class="${i === 0 ? 'active' : ''}" aria-label="${i + 1}번째 팝업"></button>`).join('');
-const setEvent = (index) => {
-  eventIndex = Math.max(0, Math.min(events.length - 1, index));
-  eventTrack.style.transform = `translateX(calc(-${eventIndex * 100}% - ${eventIndex * 16}px))`;
-  [...miniDots.children].forEach((dot, i) => dot.classList.toggle('active', i === eventIndex));
-};
-[...miniDots.children].forEach((dot, i) => dot.addEventListener('click', () => setEvent(i)));
-enableSwipe(eventTrack, () => setEvent(eventIndex + 1), () => setEvent(eventIndex - 1));
+miniDots.innerHTML = '';
 
 document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => {
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -333,14 +348,19 @@ const enterHome = (remember = true) => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-document.querySelectorAll('.broth-card, .wide-choice').forEach(card => card.addEventListener('click', () => {
-  document.querySelectorAll('.broth-card, .wide-choice').forEach(item => {
+document.querySelectorAll('.broth-card').forEach(card => card.addEventListener('click', () => {
+  const selected = card.classList.toggle('selected');
+  card.setAttribute('aria-pressed', String(selected));
+  document.querySelector('.wide-choice').classList.remove('selected');
+}));
+document.querySelector('.wide-choice').addEventListener('click', (event) => {
+  document.querySelectorAll('.broth-card').forEach(item => {
     item.classList.remove('selected');
     item.setAttribute('aria-pressed', 'false');
   });
-  card.classList.add('selected');
-  card.setAttribute('aria-pressed', 'true');
-}));
+  event.currentTarget.classList.add('selected');
+  event.currentTarget.setAttribute('aria-pressed', 'true');
+});
 
 document.querySelectorAll('.taste-option').forEach(option => option.addEventListener('click', () => {
   document.querySelectorAll('.taste-option').forEach(item => {
@@ -368,5 +388,5 @@ if (query.has('home') || !needsOnboarding) {
 } else if (query.has('skipSplash')) {
   openOnboarding();
 } else if (!query.has('splash')) {
-  window.setTimeout(openOnboarding, 1400);
+  window.setTimeout(openOnboarding, 2200);
 }

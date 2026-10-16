@@ -13,17 +13,17 @@ npm run dev
 
 ## 교체할 이미지
 
-현재 아래 파일은 레이아웃 검증용 벡터 더미 이미지입니다. 같은 파일명으로 실제 이미지를 교체하면 모든 사용 위치에 바로 반영됩니다.
-
-- `public/images/ramen-collab.svg` — 메인 콜라보 히어로
-- `public/images/ramen-miso.svg` — 미소 라멘 및 News & Hot 카드
-- `public/images/ramen-shio.svg` — 시오 라멘 및 News & Hot 카드
+현재 화면에는 실제 음식 사진을 로컬 파일로 넣어 두었습니다. 외부 이미지 서버가 막혀도 미리보기와 배포 화면에서 동일하게 보입니다. 최종 브랜드 사진이 준비되면 아래 파일명으로 교체합니다.
 
 온보딩과 스플래시에서 최종적으로 필요한 실사진은 다음 구도로 준비하면 됩니다.
 
-- `public/images/splash-ramen.svg` — 현재 스플래시 더미. 최종 이미지는 세로형 9:16, 젓가락으로 면을 드는 어두운 라멘 사진
-- `broth-clear.jpg` — 맑은 시오·쇼유 라멘
-- `broth-rich.jpg` — 진한 돈코츠·토리파이탄 라멘
-- `broth-spicy.jpg` — 붉은 미소·탄탄멘
-- `style-tsukemen.jpg` — 면을 소스에 찍는 장면
-- `style-mazesoba.jpg` — 비벼 먹는 마제소바
+- `public/images/photos/splash-ramen.webp` — 세로형 9:16, 젓가락으로 면을 드는 어두운 라멘 사진
+- `public/images/photos/hero-ramen.webp` — 메인 히어로용 가로형 라멘 사진
+- `public/images/photos/broth-clear.webp` — 맑은 시오·쇼유 라멘
+- `public/images/photos/broth-rich.webp` — 진한 돈코츠·토리파이탄 라멘
+- `public/images/photos/broth-spicy.webp` — 붉은 미소·탄탄멘
+- `public/images/photos/style-tsukemen.webp` — 면을 소스에 찍는 장면
+- `public/images/photos/style-mazesoba.webp` — 비벼 먹는 마제소바
+- `public/images/photos/news-street.webp` — 라멘 가게 전경
+- `public/images/photos/news-miso.webp` — News&Hot 미소 라멘
+- `public/images/photos/news-shoyu.webp` — News&Hot 쇼유 라멘
