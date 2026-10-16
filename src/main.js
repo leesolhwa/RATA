@@ -231,7 +231,7 @@ document.querySelector('#app').innerHTML = `
           return `<button class="date-card ${key === todayKey ? 'selected' : ''}" data-date="${key}" aria-label="${shortDate(date)} ${weekDayLabels[index]}요일"><small>${weekDayLabels[index]}</small><strong>${label}</strong>${hasEvent ? '<i></i>' : ''}</button>`;
         }).join('')}
       </div>
-      <div class="empty-schedule" hidden><strong>☹</strong><h3>이날 등록된 일정이 없어요</h3><p>다른 날짜를 눌러 이번주 일정을 확인해보세요.</p></div>
+      <div class="empty-schedule" aria-hidden="true"><strong>☹</strong><h3>이날 등록된 일정이 없어요</h3><p>다른 날짜를 눌러 이번주 일정을 확인해보세요.</p></div>
       <div class="events-wrap">
         <div class="events-track"></div>
         <div class="mini-dots"></div>
@@ -331,8 +331,10 @@ const renderEvents = (selectedDate) => {
     <div class="event-copy"><div><span class="pill dark">${event.shop}</span><span class="dday">${event.dday}</span></div><h3>${event.title}</h3><p class="event-time">${event.time}</p><p class="event-detail">${event.detail}</p></div>
     <button class="bookmark" aria-label="${event.title} 북마크">${icon('bookmark', 21)}</button>
   </article>`).join('');
-  eventsWrap.hidden = selectedEvents.length === 0;
-  emptySchedule.hidden = selectedEvents.length > 0;
+  const isEmpty = selectedEvents.length === 0;
+  eventsWrap.classList.toggle('is-hidden', isEmpty);
+  emptySchedule.classList.toggle('is-visible', isEmpty);
+  emptySchedule.setAttribute('aria-hidden', String(!isEmpty));
 };
 renderEvents(todayKey);
 
