@@ -48,17 +48,63 @@ const heroSlides = [
     title: '맑은 국물에 담은<br>서울의 새로운 맛.',
     meta: '유즈시오  |  연남 · 서울',
     image: ramenPhotos.clear
+  },
+  {
+    eyebrow: '지금 가장 뜨거운 한 그릇',
+    title: '익숙한 라멘에 더한<br>새로운 계절의 취향.',
+    meta: '라멘 아카리  |  망원 · 서울',
+    image: ramenPhotos.newsMiso
   }
 ];
 
-const dates = [
-  ['월', '28'], ['화', '29'], ['수', '30'], ['목', '1'], ['금', '2'], ['토', '3'], ['일', '4']
-];
+const padNumber = (value) => String(value).padStart(2, '0');
+const dateKey = (date) => `${date.getFullYear()}-${padNumber(date.getMonth() + 1)}-${padNumber(date.getDate())}`;
+const shortDate = (date) => `${date.getMonth() + 1}.${date.getDate()}`;
+const addDays = (date, amount) => {
+  const next = new Date(date);
+  next.setDate(next.getDate() + amount);
+  return next;
+};
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const monday = addDays(today, -((today.getDay() + 6) % 7));
+const weekDates = Array.from({ length: 7 }, (_, index) => addDays(monday, index));
+const weekDayLabels = ['월', '화', '수', '목', '금', '토', '일'];
+const todayKey = dateKey(today);
 
 const events = [
-  { shop: '콜라보', dday: 'D-5', title: '멘야준의 육해공시리즈', meta: '10.3 — 10.4  |  서울 · 합정', image: heroSlides[0].image },
-  { shop: '콜라보', dday: 'D-5', title: '멘야준의 육해공시리즈', meta: '10.3 — 10.4  |  서울 · 합정', image: heroSlides[0].image }
-];
+  {
+    date: todayKey,
+    order: 1,
+    shop: '오늘 오픈',
+    dday: 'TODAY',
+    title: '멘야준의 육해공 시리즈',
+    time: `${shortDate(today)} 18:00 · 서울 합정`,
+    detail: '닭과 해산물 육수를 한 그릇에 담은 오늘의 한정 팝업',
+    image: heroSlides[0].image
+  },
+  {
+    date: todayKey,
+    order: 2,
+    shop: '한정 메뉴',
+    dday: 'TODAY',
+    title: '아카리 가을 미소 라멘',
+    time: `${shortDate(today)} 20:00 · 서울 망원`,
+    detail: '구운 버섯과 진한 미소를 더한 저녁 한정 메뉴',
+    image: ramenPhotos.rich
+  },
+  {
+    date: dateKey(addDays(today, 1)),
+    order: 3,
+    shop: '콜라보',
+    dday: 'D-1',
+    title: '유즈시오 × 코하루',
+    time: `${shortDate(addDays(today, 1))} 12:00 · 서울 연남`,
+    detail: '유자 향을 더한 맑은 육수와 수제면 콜라보',
+    image: ramenPhotos.clear
+  }
+].sort((a, b) => a.order - b.order);
 
 const news = [
   { tag: 'NEW', place: '이에케 · 신촌', title: '멘야 이치도', copy: '오사카의 직수제자가 선보이는 원조 이에케 라멘', image: ramenPhotos.street },
@@ -98,9 +144,12 @@ const eatingChoices = [
 document.querySelector('#app').innerHTML = `
   <div class="experience-shell">
   <section class="splash-screen" aria-label="RATA 시작 화면">
+    <video class="splash-video" autoplay muted playsinline preload="auto" poster="/images/photos/splash-ramen.webp" aria-hidden="true">
+      <source src="/video/onboding.mp4" type="video/mp4">
+    </video>
     <div class="fake-status light"><strong>9:41</strong><span><i></i><i></i><i></i><b></b></span></div>
-    <div class="splash-brand"><strong>RATA</strong><p>먹을수록 선명해지는 나만의 라멘취향</p></div>
-    <div class="splash-foot">RATA</div>
+    <div class="splash-brand"><img src="/brand/txt_logo_RATA.svg" alt="RATA"><p>먹을수록 선명해지는 나만의 라멘취향</p></div>
+    <img class="splash-foot" src="/brand/txt_logo_RATA.svg" alt="">
   </section>
 
   <section class="onboarding" aria-label="취향 온보딩" aria-hidden="true">
@@ -150,7 +199,7 @@ document.querySelector('#app').innerHTML = `
     <header class="app-header">
       <div class="home-status"><strong>9:41</strong><span><i></i><i></i><i></i><b></b></span></div>
       <div class="header-top">
-        <a href="#top" class="logo" aria-label="RATA 홈">RATA<span>.</span></a>
+        <a href="#top" class="logo" aria-label="RATA 홈"><img src="/brand/txt_logo_RATA.svg" alt="RATA"></a>
         <div class="header-actions">
           <div class="mode-switch" role="group" aria-label="모드 선택">
             <button class="mode-btn active" data-mode="light">라이트</button>
@@ -167,23 +216,24 @@ document.querySelector('#app').innerHTML = `
       <div class="hero-dots"></div>
     </section>
 
+    <div class="divider"></div>
+
     <section class="section calendar-section">
       <div class="section-head">
-        <div><p class="overline">WEEKLY PICK</p><h2>이번주 팝업일정 <span>🍜</span></h2><p class="sub">9.28 — 10.4 · 2개 일정</p></div>
+        <div><p class="overline">WEEKLY PICK</p><h2>이번주 팝업일정 <span>🍜</span></h2><p class="sub">${shortDate(weekDates[0])} — ${shortDate(weekDates[6])} · ${events.length}개 일정</p></div>
         <button class="text-btn" data-toast="전체 일정을 준비 중이에요">전체보기 ${icon('chevron', 16)}</button>
       </div>
       <div class="date-row" aria-label="날짜 선택">
-        ${dates.map(([day,date], i) => `<button class="date-card ${i === 5 ? 'selected' : ''}" data-date="${date}"><small>${day}</small><strong>${date}</strong>${i > 4 ? '<i></i>' : ''}</button>`).join('')}
+        ${weekDates.map((date, index) => {
+          const key = dateKey(date);
+          const hasEvent = events.some((event) => event.date === key);
+          const label = date.getDate() === 1 ? `${date.getMonth() + 1}/1` : date.getDate();
+          return `<button class="date-card ${key === todayKey ? 'selected' : ''}" data-date="${key}" aria-label="${shortDate(date)} ${weekDayLabels[index]}요일"><small>${weekDayLabels[index]}</small><strong>${label}</strong>${hasEvent ? '<i></i>' : ''}</button>`;
+        }).join('')}
       </div>
-      <div class="empty-schedule light-only"><strong>☹</strong><h3>이번날 등록된 일정이 없어요</h3><p>다른 날짜를 눌러 이번주 일정을 확인해보세요.</p></div>
-      <div class="events-wrap rata-only">
-        <div class="events-track">
-          ${events.map((event) => `<article class="event-card">
-            <img src="${event.image}" alt="${event.title} 라멘 사진">
-            <div class="event-copy"><div><span class="pill dark">${event.shop}</span><span class="dday">${event.dday}</span></div><h3>${event.title}</h3><p>${event.meta}</p></div>
-            <button class="bookmark" aria-label="북마크">${icon('bookmark', 21)}</button>
-          </article>`).join('')}
-        </div>
+      <div class="empty-schedule" hidden><strong>☹</strong><h3>이날 등록된 일정이 없어요</h3><p>다른 날짜를 눌러 이번주 일정을 확인해보세요.</p></div>
+      <div class="events-wrap">
+        <div class="events-track"></div>
         <div class="mini-dots"></div>
       </div>
     </section>
@@ -236,6 +286,7 @@ document.querySelector('#app').innerHTML = `
     </section>
 
     <nav class="bottom-nav" aria-label="하단 메뉴">
+      <span class="nav-highlight" aria-hidden="true"></span>
       ${[['home','메인'],['calendar','일정'],['map','지도'],['chat','라톡'],['user','마이']].map(([ic,label],i) => `<button class="nav-item ${i===0?'active':''}" data-nav="${label}">${icon(ic,23)}<span>${label}</span></button>`).join('')}
     </nav>
     <div class="toast" role="status" aria-live="polite"></div>
@@ -270,6 +321,21 @@ enableSwipe(document.querySelector('.hero'), () => setHero(heroIndex + 1), () =>
 const miniDots = document.querySelector('.mini-dots');
 miniDots.innerHTML = '';
 
+const eventsTrack = document.querySelector('.events-track');
+const eventsWrap = document.querySelector('.events-wrap');
+const emptySchedule = document.querySelector('.empty-schedule');
+const renderEvents = (selectedDate) => {
+  const selectedEvents = events.filter((event) => event.date === selectedDate);
+  eventsTrack.innerHTML = selectedEvents.map((event) => `<article class="event-card">
+    <img src="${event.image}" alt="${event.title} 라멘 사진">
+    <div class="event-copy"><div><span class="pill dark">${event.shop}</span><span class="dday">${event.dday}</span></div><h3>${event.title}</h3><p class="event-time">${event.time}</p><p class="event-detail">${event.detail}</p></div>
+    <button class="bookmark" aria-label="${event.title} 북마크">${icon('bookmark', 21)}</button>
+  </article>`).join('');
+  eventsWrap.hidden = selectedEvents.length === 0;
+  emptySchedule.hidden = selectedEvents.length > 0;
+};
+renderEvents(todayKey);
+
 document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => {
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -280,12 +346,15 @@ document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('clic
 document.querySelectorAll('.date-card').forEach(card => card.addEventListener('click', () => {
   document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
+  renderEvents(card.dataset.date);
 }));
 
-document.querySelectorAll('.bookmark').forEach(btn => btn.addEventListener('click', () => {
+eventsTrack.addEventListener('click', (event) => {
+  const btn = event.target.closest('.bookmark');
+  if (!btn) return;
   btn.classList.toggle('saved');
   showToast(btn.classList.contains('saved') ? '일정을 저장했어요' : '저장을 취소했어요');
-}));
+});
 
 document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -294,10 +363,12 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (
   [...list.children].reverse().forEach(item => list.append(item));
 }));
 
-document.querySelectorAll('.nav-item').forEach(btn => btn.addEventListener('click', () => {
+const bottomNav = document.querySelector('.bottom-nav');
+document.querySelectorAll('.nav-item').forEach((btn, index) => btn.addEventListener('click', () => {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  if (btn.dataset.nav === '메인') window.scrollTo({ top: 0, behavior: 'smooth' });
+  bottomNav.style.setProperty('--nav-index', index);
+  if (btn.dataset.nav === '메인') document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
   else showToast(`${btn.dataset.nav} 화면은 다음 단계에서 연결할게요`);
 }));
 
@@ -316,6 +387,7 @@ let autoPlay = setInterval(() => setHero(heroIndex + 1), 5200);
 document.querySelector('.hero').addEventListener('pointerdown', () => clearInterval(autoPlay), { once: true });
 
 const splash = document.querySelector('.splash-screen');
+const splashVideo = document.querySelector('.splash-video');
 const onboarding = document.querySelector('.onboarding');
 const onboardingTrack = document.querySelector('.onboarding-track');
 const onboardingProgress = [...document.querySelectorAll('.onboarding-progress i')];
@@ -344,8 +416,7 @@ const enterHome = (remember = true) => {
   onboarding.classList.remove('visible');
   onboarding.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('onboarding-open');
-  if (remember) localStorage.setItem('rata-onboarding-complete', 'true');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 document.querySelectorAll('.broth-card').forEach(card => card.addEventListener('click', () => {
@@ -382,11 +453,13 @@ document.querySelectorAll('.later-btn').forEach(button => button.addEventListene
 document.querySelector('.start-btn').addEventListener('click', () => enterHome(true));
 enableSwipe(document.querySelector('.onboarding-window'), () => setOnboardingStep(onboardingStep + 1), () => setOnboardingStep(onboardingStep - 1));
 
-const needsOnboarding = query.has('onboarding') || localStorage.getItem('rata-onboarding-complete') !== 'true';
-if (query.has('home') || !needsOnboarding) {
+if (query.has('home')) {
   enterHome(false);
 } else if (query.has('skipSplash')) {
   openOnboarding();
 } else if (!query.has('splash')) {
-  window.setTimeout(openOnboarding, 2200);
+  splashVideo.playbackRate = 2;
+  splashVideo.addEventListener('ended', openOnboarding, { once: true });
+  window.setTimeout(openOnboarding, 6600);
+  splash.addEventListener('click', openOnboarding, { once: true });
 }
