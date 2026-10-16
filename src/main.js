@@ -72,7 +72,72 @@ const talks = [
   ['추천 · 질문', '하쿠텐 오픈런 몇시가 좋아요?']
 ];
 
+const brothChoices = [
+  { id: 'clear', title: '맑고 깔끔한 마무리', copy: '청탕 · 시오 · 쇼유', image: '/images/ramen-shio.svg' },
+  { id: 'rich', title: '진하고 묵직한 마무리', copy: '백탕 · 돈코츠 · 토리파이탄', image: '/images/ramen-collab.svg' },
+  { id: 'spicy', title: '얼큰하고 자극적인', copy: '카라돈코츠 · 미소 · 탄탄멘', image: '/images/ramen-miso.svg' },
+  { id: 'unknown', title: '잘 모르겠어요', copy: '다음 취향에서 얘기할게요!', image: '' }
+];
+
+const eatingChoices = [
+  { id: 'soup', title: '국물있는 라멘 (standard)', copy: '따스한 스프와 면을 같이! · 입문자 추천', image: '/images/ramen-shio.svg' },
+  { id: 'dip', title: '소스에 찍어먹는 츠케멘', copy: '찐한 소스에 면을 찍어먹어요 · 숙련자 추천', image: '/images/ramen-miso.svg' },
+  { id: 'mix', title: '비벼먹는 마제소바', copy: '국물없이 꾸덕하게 비벼먹어요', image: '/images/ramen-collab.svg' },
+  { id: 'all', title: '다 좋아요', copy: '가리지 않고 다 먹어요', image: '' }
+];
+
 document.querySelector('#app').innerHTML = `
+  <div class="experience-shell">
+  <section class="splash-screen" aria-label="RATA 시작 화면">
+    <div class="fake-status light"><strong>9:41</strong><span><i></i><i></i><i></i><b></b></span></div>
+    <div class="splash-brand"><strong>RATA</strong><p>먹을수록 선명해지는 나만의 라멘취향</p></div>
+    <div class="splash-foot">RATA</div>
+  </section>
+
+  <section class="onboarding" aria-label="취향 온보딩" aria-hidden="true">
+    <div class="fake-status"><strong>9:41</strong><span><i></i><i></i><i></i><b></b></span></div>
+    <div class="onboarding-meta"><span class="step-count">1 / 3</span><button class="later-btn">나중에</button></div>
+    <div class="onboarding-progress" aria-hidden="true"><i class="active"></i><i></i><i></i></div>
+    <div class="onboarding-window">
+      <div class="onboarding-track">
+        <article class="onboarding-page" data-step="0">
+          <div class="onboarding-title"><h1>어떤 국물 좋아하세요?</h1><p>3번만 답해주시면 첫 홈이 내 취향으로 채워져요.<br>나중에 언제든지 바꿀 수 있어요!</p></div>
+          <div class="broth-grid">
+            ${brothChoices.map((item, i) => `<button class="broth-card ${i === 1 ? 'selected' : ''} ${item.id === 'unknown' ? 'unknown' : ''}" data-broth="${item.id}" aria-pressed="${i === 1}" ${item.image ? `style="--choice-image:url('${item.image}')"` : ''}>
+              ${item.id === 'unknown' ? '<span class="thinking">🤔</span>' : ''}
+              <span><strong>${item.title}</strong><small>${item.copy}</small></span>
+            </button>`).join('')}
+          </div>
+          <div class="onboarding-actions"><button class="wide-choice" data-broth="all">다 좋아요👌</button><button class="primary-btn onboarding-next">다음</button><button class="secondary-btn later-btn">건너뛰기</button></div>
+        </article>
+
+        <article class="onboarding-page" data-step="1">
+          <div class="onboarding-title"><h1>어떻게 먹는게 좋아요?</h1><p>가게 추천과 일정 알림에 쓰여요.<br>하나만 골라주시면 금방 알아볼게요.</p></div>
+          <div class="taste-list">
+            ${eatingChoices.map((item, i) => `<button class="taste-option ${i === 1 ? 'selected' : ''}" data-eating="${item.id}" aria-pressed="${i === 1}">
+              <span class="taste-image ${item.id === 'all' ? 'emoji' : ''}" ${item.image ? `style="--choice-image:url('${item.image}')"` : ''}>${item.id === 'all' ? '😋' : ''}</span>
+              <span class="taste-copy"><strong>${item.title}</strong><small>${item.copy}</small></span><i class="radio"></i>
+            </button>`).join('')}
+          </div>
+          <div class="onboarding-actions"><button class="primary-btn onboarding-next">다음</button><button class="secondary-btn onboarding-back">이전으로</button></div>
+        </article>
+
+        <article class="onboarding-page" data-step="2">
+          <div class="onboarding-title"><h1>어떤 소식을<br>먼저 알려드릴까요?</h1><p>취향에 맞는 소식만 보내드려요. 설정에서 언제든 끌 수 있습니다.</p></div>
+          <div class="preference-list">
+            ${[
+              ['collab', '내 취향 콜라보 · 팝업 오픈', '방금 고른 국물 · 방식에 맞는 새 콜라보 · 팝업', true],
+              ['shop', '좋아하는 가게 소식', '저장한 가게의 팝업 · 한정 · 시즌 메뉴 오픈 알림', true],
+              ['near', '근처 팝업', '내 위치 반경 3km 안 팝업 오픈 소식을 알려드려요', false],
+              ['talk', '라타토크 인기글', '취향이 비슷한 라타의 인기글을 모아 알려드려요', false]
+            ].map(([id,title,copy,on]) => `<div class="preference-row"><div><strong>${title}</strong><small>${copy}</small></div><button class="pref-toggle ${on ? 'on' : ''}" data-pref="${id}" aria-pressed="${on}" aria-label="${title} 알림 ${on ? '켜짐' : '꺼짐'}"><i></i></button></div>`).join('')}
+          </div>
+          <div class="onboarding-actions"><button class="primary-btn start-btn">시작하기</button><button class="secondary-btn onboarding-back">이전으로</button></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <main class="phone-shell">
     <header class="app-header">
       <div class="header-top">
@@ -151,6 +216,7 @@ document.querySelector('#app').innerHTML = `
     </nav>
     <div class="toast" role="status" aria-live="polite"></div>
   </main>
+  </div>
 `;
 
 const heroTrack = document.querySelector('.hero-track');
@@ -233,3 +299,74 @@ function showToast(message) {
 
 let autoPlay = setInterval(() => setHero(heroIndex + 1), 5200);
 document.querySelector('.hero').addEventListener('pointerdown', () => clearInterval(autoPlay), { once: true });
+
+const splash = document.querySelector('.splash-screen');
+const onboarding = document.querySelector('.onboarding');
+const onboardingTrack = document.querySelector('.onboarding-track');
+const onboardingProgress = [...document.querySelectorAll('.onboarding-progress i')];
+const stepCount = document.querySelector('.step-count');
+const query = new URLSearchParams(window.location.search);
+let onboardingStep = 0;
+
+const setOnboardingStep = (nextStep) => {
+  onboardingStep = Math.max(0, Math.min(2, nextStep));
+  onboardingTrack.style.transform = `translateX(-${onboardingStep * 100}%)`;
+  stepCount.textContent = `${onboardingStep + 1} / 3`;
+  onboardingProgress.forEach((bar, index) => bar.classList.toggle('active', index <= onboardingStep));
+  document.querySelectorAll('.onboarding-page').forEach((page, index) => page.setAttribute('aria-hidden', index !== onboardingStep));
+};
+
+const openOnboarding = () => {
+  splash.classList.add('hidden');
+  onboarding.classList.add('visible');
+  onboarding.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('onboarding-open');
+  setOnboardingStep(0);
+};
+
+const enterHome = (remember = true) => {
+  splash.classList.add('hidden');
+  onboarding.classList.remove('visible');
+  onboarding.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('onboarding-open');
+  if (remember) localStorage.setItem('rata-onboarding-complete', 'true');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+document.querySelectorAll('.broth-card, .wide-choice').forEach(card => card.addEventListener('click', () => {
+  document.querySelectorAll('.broth-card, .wide-choice').forEach(item => {
+    item.classList.remove('selected');
+    item.setAttribute('aria-pressed', 'false');
+  });
+  card.classList.add('selected');
+  card.setAttribute('aria-pressed', 'true');
+}));
+
+document.querySelectorAll('.taste-option').forEach(option => option.addEventListener('click', () => {
+  document.querySelectorAll('.taste-option').forEach(item => {
+    item.classList.remove('selected');
+    item.setAttribute('aria-pressed', 'false');
+  });
+  option.classList.add('selected');
+  option.setAttribute('aria-pressed', 'true');
+}));
+
+document.querySelectorAll('.pref-toggle').forEach(toggle => toggle.addEventListener('click', () => {
+  const enabled = toggle.classList.toggle('on');
+  toggle.setAttribute('aria-pressed', String(enabled));
+}));
+
+document.querySelectorAll('.onboarding-next').forEach(button => button.addEventListener('click', () => setOnboardingStep(onboardingStep + 1)));
+document.querySelectorAll('.onboarding-back').forEach(button => button.addEventListener('click', () => setOnboardingStep(onboardingStep - 1)));
+document.querySelectorAll('.later-btn').forEach(button => button.addEventListener('click', () => enterHome(true)));
+document.querySelector('.start-btn').addEventListener('click', () => enterHome(true));
+enableSwipe(document.querySelector('.onboarding-window'), () => setOnboardingStep(onboardingStep + 1), () => setOnboardingStep(onboardingStep - 1));
+
+const needsOnboarding = query.has('onboarding') || localStorage.getItem('rata-onboarding-complete') !== 'true';
+if (query.has('home') || !needsOnboarding) {
+  enterHome(false);
+} else if (query.has('skipSplash')) {
+  openOnboarding();
+} else if (!query.has('splash')) {
+  window.setTimeout(openOnboarding, 1400);
+}
