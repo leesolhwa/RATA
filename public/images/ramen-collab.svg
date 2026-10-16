@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#111315"/><stop offset="1" stop-color="#443329"/></linearGradient><radialGradient id="soup"><stop stop-color="#a65d20"/><stop offset="1" stop-color="#552812"/></radialGradient></defs>
+  <rect width="900" height="650" fill="url(#bg)"/><circle cx="700" cy="100" r="260" fill="#D62829" opacity=".17"/>
+  <ellipse cx="475" cy="405" rx="330" ry="205" fill="#171718"/><ellipse cx="475" cy="370" rx="295" ry="165" fill="url(#soup)"/>
+  <g fill="none" stroke="#f0c55b" stroke-width="15" stroke-linecap="round" opacity=".95"><path d="M240 350c80-90 125 100 205 5s130 75 235-35"/><path d="M260 400c75-85 130 80 220-5s130 65 205-25"/><path d="M310 300c80-55 125 60 205 0s105 40 150 10"/></g>
+  <g transform="rotate(-12 600 330)"><ellipse cx="620" cy="320" rx="95" ry="70" fill="#f7eee0"/><circle cx="622" cy="320" r="38" fill="#efa522"/></g>
+  <path d="M245 285c35-52 85-52 115-10-28 55-83 68-115 10Z" fill="#456727"/><g fill="#d69b61"><rect x="380" y="240" width="120" height="70" rx="14" transform="rotate(12 380 240)"/><rect x="500" y="255" width="105" height="64" rx="14" transform="rotate(-5 500 255)"/></g>
+  <g stroke="#b6bfca" stroke-width="13" stroke-linecap="round"><path d="M590 0 435 330"/><path d="M635 0 470 340"/></g>
+  <text x="40" y="60" fill="#fff" opacity=".72" font-family="Arial" font-size="20" font-weight="700" letter-spacing="4">RATA IMAGE PLACEHOLDER</text>
+</svg>
