@@ -361,7 +361,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .talk-place-filter { min-height: 32px; padding: 0 12px; display: flex; align-items: center; gap: 4px; border: 1px solid #e2dfdd; border-radius: 999px; color: #777371; background: #fff; font-size: 11px; }
 .ratalk-feed { flex: 1; min-height: 0; padding: 0 20px 32px; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; scrollbar-width: none; }
 .ratalk-feed::-webkit-scrollbar { display: none; }
-.ratalk-post { padding: 16px 0 20px; border-bottom: 1px solid #e9e7e5; animation: talk-card-in .28s ease both; }
+.ratalk-post { padding: 16px 0 20px; border-bottom: 1px solid #e9e7e5; animation: talk-card-in .28s ease both; cursor: pointer; }
+.ratalk-post:focus-visible { outline: 3px solid rgba(214,40,41,.24); outline-offset: 3px; }
+.ratalk-post:active { opacity: .78; }
 @keyframes talk-card-in { from { opacity: .45; transform: translateY(8px); } }
 .ratalk-post > header { display: flex; align-items: center; gap: 7px; }
 .talk-avatar { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: #f3f2f1; }
@@ -381,7 +383,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .talk-like { font-size: 25px !important; line-height: 1; }
 .talk-like span { font-size: 11px; }
 .talk-like.liked { color: var(--accent); }
-.ratalk-compose { width: 52px; height: 52px; position: absolute; z-index: 84; right: 28px; bottom: 124px; border-radius: 50%; color: #6d6967; background: #fff; box-shadow: 0 6px 18px rgba(36,34,34,.15); font-size: 26px; }
+.ratalk-compose { width: 52px; height: 52px; position: fixed; z-index: 84; left: calc(50% + 135px); bottom: max(130px, calc(100vh - 802px)); border-radius: 50%; color: #6d6967; background: #fff; box-shadow: 0 6px 18px rgba(36,34,34,.15); font-size: 26px; }
 
 .live-auth-screen { width: 430px; height: 932px; position: relative; overflow: hidden; background: #5d605f; }
 .live-auth-screen[hidden] { display: none; }

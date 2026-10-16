@@ -441,14 +441,14 @@ document.querySelector('#app').innerHTML = `
           <div class="ratalk-titlebar"><h1>라톡</h1><div><button aria-label="알림">${icon('bell', 23)}</button><button aria-label="검색">${icon('search', 23)}</button></div></div>
         </header>
         <nav class="ratalk-categories" aria-label="라톡 분류">
-          <button class="active" data-talk-filter="all">전체</button><button data-talk-filter="plate">한 그릇</button><button data-talk-filter="story">이야기</button><button data-talk-filter="review">후기</button><button data-talk-filter="question">질문</button>
+          <button class="active" data-talk-filter="all">전체</button><button data-talk-filter="plate">한 그릇</button><button data-talk-filter="story">이야기</button>
         </nav>
         <div class="ratalk-controls">
           <div class="talk-sort-wrap"><button class="talk-sort" aria-expanded="false"><span>최신순</span>${icon('chevron', 16)}</button><div class="talk-sort-menu" hidden><button data-talk-sort="latest">최신순</button><button data-talk-sort="popular">인기순</button></div></div>
           <button class="talk-place-filter">${icon('pin', 15)} 매장전체 ${icon('chevron', 14)}</button>
         </div>
         <div class="ratalk-feed">
-          ${ratalkPosts.map((post) => `<article class="ratalk-post" data-post-id="${post.id}" data-popularity="${post.popularity}" data-category="${post.image ? 'plate' : 'story'}">
+          ${ratalkPosts.map((post) => `<article class="ratalk-post" data-post-id="${post.id}" data-popularity="${post.popularity}" data-category="${post.image ? 'plate' : 'story'}" tabindex="0" aria-label="${post.title || `${post.place} 한 그릇 후기`} 상세 글 보기">
             <header><span class="talk-avatar"><img src="/brand/R_logo_RATA.svg" alt=""></span><strong>${post.author}</strong><em>${post.badge}</em><time>${post.time}</time></header>
             ${post.image ? `<img class="talk-photo" src="${post.image}" alt="${post.place} 라멘">` : ''}
             <div class="talk-post-body">${post.place ? `<p class="talk-place">${icon('pin', 15)} <b>${post.place}</b>${post.score ? `<span>★★★★★</span><strong>${post.score}</strong>` : ''}</p>` : ''}${post.title ? `<h2>${post.title}</h2>` : ''}<p class="talk-copy">${post.copy}</p></div>
@@ -808,6 +808,20 @@ document.querySelectorAll('.talk-like').forEach((button) => button.addEventListe
   count.textContent = String(Number(count.textContent) + (liked ? 1 : -1));
   button.firstChild.textContent = liked ? '♥ ' : '♡ ';
 }));
+document.querySelectorAll('.ratalk-post').forEach((post) => {
+  const openPost = (event) => {
+    if (event.target.closest('footer button')) return;
+    openPrototype('ratalkDetail');
+  };
+  post.addEventListener('click', openPost);
+  post.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openPrototype('ratalkDetail');
+    }
+  });
+});
+document.querySelectorAll('.talk-comment').forEach((button) => button.addEventListener('click', () => openPrototype('ratalkDetail')));
 document.querySelector('.ratalk-compose').addEventListener('click', () => openPrototype('writePhoto'));
 document.querySelector('.talk-place-filter').addEventListener('click', () => showToast('저장한 매장과 주변 매장을 함께 보고 있어요'));
 
