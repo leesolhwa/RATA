@@ -141,6 +141,87 @@ const eatingChoices = [
   { id: 'all', title: '다 좋아요', copy: '가리지 않고 다 먹어요', image: ramenPhotos.newsMiso }
 ];
 
+const screenAsset = (name) => `/figma/screens/${name}`;
+const prototypeScreens = {
+  calendar: { src: screenAsset('06_03_Calendar_1-1131.png'), nav: true, hotspots: [
+    ['지난 일정 보기', 320, 72, 110, 80, 'calendarMonth'], ['진행 중인 일정 보기', 0, 150, 430, 300, 'calendarDetail']
+  ] },
+  calendarMonth: { src: screenAsset('07_03_Calendar_1-1152.png'), nav: true, hotspots: [
+    ['뒤로', 0, 40, 64, 72, 'calendar'], ['일정 상세 보기', 0, 250, 430, 560, 'calendarDetail']
+  ] },
+  calendarDetail: { src: screenAsset('17_03_Calendar_1-2157.png'), nav: false, hotspots: [['뒤로', 0, 32, 64, 72, 'calendar']] },
+  map: { src: screenAsset('08_04_Map_edit_1-1225.png'), nav: true, hotspots: [
+    ['취향 편집', 285, 105, 132, 64, 'mapPrefsOld'], ['지도 매장 선택', 145, 300, 150, 320, 'mapSheet']
+  ] },
+  mapSheet: { src: screenAsset('09_04-1_Map_click_1-1273.png'), nav: true, hotspots: [
+    ['매장 패널 닫기', 370, 570, 60, 70, 'map'], ['매장 상세 보기', 0, 600, 360, 230, 'storeGuest']
+  ] },
+  storeGuest: { src: screenAsset('10_04-1_Map_datail_라린_1-1383.png'), nav: false, hotspots: [
+    ['뒤로', 0, 20, 60, 70, 'mapSheet'], ['저장하기', 350, 20, 80, 70, 'storeSaved'], ['상세 정보 펼치기', 0, 370, 430, 180, 'storeLight']
+  ] },
+  storeSaved: { src: screenAsset('11_04-1_Map_datail_라린_1-1460.png'), nav: false, hotspots: [
+    ['뒤로', 0, 20, 60, 70, 'mapSheet'], ['저장 취소', 350, 20, 80, 70, 'storeGuest'], ['상세 정보 펼치기', 0, 370, 430, 180, 'storeLight']
+  ] },
+  storeLight: { src: screenAsset('12_04-1_Map_datail_라이트_1-1537.png'), nav: false, hotspots: [
+    ['뒤로', 0, 20, 60, 70, 'mapSheet'], ['라타 상세 보기', 0, 980, 430, 360, 'storeRata']
+  ] },
+  storeRata: { src: screenAsset('13_04-1_Map_datail_라타_1-1652.png'), nav: false, hotspots: [
+    ['뒤로', 0, 20, 60, 70, 'mapSheet'], ['수정된 상세 보기', 330, 20, 100, 70, 'storeRataEdit']
+  ] },
+  storeRataEdit: { src: screenAsset('14_04-1_Map_datail_라타_수정중__1-1852.png'), nav: false, hotspots: [['뒤로', 0, 20, 60, 70, 'mapSheet']] },
+  mapPrefsOld: { src: screenAsset('15_04_map_라오타취향편집팝업_1-2040.png'), nav: false, hotspots: [
+    ['취향 편집 닫기', 365, 180, 65, 80, 'map'], ['취향 단계 변경', 20, 300, 390, 340, 'mapPrefsNew'], ['취향 저장', 20, 810, 390, 70, 'map']
+  ] },
+  mapPrefsNew: { src: screenAsset('16_04_map_라린이취향편집팝업_1-2100.png'), nav: false, hotspots: [
+    ['취향 편집 닫기', 365, 180, 65, 80, 'map'], ['취향 단계 변경', 20, 300, 390, 340, 'mapPrefsOld'], ['취향 저장', 20, 810, 390, 70, 'map']
+  ] },
+  ratalk: { src: screenAsset('18_05_ratalk_1-2191.png'), nav: true, hotspots: [
+    ['게시글 상세 보기', 0, 150, 430, 590, 'ratalkDetail'], ['글쓰기', 340, 735, 90, 100, 'writePhoto']
+  ] },
+  ratalkDetail: { src: screenAsset('21_05_ratlk_view_1-2390.png'), nav: false, hotspots: [['뒤로', 0, 20, 60, 70, 'ratalk']] },
+  writeText: { src: screenAsset('22_05_ratalk_write_txt_1-2433.png'), nav: false, hotspots: [
+    ['닫기', 0, 20, 60, 70, 'ratalk'], ['한 그릇 쓰기', 0, 80, 215, 70, 'writePhoto'], ['매장 선택', 0, 260, 430, 100, 'writePicker']
+  ] },
+  writePhoto: { src: screenAsset('27_05_ratalk_write_photo_1-2690.png'), nav: false, hotspots: [
+    ['닫기', 0, 20, 60, 70, 'ratalk'], ['이야기 쓰기', 215, 80, 215, 70, 'writeText'], ['매장 선택', 0, 250, 430, 100, 'writePicker']
+  ] },
+  writePicker: { src: screenAsset('28_05_ratalk_write_option_1-2752.png'), nav: false, hotspots: [['매장 선택 완료', 0, 520, 430, 300, 'writePhoto']] },
+  my: { src: screenAsset('19_06_My_1-2218.png'), nav: true, hotspots: [
+    ['설정', 350, 35, 80, 90, 'settings'], ['저장한 일정', 0, 400, 430, 220, 'mySaved'], ['내 한 그릇', 0, 620, 430, 220, 'myPlate']
+  ] },
+  myLogout: { src: screenAsset('20_06_My_logout_1-2314.png'), nav: true, hotspots: [
+    ['로그인', 20, 110, 390, 140, 'loginVisual'], ['설정', 350, 35, 80, 90, 'settings']
+  ] },
+  mySaved: { src: screenAsset('23_06_My_save_1-2469.png'), nav: false, hotspots: [['뒤로', 0, 20, 60, 70, 'my']] },
+  settings: { src: screenAsset('24_06_my_setting_1-2545.png'), nav: false, hotspots: [
+    ['뒤로', 0, 20, 60, 70, 'my'], ['로그아웃', 20, 820, 390, 80, 'settingsLogout']
+  ] },
+  settingsLogout: { src: screenAsset('25_06_my_setting_1-2589.png'), nav: false, hotspots: [
+    ['취소', 30, 520, 170, 80, 'settings'], ['로그아웃 확인', 210, 520, 190, 80, 'myLogout']
+  ] },
+  myPlate: { src: screenAsset('26_06_My_plate_1-2635.png'), nav: false, hotspots: [
+    ['뒤로', 0, 20, 60, 70, 'my'], ['새 한 그릇 작성', 350, 820, 80, 90, 'writePhoto']
+  ] },
+  loginVisual: { src: screenAsset('01_07_login_1-869.png'), nav: false, hotspots: [
+    ['로그인 입력', 20, 560, 390, 180, 'loginForm'], ['회원가입', 200, 800, 210, 100, 'join'], ['간편 로그인', 20, 700, 390, 100, 'socialLogin']
+  ] },
+  loginForm: { src: screenAsset('02_07_login_1-917.png'), nav: false, hotspots: [
+    ['로그인 완료', 20, 650, 390, 100, 'my'], ['회원가입', 200, 800, 210, 100, 'join']
+  ] },
+  join: { src: screenAsset('03_07_join_1-941.png'), nav: false, hotspots: [
+    ['가입 정보 입력', 20, 230, 390, 430, 'joinInput'], ['가입 완료', 20, 650, 390, 100, 'my']
+  ] },
+  joinInput: { src: screenAsset('36_SU1-Default_1_1-3042.png'), nav: false, hotspots: [
+    ['입력 완료 상태', 20, 480, 390, 300, 'joinValid'], ['뒤로', 0, 20, 60, 70, 'join']
+  ] },
+  joinValid: { src: screenAsset('37_SU3-Validate_1_1-3421.png'), nav: false, hotspots: [
+    ['가입 완료', 20, 700, 390, 100, 'my'], ['뒤로', 0, 20, 60, 70, 'join']
+  ] },
+  socialLogin: { src: screenAsset('35_Frame_382_1-2996.png'), nav: false, hotspots: [
+    ['뒤로', 0, 20, 80, 80, 'loginVisual'], ['로그인 폼', 130, 560, 300, 330, 'loginForm']
+  ] }
+};
+
 document.querySelector('#app').innerHTML = `
   <div class="experience-shell">
   <section class="splash-screen" aria-label="RATA 시작 화면">
@@ -289,6 +370,15 @@ document.querySelector('#app').innerHTML = `
       <span class="nav-highlight" aria-hidden="true"></span>
       ${[['home','메인'],['calendar','일정'],['map','지도'],['chat','라톡'],['user','마이']].map(([ic,label],i) => `<button class="nav-item ${i===0?'active':''}" data-nav="${label}">${icon(ic,23)}<span>${label}</span></button>`).join('')}
     </nav>
+    <section class="prototype-screen" aria-hidden="true">
+      <div class="prototype-canvas">
+        <img class="prototype-image" alt="">
+        <div class="prototype-hotspots"></div>
+      </div>
+      <nav class="prototype-nav" aria-label="피그마 하단 메뉴">
+        ${['메인','일정','지도','라톡','마이'].map((label, index) => `<button data-prototype-nav="${index}" aria-label="${label}"></button>`).join('')}
+      </nav>
+    </section>
     <div class="toast" role="status" aria-live="polite"></div>
   </main>
   </div>
@@ -370,8 +460,46 @@ document.querySelectorAll('.nav-item').forEach((btn, index) => btn.addEventListe
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   bottomNav.style.setProperty('--nav-index', index);
-  if (btn.dataset.nav === '메인') document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
-  else showToast(`${btn.dataset.nav} 화면은 다음 단계에서 연결할게요`);
+  if (index === 0) closePrototype();
+  else openPrototype(['', 'calendar', 'map', 'ratalk', 'my'][index]);
+}));
+
+const prototypeScreen = document.querySelector('.prototype-screen');
+const prototypeImage = document.querySelector('.prototype-image');
+const prototypeHotspots = document.querySelector('.prototype-hotspots');
+const prototypeNav = document.querySelector('.prototype-nav');
+
+function openPrototype(name) {
+  const screen = prototypeScreens[name];
+  if (!screen) return;
+  prototypeScreen.dataset.screen = name;
+  prototypeScreen.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('prototype-open');
+  prototypeImage.src = screen.src;
+  prototypeImage.alt = `${name} 화면`;
+  prototypeNav.hidden = !screen.nav;
+  prototypeHotspots.innerHTML = screen.hotspots.map(([label, left, top, width, height, target]) => `<button class="prototype-hotspot" aria-label="${label}" data-target="${target}" style="left:${left}px;top:${top}px;width:${width}px;height:${height}px"></button>`).join('');
+  document.querySelector('.experience-shell').scrollTo({ top: 0 });
+  prototypeScreen.scrollTo({ top: 0 });
+  history.replaceState(null, '', `${location.pathname}?screen=${name}`);
+}
+
+function closePrototype() {
+  prototypeScreen.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('prototype-open');
+  document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
+  history.replaceState(null, '', `${location.pathname}?home`);
+}
+
+prototypeHotspots.addEventListener('click', (event) => {
+  const hotspot = event.target.closest('[data-target]');
+  if (hotspot) openPrototype(hotspot.dataset.target);
+});
+
+document.querySelectorAll('[data-prototype-nav]').forEach((button) => button.addEventListener('click', () => {
+  const index = Number(button.dataset.prototypeNav);
+  if (index === 0) closePrototype();
+  else openPrototype(['', 'calendar', 'map', 'ratalk', 'my'][index]);
 }));
 
 document.querySelectorAll('[data-toast]').forEach(btn => btn.addEventListener('click', () => showToast(btn.dataset.toast)));
@@ -457,6 +585,9 @@ enableSwipe(document.querySelector('.onboarding-window'), () => setOnboardingSte
 
 if (query.has('home')) {
   enterHome(false);
+} else if (query.has('screen') && prototypeScreens[query.get('screen')]) {
+  enterHome(false);
+  openPrototype(query.get('screen'));
 } else if (query.has('skipSplash')) {
   openOnboarding();
 } else if (!query.has('splash')) {
