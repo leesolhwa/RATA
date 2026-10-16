@@ -1,3 +1,5 @@
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import './styles.css';
 
 const ramenPhotos = {
@@ -353,7 +355,7 @@ document.querySelector('#app').innerHTML = `
       <div class="section-head compact"><div><h2>요즘 가장 많이 찾는 라멘집</h2><p class="sub">처음이라면 라타인증 맛집부터!</p></div></div>
       <div class="tabs" role="tablist"><button class="tab active" data-sort="popular">인기순</button><button class="tab" data-sort="review">리뷰순</button></div>
       <ol class="ranking-list">
-        ${rankings.map((r, i) => `<li data-index="${i}"><strong class="rank">${i + 1}</strong><div class="rank-copy"><small>${r[1]}</small><h3>${r[0]}</h3><p>${r[2]}</p></div><span class="interest">${r[3]}명<br>관심중</span></li>`).join('')}
+        ${rankings.map((r, i) => `<li data-index="${i}"><strong class="rank">${i + 1}</strong><div class="rank-copy"><small>${r[1]}</small><h3>${r[0]}</h3><p>${r[2]}</p></div><span class="interest">${r[3]}명 관심중</span></li>`).join('')}
       </ol>
     </section>
 
@@ -375,6 +377,57 @@ document.querySelector('#app').innerHTML = `
         <img class="prototype-image" alt="">
         <div class="prototype-hotspots"></div>
       </div>
+      <section class="live-map-screen" hidden aria-label="라멘 지도">
+        <header class="map-header">
+          <div class="home-status"><strong>9:41</strong><span><i></i><i></i><i></i><b></b></span></div>
+          <div class="header-top">
+            <button class="logo map-home" aria-label="홈으로"><img src="/brand/txt_logo_RATA.svg" alt="RATA"></button>
+            <div class="header-actions">
+              <div class="mode-switch" aria-label="모드 선택"><button class="mode-btn active" data-mode="light">라이트</button><button class="mode-btn" data-mode="rata">라타</button></div>
+              <button class="icon-btn notify" aria-label="알림">${icon('bell', 23)}<i></i></button>
+            </div>
+          </div>
+        </header>
+        <div id="rata-map" class="rata-map" aria-label="홍대 주변 라멘집 지도"></div>
+        <div class="map-filters" aria-label="지도 필터">
+          <button class="active" data-map-filter="all">전체</button>
+          <button data-map-filter="rich">백탕</button>
+          <button data-map-filter="clear">청탕</button>
+          <button class="taste-edit-btn">${icon('spark', 17)} 취향편집</button>
+        </div>
+        <aside class="store-sheet" aria-hidden="true">
+          <button class="sheet-handle" aria-label="매장 정보 펼치기"><i></i></button>
+          <div class="sheet-scroll">
+            <div class="store-title-row">
+              <div><h2>반라이</h2><span>취향 78% 일치</span></div>
+              <div><button class="sheet-save" aria-label="저장">${icon('bookmark', 23)}</button><button class="sheet-close" aria-label="닫기">×</button></div>
+            </div>
+            <div class="store-chips"><span>소스에 찍어먹는 방식</span><span>찐하고 꾸덕한</span></div>
+            <div class="store-scores"><div><span>라이트</span><strong>4.8</strong></div><div><span>라타</span><strong>4.8</strong></div><div><span>내 예상별점</span><strong>4.8</strong></div></div>
+            <div class="store-gallery">
+              <img src="${ramenPhotos.clear}" alt="반라이 라멘">
+              <img src="${ramenPhotos.rich}" alt="반라이 츠케멘">
+              <img src="${ramenPhotos.mixed}" alt="반라이 마제소바">
+            </div>
+            <button class="sheet-more">매장 상세정보 보기 ${icon('chevron', 18)}</button>
+            <div class="store-expanded-content">
+              <section><h3>내 취향과 잘 맞는 이유</h3><p>진한 육수와 꾸덕한 소스를 좋아하는 취향에 잘 맞아요. 면의 탄력과 감칠맛 평가가 특히 높습니다.</p></section>
+              <section><h3>매장정보</h3><dl><div><dt>주소</dt><dd>서울 마포구 동교로 212</dd></div><div><dt>영업시간</dt><dd>11:30–21:00</dd></div><div><dt>휴무</dt><dd>매주 월요일</dd></div></dl></section>
+              <section><h3>라타들의 한줄평</h3><p>“면이 단단하고 소스가 끝까지 진해서 좋아요.”</p><p>“스프를 부어 먹는 마지막 한입까지 만족스러워요.”</p></section>
+            </div>
+          </div>
+        </aside>
+        <div class="taste-modal" hidden>
+          <button class="taste-backdrop" aria-label="취향 편집 닫기"></button>
+          <section class="taste-panel" role="dialog" aria-modal="true" aria-labelledby="taste-title">
+            <header><div><small>지도 추천에 반영돼요</small><h2 id="taste-title">내 취향 편집</h2></div><button class="taste-close" aria-label="닫기">×</button></header>
+            <div class="taste-editor-group"><h3>좋아하는 국물</h3><div class="taste-pills"><button class="selected">청탕</button><button>백탕</button><button class="selected">쇼유</button><button>시오</button><button>미소</button><button>돈코츠</button></div></div>
+            <div class="taste-editor-group"><h3>좋아하는 맛</h3><div class="taste-pills"><button class="selected">깔끔하고 담백한</button><button>진하고 꾸덕한</button><button>얼큰하고 매콤한</button><button>독특하고 이색적인</button><button>깊고 시원한</button></div></div>
+            <div class="taste-editor-group"><h3>먹는 방식</h3><div class="taste-pills"><button>국물과 함께</button><button class="selected">소스에 찍어먹기</button><button>비벼먹기</button></div></div>
+            <button class="taste-save">취향 저장하기</button>
+          </section>
+        </div>
+      </section>
       <nav class="prototype-nav" aria-label="피그마 하단 메뉴">
         ${['메인','일정','지도','라톡','마이'].map((label, index) => `<button data-prototype-nav="${index}" aria-label="${label}"></button>`).join('')}
       </nav>
@@ -429,10 +482,10 @@ const renderEvents = (selectedDate) => {
 renderEvents(todayKey);
 
 document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => {
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.body.classList.toggle('rata-mode', btn.dataset.mode === 'rata');
-  showToast(btn.dataset.mode === 'rata' ? '라타 모드로 전환했어요' : '라이트 모드로 전환했어요');
+  const selectedMode = btn.dataset.mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === selectedMode));
+  document.body.classList.toggle('rata-mode', selectedMode === 'rata');
+  showToast(selectedMode === 'rata' ? '라타 모드로 전환했어요' : '라이트 모드로 전환했어요');
 }));
 
 document.querySelectorAll('.date-card').forEach(card => card.addEventListener('click', () => {
@@ -468,6 +521,70 @@ const prototypeScreen = document.querySelector('.prototype-screen');
 const prototypeImage = document.querySelector('.prototype-image');
 const prototypeHotspots = document.querySelector('.prototype-hotspots');
 const prototypeNav = document.querySelector('.prototype-nav');
+const prototypeCanvas = document.querySelector('.prototype-canvas');
+const liveMapScreen = document.querySelector('.live-map-screen');
+const storeSheet = document.querySelector('.store-sheet');
+const tasteModal = document.querySelector('.taste-modal');
+let rataMap;
+let mapMarkers = [];
+
+const mapPlaces = [
+  ['반라이', 37.5563, 126.9236, 'rich', true],
+  ['멘야준', 37.5589, 126.9211, 'clear'],
+  ['하쿠텐', 37.5536, 126.9190, 'rich'],
+  ['라멘트럭', 37.5504, 126.9228, 'clear'],
+  ['쿄라멘', 37.5598, 126.9272, 'rich'],
+  ['유즈시오', 37.5551, 126.9284, 'clear'],
+  ['쿠로라멘', 37.5517, 126.9265, 'rich']
+];
+
+function initMap() {
+  if (rataMap) return;
+  rataMap = L.map('rata-map', { zoomControl: false, attributionControl: false, minZoom: 12 }).setView([37.5556, 126.9238], 15);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(rataMap);
+  L.control.attribution({ position: 'bottomright', prefix: false }).addAttribution('© OpenStreetMap').addTo(rataMap);
+  mapMarkers = mapPlaces.map(([name, lat, lng, type, featured]) => {
+    const marker = L.marker([lat, lng], {
+      icon: L.divIcon({
+        className: `rata-marker${featured ? ' featured' : ''}`,
+        html: featured ? '<span><b>R</b></span>' : '<span></span>',
+        iconSize: featured ? [52, 64] : [28, 36],
+        iconAnchor: featured ? [26, 60] : [14, 34]
+      }),
+      keyboard: true,
+      title: name
+    }).addTo(rataMap);
+    marker.on('click', () => showStoreSheet());
+    return { marker, type };
+  });
+}
+
+function setSheetVisible(visible, expanded = false) {
+  storeSheet.classList.toggle('visible', visible);
+  storeSheet.classList.toggle('expanded', visible && expanded);
+  prototypeNav.classList.toggle('sheet-expanded', visible && expanded);
+  storeSheet.setAttribute('aria-hidden', String(!visible));
+  if (visible) history.replaceState(null, '', `${location.pathname}?screen=mapSheet`);
+}
+
+function showStoreSheet() {
+  setSheetVisible(false);
+  requestAnimationFrame(() => requestAnimationFrame(() => setSheetVisible(true)));
+}
+
+function openTasteEditor() {
+  tasteModal.hidden = false;
+  requestAnimationFrame(() => tasteModal.classList.add('visible'));
+}
+
+function closeTasteEditor(saved = false) {
+  tasteModal.classList.remove('visible');
+  window.setTimeout(() => { tasteModal.hidden = true; }, 240);
+  if (saved) showToast('취향을 지도 추천에 반영했어요');
+}
 
 function openPrototype(name) {
   const screen = prototypeScreens[name];
@@ -475,10 +592,28 @@ function openPrototype(name) {
   prototypeScreen.dataset.screen = name;
   prototypeScreen.setAttribute('aria-hidden', 'false');
   document.body.classList.add('prototype-open');
-  prototypeImage.src = screen.src;
-  prototypeImage.alt = `${name} 화면`;
+  const isLiveMap = name === 'map' || name === 'mapSheet';
+  prototypeCanvas.hidden = isLiveMap;
+  liveMapScreen.hidden = !isLiveMap;
+  prototypeScreen.classList.toggle('map-open', isLiveMap);
+  prototypeNav.classList.toggle('map-nav', isLiveMap);
   prototypeNav.hidden = !screen.nav;
-  prototypeHotspots.innerHTML = screen.hotspots.map(([label, left, top, width, height, target]) => `<button class="prototype-hotspot" aria-label="${label}" data-target="${target}" style="left:${left}px;top:${top}px;width:${width}px;height:${height}px"></button>`).join('');
+  if (isLiveMap) {
+    prototypeHotspots.innerHTML = '';
+    initMap();
+    requestAnimationFrame(() => {
+      rataMap.invalidateSize();
+      if (name === 'mapSheet') showStoreSheet();
+      else setSheetVisible(false);
+    });
+  } else {
+    prototypeImage.src = screen.src;
+    prototypeImage.alt = `${name} 화면`;
+    prototypeHotspots.innerHTML = screen.hotspots.map(([label, left, top, width, height, target]) => `<button class="prototype-hotspot" aria-label="${label}" data-target="${target}" style="left:${left}px;top:${top}px;width:${width}px;height:${height}px"></button>`).join('');
+    prototypeCanvas.classList.remove('screen-enter', 'sheet-screen-enter');
+    void prototypeCanvas.offsetWidth;
+    prototypeCanvas.classList.add(['writePicker', 'settingsLogout'].includes(name) ? 'sheet-screen-enter' : 'screen-enter');
+  }
   document.querySelector('.experience-shell').scrollTo({ top: 0 });
   prototypeScreen.scrollTo({ top: 0 });
   history.replaceState(null, '', `${location.pathname}?screen=${name}`);
@@ -487,6 +622,8 @@ function openPrototype(name) {
 function closePrototype() {
   prototypeScreen.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('prototype-open');
+  liveMapScreen.hidden = true;
+  prototypeCanvas.hidden = false;
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
   history.replaceState(null, '', `${location.pathname}?home`);
 }
@@ -501,6 +638,50 @@ document.querySelectorAll('[data-prototype-nav]').forEach((button) => button.add
   if (index === 0) closePrototype();
   else openPrototype(['', 'calendar', 'map', 'ratalk', 'my'][index]);
 }));
+
+document.querySelector('.map-home').addEventListener('click', closePrototype);
+document.querySelector('.taste-edit-btn').addEventListener('click', openTasteEditor);
+document.querySelector('.taste-close').addEventListener('click', () => closeTasteEditor());
+document.querySelector('.taste-backdrop').addEventListener('click', () => closeTasteEditor());
+document.querySelector('.taste-save').addEventListener('click', () => closeTasteEditor(true));
+document.querySelectorAll('.taste-pills button').forEach((button) => button.addEventListener('click', () => {
+  button.classList.toggle('selected');
+  button.setAttribute('aria-pressed', String(button.classList.contains('selected')));
+}));
+document.querySelectorAll('[data-map-filter]').forEach((button) => button.addEventListener('click', () => {
+  document.querySelectorAll('[data-map-filter]').forEach((item) => item.classList.remove('active'));
+  button.classList.add('active');
+  const filter = button.dataset.mapFilter;
+  mapMarkers.forEach(({ marker, type }) => {
+    const visible = filter === 'all' || filter === type;
+    if (visible && !rataMap.hasLayer(marker)) marker.addTo(rataMap);
+    if (!visible && rataMap.hasLayer(marker)) marker.removeFrom(rataMap);
+  });
+}));
+document.querySelector('.sheet-close').addEventListener('click', () => {
+  setSheetVisible(false);
+  history.replaceState(null, '', `${location.pathname}?screen=map`);
+});
+document.querySelector('.sheet-save').addEventListener('click', (event) => {
+  event.currentTarget.classList.toggle('saved');
+  showToast(event.currentTarget.classList.contains('saved') ? '매장을 저장했어요' : '저장을 취소했어요');
+});
+document.querySelector('.sheet-more').addEventListener('click', () => setSheetVisible(true, true));
+document.querySelector('.sheet-handle').addEventListener('click', () => setSheetVisible(true, !storeSheet.classList.contains('expanded')));
+
+let sheetStartY = 0;
+storeSheet.addEventListener('pointerdown', (event) => { sheetStartY = event.clientY; });
+storeSheet.addEventListener('pointerup', (event) => {
+  const delta = event.clientY - sheetStartY;
+  if (delta < -44) setSheetVisible(true, true);
+  if (delta > 64) {
+    if (storeSheet.classList.contains('expanded')) setSheetVisible(true, false);
+    else {
+      setSheetVisible(false);
+      history.replaceState(null, '', `${location.pathname}?screen=map`);
+    }
+  }
+});
 
 document.querySelectorAll('[data-toast]').forEach(btn => btn.addEventListener('click', () => showToast(btn.dataset.toast)));
 
