@@ -157,17 +157,7 @@ const prototypeScreens = {
   calendarMonth: { nav: true },
   calendarDetail: { nav: false },
   map: { nav: true }, mapSheet: { nav: true }, storeGuest: { nav: false }, storeSaved: { nav: false }, storeLight: { nav: false }, storeRata: { nav: false }, storeRataEdit: { nav: false }, mapPrefsOld: { nav: false }, mapPrefsNew: { nav: false },
-  ratalk: { src: screenAsset('18_05_ratalk_1-2191.png'), nav: true, hotspots: [
-    ['게시글 상세 보기', 0, 150, 430, 590, 'ratalkDetail'], ['글쓰기', 340, 735, 90, 100, 'writePhoto']
-  ] },
-  ratalkDetail: { src: screenAsset('21_05_ratlk_view_1-2390.png'), nav: false, hotspots: [['뒤로', 0, 20, 60, 70, 'ratalk']] },
-  writeText: { src: screenAsset('22_05_ratalk_write_txt_1-2433.png'), nav: false, hotspots: [
-    ['닫기', 0, 20, 60, 70, 'ratalk'], ['한 그릇 쓰기', 0, 80, 215, 70, 'writePhoto'], ['매장 선택', 0, 260, 430, 100, 'writePicker']
-  ] },
-  writePhoto: { src: screenAsset('27_05_ratalk_write_photo_1-2690.png'), nav: false, hotspots: [
-    ['닫기', 0, 20, 60, 70, 'ratalk'], ['이야기 쓰기', 215, 80, 215, 70, 'writeText'], ['매장 선택', 0, 250, 430, 100, 'writePicker']
-  ] },
-  writePicker: { src: screenAsset('28_05_ratalk_write_option_1-2752.png'), nav: false, hotspots: [['매장 선택 완료', 0, 520, 430, 300, 'writePhoto']] },
+  ratalk: { nav: true }, ratalkDetail: { nav: false }, writeText: { nav: false }, writePhoto: { nav: false }, writePicker: { nav: false },
   my: { nav: true },
   myLogout: { nav: true },
   mySaved: { nav: false },
@@ -408,6 +398,7 @@ document.querySelector('#app').innerHTML = `
         </div>
         <button class="ratalk-compose" aria-label="글쓰기">✎</button>
       </section>
+      <section class="live-ratalk-sub" hidden aria-label="라톡 상세"></section>
       <section class="live-calendar-screen" hidden aria-label="일정"></section>
       <section class="live-my-screen" hidden aria-label="마이"></section>
       <section class="live-auth-screen" hidden aria-label="로그인">
@@ -530,6 +521,7 @@ const prototypeNav = document.querySelector('.prototype-nav');
 const prototypeCanvas = document.querySelector('.prototype-canvas');
 const liveMapScreen = document.querySelector('.live-map-screen');
 const liveRatalkScreen = document.querySelector('.live-ratalk-screen');
+const liveRatalkSub = document.querySelector('.live-ratalk-sub');
 const liveCalendarScreen = document.querySelector('.live-calendar-screen');
 const liveMyScreen = document.querySelector('.live-my-screen');
 const liveAuthScreen = document.querySelector('.live-auth-screen');
@@ -543,10 +535,11 @@ const authRoutes = new Set(['loginVisual', 'loginForm', 'join', 'joinInput', 'jo
 const myRoutes = new Set(['my', 'myLogout', 'mySaved', 'settings', 'settingsLogout', 'myPlate']);
 const calendarRoutes = new Set(['calendar', 'calendarMonth', 'calendarDetail']);
 const mapRoutes = new Set(['map','mapSheet','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew']);
+const ratalkSubRoutes = new Set(['ratalkDetail','writeText','writePhoto','writePicker']);
 
 const prototypeImageCache = new Map();
 Object.entries(prototypeScreens).forEach(([name, screen]) => {
-  if (mapRoutes.has(name) || name === 'ratalk' || authRoutes.has(name) || myRoutes.has(name) || calendarRoutes.has(name)) return;
+  if (mapRoutes.has(name) || name === 'ratalk' || ratalkSubRoutes.has(name) || authRoutes.has(name) || myRoutes.has(name) || calendarRoutes.has(name)) return;
   const image = new Image();
   image.decoding = 'async';
   image.src = screen.src;
@@ -724,6 +717,17 @@ liveCalendarScreen.addEventListener('click',(event)=>{
   if(save){save.classList.toggle('active');showToast(save.classList.contains('active')?'일정을 저장했어요.':'저장을 취소했어요.');}
 });
 
+function renderRatalkSub(name) {
+  if (name === 'ratalkDetail') {
+    liveRatalkSub.innerHTML = `${myStatus}<header class="my-pagebar"><button data-talk-route="ratalk" aria-label="뒤로">‹</button><h1>한 그릇</h1></header><article class="talk-detail"><div class="talk-author"><img src="/brand/R_logo_RATA.svg" alt=""><b>역삼동 라오타</b><span>라이트</span><time>1시간전</time></div><img class="talk-detail-photo" src="${ramenPhotos.rich}" alt="반라이 라멘"><button class="talk-store" type="button" data-talk-route="storeGuest"><b>반라이</b><span>서울 마포구 · 츠케멘</span>›</button><p class="talk-rating">★★★★★　<b>5.0</b></p><p>국물이 진해서 처음엔 놀랐는데 찍어먹으니까 괜찮던데요? 입문자도 먹을만 합니다. 웨이팅은 평일 1시쯤 도착해서 30분정도 기다렸어요.</p><div class="talk-actions">♥ 12　▢ 4</div><section class="talk-comments"><h2>댓글 4</h2><p><b>웅성웅성</b><br>반라이 츠케멘 맛있죠. 끝에 탁 치고 올라오는 감칠맛이 좋아요.</p><p><b>통풍방지위원회</b><br>생각보다 오래 안 기다리셨네요.</p></section></article><form class="talk-comment-form"><input aria-label="댓글" placeholder="댓글을 남겨보세요"><button>↑</button></form>`;
+  } else {
+    const story=name==='writeText';
+    liveRatalkSub.innerHTML = `${myStatus}<header class="talk-write-head"><button type="button" data-talk-route="ratalk">×</button><h1>글쓰기</h1></header><nav class="talk-write-tabs"><button data-talk-route="writePhoto" class="${story?'':'active'}">한 그릇</button><button data-talk-route="writeText" class="${story?'active':''}">이야기</button></nav><form class="talk-write-form">${story?'<label>태그 · 선택<div class="tag-row"><button type="button">매장 ＋</button><button type="button">콜라보 ＋</button><button type="button">일정 ＋</button><button type="button">질문 ＋</button></div></label><label>제목<input required placeholder="제목 입력 칸입니다."></label>':'<label>사진 · 선택<div class="photo-picker"><button type="button">▣<br>1/5</button><img src="'+ramenPhotos.mixed+'" alt="선택한 라멘"></div></label><label>매장 · 필수<button type="button" class="store-pick" data-talk-route="writePicker"><b>반라이</b><span>서울 마포구 · 츠케멘</span>변경</button></label><div class="write-stars">★★★★★<b>4.5</b></div>'}<label>내용<textarea required maxlength="500" placeholder="내용 입력 칸입니다."></textarea></label>${Button({label:'글 올리기',type:'submit'})}</form>${name==='writePicker'?'<aside class="write-picker"><i></i><h2>어느 매장 다녀오셨나요?</h2><input placeholder="매장 이름 검색"><button type="button" data-talk-route="writePhoto"><b>반라이</b><span>서울 마포구 · 츠케멘　✓</span></button><button type="button" data-talk-route="writePhoto"><b>멘야준</b><span>서울 성동구 · 쇼유</span></button></aside>':''}`;
+  }
+}
+liveRatalkSub.addEventListener('click',e=>{const r=e.target.closest('[data-talk-route]')?.dataset.talkRoute;if(r){e.preventDefault();openPrototype(r);}});
+liveRatalkSub.addEventListener('submit',e=>{e.preventDefault();showToast('글을 올렸어요.');openPrototype('ratalk');});
+
 function openPrototype(name) {
   const screen = prototypeScreens[name];
   if (!screen) return;
@@ -732,18 +736,20 @@ function openPrototype(name) {
   document.body.classList.add('prototype-open');
   const isLiveMap = mapRoutes.has(name);
   const isLiveTalk = name === 'ratalk';
+  const isLiveTalkSub = ratalkSubRoutes.has(name);
   const isLiveAuth = authRoutes.has(name);
   const isLiveMy = myRoutes.has(name);
   const isLiveCalendar = calendarRoutes.has(name);
-  const isLiveScreen = isLiveMap || isLiveTalk || isLiveAuth || isLiveMy || isLiveCalendar;
+  const isLiveScreen = isLiveMap || isLiveTalk || isLiveTalkSub || isLiveAuth || isLiveMy || isLiveCalendar;
   prototypeCanvas.hidden = isLiveScreen;
   liveMapScreen.hidden = !isLiveMap;
   liveRatalkScreen.hidden = !isLiveTalk;
+  liveRatalkSub.hidden = !isLiveTalkSub;
   liveCalendarScreen.hidden = !isLiveCalendar;
   liveMyScreen.hidden = !isLiveMy;
   liveAuthScreen.hidden = !isLiveAuth;
-  [liveMapScreen, liveRatalkScreen, liveCalendarScreen, liveMyScreen, liveAuthScreen].forEach((view) => view.classList.remove('route-enter'));
-  const liveView = isLiveMap ? liveMapScreen : isLiveTalk ? liveRatalkScreen : isLiveCalendar ? liveCalendarScreen : isLiveMy ? liveMyScreen : isLiveAuth ? liveAuthScreen : null;
+  [liveMapScreen, liveRatalkScreen, liveRatalkSub, liveCalendarScreen, liveMyScreen, liveAuthScreen].forEach((view) => view.classList.remove('route-enter'));
+  const liveView = isLiveMap ? liveMapScreen : isLiveTalk ? liveRatalkScreen : isLiveTalkSub ? liveRatalkSub : isLiveCalendar ? liveCalendarScreen : isLiveMy ? liveMyScreen : isLiveAuth ? liveAuthScreen : null;
   if (liveView) {
     void liveView.offsetWidth;
     liveView.classList.add('route-enter');
@@ -767,6 +773,8 @@ function openPrototype(name) {
     })).catch(() => {});
   } else if (isLiveTalk) {
     document.querySelector('.ratalk-feed').scrollTo({ top: 0 });
+  } else if (isLiveTalkSub) {
+    renderRatalkSub(name);
   } else if (isLiveAuth) {
     renderAuthView(name);
   } else if (isLiveMy) {
@@ -792,6 +800,7 @@ function closePrototype() {
   document.body.classList.remove('prototype-open');
   liveMapScreen.hidden = true;
   liveRatalkScreen.hidden = true;
+  liveRatalkSub.hidden = true;
   liveCalendarScreen.hidden = true;
   liveMyScreen.hidden = true;
   liveAuthScreen.hidden = true;
