@@ -17,6 +17,7 @@
   --line: #eceae7;
   /* Type scale: every app label resolves through this shared scale. */
   --font-caption: 12px;
+  --font-popup-detail: 10px;
   --font-meta: 14px;
   --font-body: 16px;
   --font-card-title: 18px;
@@ -34,10 +35,9 @@
   --space-6: 24px;
   --space-8: 32px;
   --page-gutter: var(--space-6);
-  --section-gap: var(--space-4);
+  --section-gap: var(--space-6);
   --card-padding: var(--space-4);
   --card-gap: var(--space-3);
-  --tabbar-height: 100px;
 }
 
 * { box-sizing: border-box; }
@@ -50,7 +50,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .experience-shell { width: 430px; height: 932px; margin: 0 auto; position: relative; overflow-x: hidden; overflow-y: auto; background: #fff; box-shadow: 0 0 48px rgba(36,34,34,.08); scrollbar-width: none; }
 .experience-shell::-webkit-scrollbar { display: none; }
 .onboarding-open .experience-shell { overflow: hidden; }
-.phone-shell { width: 430px; min-height: 932px; margin: 0 auto; background: #fff; padding-bottom: calc(var(--tabbar-height) + var(--space-4)); overflow: hidden; }
+.phone-shell { width: 430px; min-height: 932px; margin: 0 auto; background: #fff; padding-bottom: 0; overflow: hidden; }
 
 .fake-status { height: 56px; padding: 0 var(--space-6); display: flex; align-items: center; justify-content: space-between; flex: 0 0 auto; color: var(--ink); font: 700 var(--font-body)/1 Arial, sans-serif; }
 .fake-status.light { color: #fff; }
@@ -173,9 +173,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .section-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: var(--space-3); }
 .section-head.compact { margin-bottom: var(--space-3); }
 .overline { display: none; }
-.section h2 { margin: 0; font-size: var(--font-section-title); line-height: 1.35; letter-spacing: -.55px; }
-.section h2 span { font-size: var(--font-card-title); }
-.sub { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--font-meta); }
+.section h2 { margin: 0; font-size: var(--font-screen-title); line-height: 1.35; letter-spacing: -.55px; }
+.section h2 span { font-size: var(--font-screen-title); }
+.sub { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--font-body); }
 .text-btn { display: flex; align-items: center; padding: var(--space-2) 0; color: var(--muted); background: transparent; font-size: var(--font-caption); }
 .divider { height: 8px; background: #f1f0ee; }
 
@@ -203,7 +203,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .event-copy h3 { margin: var(--space-2) 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--font-body); }
 .event-copy p { margin: 0; color: #92908e; font-size: var(--font-meta); }
 .event-detail { display: none; margin-top: var(--space-2) !important; line-height: 1.4; }
-.rata-mode .event-detail { display: block; }
+.rata-mode .event-detail { display: block; font-size: var(--font-popup-detail); white-space: nowrap; }
 .bookmark { position: absolute; right: 16px; top: 16px; padding: 0; color: #aaa6a4; background: transparent; }
 .bookmark.saved { color: var(--accent); fill: var(--accent); }
 .bookmark.saved svg { fill: currentColor; }
@@ -360,7 +360,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .taste-pills button.selected { border-color: var(--accent); color: var(--accent); background: #fff4f4; font-weight: 800; }
 .taste-save { width: 100%; height: 56px; margin-top: var(--space-8); border-radius: 8px; color: #fff; background: var(--ink); font-weight: 800; }
 
-.live-ratalk-screen { width: 430px; height: 932px; padding-bottom: calc(var(--tabbar-height) + var(--space-4)); display: flex; flex-direction: column; overflow: hidden; background: #fff; }
+.live-ratalk-screen { width: 430px; height: 932px; padding-bottom: 0; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
 .live-ratalk-screen[hidden] { display: none; }
 .ratalk-header { flex: 0 0 104px; background: #fff; }
 .dark-status { height: 48px; color: var(--ink); }
@@ -447,7 +447,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .ui-state h2 { margin: var(--space-6) 0 var(--space-2); font-size: var(--font-card-title); }
 .ui-state p { margin: 0; color: var(--muted); font-size: var(--font-meta); line-height: 1.5; }
 
-.live-my-screen { width: 430px; height: 932px; padding-bottom: calc(var(--tabbar-height) + var(--space-4)); overflow-x: hidden; overflow-y: auto; background: #fff; scrollbar-width: none; }
+.live-my-screen { width: 430px; height: 932px; padding-bottom: 0; overflow-x: hidden; overflow-y: auto; background: #fff; scrollbar-width: none; }
 .live-my-screen[hidden] { display: none; }
 .live-my-screen::-webkit-scrollbar { display: none; }
 .my-topbar, .my-pagebar { height: 56px; padding: 0 var(--space-6); display: flex; align-items: center; position: relative; }
@@ -476,7 +476,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .my-taste.locked h2 { margin-top: var(--space-2); font-size: var(--font-body); }
 .my-taste.locked svg { width: 180px; display: block; margin: 0 auto; opacity: .28; }
 .my-block { padding: var(--section-gap) var(--page-gutter); border-bottom: 8px solid #f1f0ee; }
-.my-block > header { margin-bottom: var(--space-3); display: flex; justify-content: space-between; font-size: var(--font-caption); }
+.my-block > header { margin-bottom: var(--space-3); display: flex; align-items: center; justify-content: space-between; }
+.my-block > header b { font-size: var(--font-screen-title); }
+.my-block > header button { font-size: var(--font-body); }
 .my-block > header button { padding: 0; color: var(--muted); background: transparent; }
 .my-saved-row { min-height: 70px; display: grid; grid-template-columns: 52px 1fr 30px; align-items: center; gap: var(--space-3); border-bottom: 1px solid #eceae7; }
 .my-saved-row > img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
@@ -520,10 +522,10 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .settings-actions { padding: var(--space-8) var(--space-6) var(--space-8); text-align: center; }
 .settings-actions .ui-button { min-height: 52px; color: var(--ink); background: #f7f7f7; }
 .settings-actions > button:last-child { margin-top: var(--space-4); padding: var(--space-2); color: #999593; background: transparent; font-size: var(--font-caption); text-decoration: underline; }
-.live-calendar-screen { width: 430px; height: 932px; padding-bottom: calc(var(--tabbar-height) + var(--space-4)); overflow-y: auto; background:#fff; scrollbar-width:none; }
+.live-calendar-screen { width: 430px; height: 932px; padding-bottom: 0; overflow-y: auto; background:#fff; scrollbar-width:none; }
 .live-calendar-screen[hidden]{display:none}.live-calendar-screen::-webkit-scrollbar{display:none}
 .calendar-title{height:96px;padding:var(--space-8) var(--space-6) 0;display:flex;align-items:center;justify-content:space-between}.calendar-title h1{font-size:var(--font-screen-title)}.calendar-title button{padding:var(--space-2) 0;color:#777;background:transparent;font-size:var(--font-caption)}
-.calendar-section{padding:var(--section-gap) var(--page-gutter)}.calendar-section h2{margin:0 0 var(--space-3);font-size:var(--font-body)}.calendar-section h2 i{width:7px;height:7px;margin-right:var(--space-2);display:inline-block;border-radius:50%;background:var(--accent)}.calendar-section h2 b{color:var(--accent)}
+.calendar-section{padding:var(--section-gap) var(--page-gutter)}.calendar-section h2{margin:0 0 var(--space-3);font-size:var(--font-screen-title)}.calendar-section h2 i{width:7px;height:7px;margin-right:var(--space-2);display:inline-block;border-radius:50%;background:var(--accent)}.calendar-section h2 b{color:var(--accent)}
 .calendar-heroes{margin-right:calc(-1 * var(--space-6));display:flex;gap:var(--card-gap);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.calendar-heroes button{min-width:316px;height:250px;padding:var(--card-padding);display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;overflow:hidden;border-radius:16px;color:#fff;text-align:left;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.75)),var(--cal) center/cover;scroll-snap-align:start}.calendar-heroes span{padding:var(--space-1) var(--space-3);border-radius:5px;background:var(--ink);font-size:var(--font-caption)}.calendar-heroes strong{margin-top:var(--space-3);font-size:var(--font-section-title)}.calendar-heroes small{margin-top:var(--space-3)}.calendar-section .soon{margin-top:var(--section-gap)}.calendar-section .soon i{background:#ffe5e5}
 .calendar-row{min-height:86px;display:grid;grid-template-columns:50px 1fr 28px;align-items:center;gap:var(--space-4);border-bottom:1px solid #f1dddd}.calendar-row time{height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;background:#ffe6e7;font-weight:700}.calendar-row time small{font-size:var(--font-caption)}.calendar-row>button:nth-child(2){display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2);background:transparent}.calendar-row strong{font-size:var(--font-body)}.calendar-row span{font-size:var(--font-meta)}.calendar-save{padding:0;color:#999;background:transparent}.calendar-save.active{color:var(--accent)}.calendar-save.active svg{fill:currentColor}
 .month-chips{padding:var(--space-3) var(--space-6) var(--space-6);display:flex;gap:var(--space-3);overflow-x:auto}.month-chips button{min-width:54px;height:38px;border-radius:999px;color:#999;background:#f5f5f5}.month-chips button:first-child{border:1px solid #ddd;background:#fff}.month-chips button.active{color:#fff;background:var(--ink)}.month-title{padding:0 var(--space-6);display:flex;align-items:center;justify-content:space-between}.month-title h2{font-size:var(--font-display)}.month-title span{color:#888;font-size:var(--font-caption)}.past-list{padding:0 var(--space-6)}.past-list article{min-height:116px;margin-bottom:var(--card-gap);padding:var(--card-padding);display:grid;grid-template-columns:78px 1fr 28px;align-items:center;gap:var(--space-4);border-radius:16px;background:#f7f7f7}.past-list img{width:78px;height:78px;border-radius:8px;object-fit:cover}.past-list article>button:nth-child(2){display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2);background:transparent;text-align:left}.past-list span{color:#888;font-size:var(--font-caption)}.past-list span b{margin-right:var(--space-2);padding:var(--space-2) var(--space-2);border-radius:4px;color:#fff;background:#888}.past-list strong{font-size:var(--font-body)}.past-list small{color:#888;font-size:var(--font-meta)}
