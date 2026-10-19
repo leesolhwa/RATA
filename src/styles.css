@@ -267,7 +267,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .rata-mode .map-header { background-color: var(--accent); background-image: url('/figma/components/header-rata.png'); }
 .map-header .header-top { height: 81px; }
 .map-header .logo { padding: 0; background: transparent; }
-.rata-map { position: absolute; z-index: 1; inset: 105px 0 100px; background: #e9ece8; }
+.rata-map { position: absolute !important; z-index: 1; inset: 105px 0 100px 0 !important; width: 430px; height: calc(100% - 205px) !important; min-height: 1px; background: #e9ece8; }
 .rata-map.loading::after { content: '네이버 지도를 불러오는 중…'; position:absolute; inset:0; display:grid; place-items:center; color:#777; background:#eef1f3; font-size:12px; }
 .map-error { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
 .map-error p { margin:8px 0 18px; color:#777; font-size:11px; }.map-error button{padding:10px 16px;border-radius:8px;background:var(--ink);color:#fff}

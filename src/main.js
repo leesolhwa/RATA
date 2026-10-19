@@ -585,20 +585,8 @@ async function initMap() {
   if (rataMap) return rataMap;
   const mapElement = document.getElementById('rata-map');
   mapElement.classList.add('loading');
-  try {
-    const maps = await loadNaverMaps();
-    rataMap = new maps.Map(mapElement, { center: new maps.LatLng(37.5556, 126.9238), zoom: 15, minZoom: 12, scaleControl: false, mapDataControl: false, logoControlOptions: { position: maps.Position.BOTTOM_LEFT } });
-    mapMarkers = mapPlaces.map(([name, lat, lng, type, featured]) => {
-      const marker = new maps.Marker({
-        position: new maps.LatLng(lat, lng), map: rataMap, title: name,
-        icon: { content: `<button class="naver-ratav-marker${featured ? ' featured' : ''}" type="button" aria-label="${name}">${featured ? '<b>R</b>' : ''}</button>`, anchor: new maps.Point(featured ? 26 : 14, featured ? 58 : 34) }
-      });
-      maps.Event.addListener(marker, 'click', showStoreSheet);
-      return { marker, type, setVisible: (visible) => marker.setMap(visible ? rataMap : null) };
-    });
-    mapElement.classList.remove('loading');
-    return rataMap;
-  } catch (error) {
+  const useFallbackMap = (sdkError) => {
+    console.warn(`[RATA map] provider=leaflet reason="${sdkError.message}" container=${mapElement.clientWidth}x${mapElement.clientHeight}`);
     mapProvider = 'leaflet';
     mapElement.innerHTML = '';
     rataMap = L.map(mapElement, { zoomControl: false, attributionControl: false, minZoom: 12 }).setView([37.5556, 126.9238], 15);
@@ -611,6 +599,42 @@ async function initMap() {
     mapElement.classList.remove('loading');
     showToast('네이버 지도 연결이 지연되어 기본 지도로 전환했어요.');
     return rataMap;
+  };
+  let maps;
+  try {
+    maps = await loadNaverMaps();
+  } catch (sdkError) {
+    return useFallbackMap(sdkError);
+  }
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  console.info(`[RATA map] provider=naver container=${mapElement.clientWidth}x${mapElement.clientHeight}`);
+  if (mapElement.clientHeight <= 0) {
+    mapElement.classList.remove('loading');
+    mapElement.innerHTML = '<div class="map-error" role="alert"><strong>지도 영역의 높이를 확인해주세요.</strong></div>';
+    throw new Error('네이버 지도 컨테이너 높이가 0px입니다.');
+  }
+  try {
+    mapProvider = 'naver';
+    rataMap = new maps.Map(mapElement, { center: new maps.LatLng(37.5556, 126.9238), zoom: 15, minZoom: 12, scaleControl: false, mapDataControl: false, logoControlOptions: { position: maps.Position.BOTTOM_LEFT } });
+    mapMarkers = mapPlaces.map(([name, lat, lng, type, featured]) => {
+      const marker = new maps.Marker({
+        position: new maps.LatLng(lat, lng), map: rataMap, title: name,
+        icon: { content: `<button class="naver-ratav-marker${featured ? ' featured' : ''}" type="button" aria-label="${name}">${featured ? '<b>R</b>' : ''}</button>`, anchor: new maps.Point(featured ? 26 : 14, featured ? 58 : 34) }
+      });
+      maps.Event.addListener(marker, 'click', showStoreSheet);
+      return { marker, type, setVisible: (visible) => marker.setMap(visible ? rataMap : null) };
+    });
+    const resizeMap = () => maps.Event.trigger(rataMap, 'resize');
+    new ResizeObserver(resizeMap).observe(mapElement);
+    requestAnimationFrame(resizeMap);
+    if (typeof rataMap.autoResize === 'function') rataMap.autoResize();
+    mapElement.classList.remove('loading');
+    return rataMap;
+  } catch (error) {
+    mapElement.classList.remove('loading');
+    mapElement.innerHTML = `<div class="map-error" role="alert"><strong>네이버 지도를 생성하지 못했어요.</strong><p>${error.message}</p></div>`;
+    console.error('[RATA map] provider=naver creation-failed', error);
+    throw error;
   }
 }
 
