@@ -1,7 +1,7 @@
 import './styles.css';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Button, Dialog, Input, Toast } from './ui.js';
+import { Button, Dialog, EmptyState, ErrorState, Input, Skeleton, Toast } from './ui.js';
 
 const ramenPhotos = {
   hero: '/images/photos/hero-ramen.webp',
@@ -170,6 +170,7 @@ const prototypeScreens = {
   joinInput: { nav: false },
   joinValid: { nav: false },
   socialLogin: { nav: false }
+  ,stateLoading:{nav:false},stateEmpty:{nav:false},stateError:{nav:false},stateMaintenance:{nav:false},stateUpdate:{nav:false}
 };
 
 document.querySelector('#app').innerHTML = `
@@ -399,6 +400,7 @@ document.querySelector('#app').innerHTML = `
         <button class="ratalk-compose" aria-label="글쓰기">✎</button>
       </section>
       <section class="live-ratalk-sub" hidden aria-label="라톡 상세"></section>
+      <section class="live-state-screen" hidden aria-label="상태 화면"></section>
       <section class="live-calendar-screen" hidden aria-label="일정"></section>
       <section class="live-my-screen" hidden aria-label="마이"></section>
       <section class="live-auth-screen" hidden aria-label="로그인">
@@ -522,6 +524,7 @@ const prototypeCanvas = document.querySelector('.prototype-canvas');
 const liveMapScreen = document.querySelector('.live-map-screen');
 const liveRatalkScreen = document.querySelector('.live-ratalk-screen');
 const liveRatalkSub = document.querySelector('.live-ratalk-sub');
+const liveStateScreen = document.querySelector('.live-state-screen');
 const liveCalendarScreen = document.querySelector('.live-calendar-screen');
 const liveMyScreen = document.querySelector('.live-my-screen');
 const liveAuthScreen = document.querySelector('.live-auth-screen');
@@ -536,10 +539,11 @@ const myRoutes = new Set(['my', 'myLogout', 'mySaved', 'settings', 'settingsLogo
 const calendarRoutes = new Set(['calendar', 'calendarMonth', 'calendarDetail']);
 const mapRoutes = new Set(['map','mapSheet','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew']);
 const ratalkSubRoutes = new Set(['ratalkDetail','writeText','writePhoto','writePicker']);
+const stateRoutes=new Set(['stateLoading','stateEmpty','stateError','stateMaintenance','stateUpdate']);
 
 const prototypeImageCache = new Map();
 Object.entries(prototypeScreens).forEach(([name, screen]) => {
-  if (mapRoutes.has(name) || name === 'ratalk' || ratalkSubRoutes.has(name) || authRoutes.has(name) || myRoutes.has(name) || calendarRoutes.has(name)) return;
+  if (mapRoutes.has(name) || name === 'ratalk' || ratalkSubRoutes.has(name) || stateRoutes.has(name) || authRoutes.has(name) || myRoutes.has(name) || calendarRoutes.has(name)) return;
   const image = new Image();
   image.decoding = 'async';
   image.src = screen.src;
@@ -725,6 +729,7 @@ function renderRatalkSub(name) {
     liveRatalkSub.innerHTML = `${myStatus}<header class="talk-write-head"><button type="button" data-talk-route="ratalk">×</button><h1>글쓰기</h1></header><nav class="talk-write-tabs"><button data-talk-route="writePhoto" class="${story?'':'active'}">한 그릇</button><button data-talk-route="writeText" class="${story?'active':''}">이야기</button></nav><form class="talk-write-form">${story?'<label>태그 · 선택<div class="tag-row"><button type="button">매장 ＋</button><button type="button">콜라보 ＋</button><button type="button">일정 ＋</button><button type="button">질문 ＋</button></div></label><label>제목<input required placeholder="제목 입력 칸입니다."></label>':'<label>사진 · 선택<div class="photo-picker"><button type="button">▣<br>1/5</button><img src="'+ramenPhotos.mixed+'" alt="선택한 라멘"></div></label><label>매장 · 필수<button type="button" class="store-pick" data-talk-route="writePicker"><b>반라이</b><span>서울 마포구 · 츠케멘</span>변경</button></label><div class="write-stars">★★★★★<b>4.5</b></div>'}<label>내용<textarea required maxlength="500" placeholder="내용 입력 칸입니다."></textarea></label>${Button({label:'글 올리기',type:'submit'})}</form>${name==='writePicker'?'<aside class="write-picker"><i></i><h2>어느 매장 다녀오셨나요?</h2><input placeholder="매장 이름 검색"><button type="button" data-talk-route="writePhoto"><b>반라이</b><span>서울 마포구 · 츠케멘　✓</span></button><button type="button" data-talk-route="writePhoto"><b>멘야준</b><span>서울 성동구 · 쇼유</span></button></aside>':''}`;
   }
 }
+function renderState(name){const action=Button({label:'다시 시도',attributes:{onclick:'location.reload()'}});const body=name==='stateLoading'?Skeleton({rows:5}):name==='stateEmpty'?EmptyState({title:'아직 저장한 내용이 없어요',description:'마음에 드는 일정과 매장을 저장해보세요.'}):name==='stateError'?ErrorState({description:'네트워크 연결을 확인하고 다시 시도해주세요.',action}):name==='stateMaintenance'?ErrorState({title:'잠시 점검 중이에요',description:'더 안정적인 서비스를 위해 준비하고 있어요.'}):ErrorState({title:'업데이트가 필요해요',description:'새 버전으로 업데이트한 뒤 계속 이용해주세요.',action:Button({label:'업데이트하기'})});liveStateScreen.innerHTML=`${myStatus}<header class="my-pagebar"><h1>RATA</h1></header><main class="state-content">${body}</main>`;}
 liveRatalkSub.addEventListener('click',e=>{const r=e.target.closest('[data-talk-route]')?.dataset.talkRoute;if(r){e.preventDefault();openPrototype(r);}});
 liveRatalkSub.addEventListener('submit',e=>{e.preventDefault();showToast('글을 올렸어요.');openPrototype('ratalk');});
 
@@ -737,14 +742,16 @@ function openPrototype(name) {
   const isLiveMap = mapRoutes.has(name);
   const isLiveTalk = name === 'ratalk';
   const isLiveTalkSub = ratalkSubRoutes.has(name);
+  const isLiveState=stateRoutes.has(name);
   const isLiveAuth = authRoutes.has(name);
   const isLiveMy = myRoutes.has(name);
   const isLiveCalendar = calendarRoutes.has(name);
-  const isLiveScreen = isLiveMap || isLiveTalk || isLiveTalkSub || isLiveAuth || isLiveMy || isLiveCalendar;
+  const isLiveScreen = isLiveMap || isLiveTalk || isLiveTalkSub || isLiveState || isLiveAuth || isLiveMy || isLiveCalendar;
   prototypeCanvas.hidden = isLiveScreen;
   liveMapScreen.hidden = !isLiveMap;
   liveRatalkScreen.hidden = !isLiveTalk;
   liveRatalkSub.hidden = !isLiveTalkSub;
+  liveStateScreen.hidden=!isLiveState;
   liveCalendarScreen.hidden = !isLiveCalendar;
   liveMyScreen.hidden = !isLiveMy;
   liveAuthScreen.hidden = !isLiveAuth;
@@ -775,6 +782,7 @@ function openPrototype(name) {
     document.querySelector('.ratalk-feed').scrollTo({ top: 0 });
   } else if (isLiveTalkSub) {
     renderRatalkSub(name);
+  } else if(isLiveState){renderState(name);
   } else if (isLiveAuth) {
     renderAuthView(name);
   } else if (isLiveMy) {
@@ -801,6 +809,7 @@ function closePrototype() {
   liveMapScreen.hidden = true;
   liveRatalkScreen.hidden = true;
   liveRatalkSub.hidden = true;
+  liveStateScreen.hidden=true;
   liveCalendarScreen.hidden = true;
   liveMyScreen.hidden = true;
   liveAuthScreen.hidden = true;

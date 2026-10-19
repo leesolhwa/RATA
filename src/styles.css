@@ -561,6 +561,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 
 .toast { position: fixed; z-index: 120; left: 50%; bottom: max(104px, calc(100vh - 828px)); max-width: 360px; padding: 11px 16px; border-radius: 999px; color: #fff; background: rgba(36,34,34,.92); font-size: 12px; opacity: 0; pointer-events: none; transform: translate(-50%, 16px); transition: .25s; white-space: nowrap; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+.live-state-screen{width:430px;height:932px;background:#fff}.live-state-screen[hidden]{display:none}.state-content{padding:48px 24px}.state-content .ui-button{margin-top:24px}
 
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
