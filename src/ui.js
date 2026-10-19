@@ -39,7 +39,8 @@ export const BottomSheet = ({ id, title, body }) => `
 
 export const Skeleton = ({ rows = 3 } = {}) => `<div class="ui-skeleton" role="status" aria-label="불러오는 중">${Array.from({ length: rows }, () => '<i></i>').join('')}</div>`;
 
-export const EmptyState = ({ title, description, action = '' }) => `<section class="ui-state ui-empty-state"><strong aria-hidden="true">○</strong><h2>${title}</h2><p>${description}</p>${action}</section>`;
+const emptyBowlIcon = '<svg class="ui-state__icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 19h32c0 12-6 20-16 20S8 31 8 19Z"/><path d="M14 43h20M17 13c0-4 4-4 4-8M27 14c0-4 4-4 4-8"/><path d="M16 25h16"/></svg>';
+export const EmptyState = ({ title, description, action = '' }) => `<section class="ui-state ui-empty-state">${emptyBowlIcon}<h2>${title}</h2><p>${description}</p>${action}</section>`;
 
 export const ErrorState = ({ title = '불러오지 못했어요', description = '잠시 후 다시 시도해주세요.', action = '' }) => `<section class="ui-state ui-error-state" role="alert"><strong aria-hidden="true">!</strong><h2>${title}</h2><p>${description}</p>${action}</section>`;
 
