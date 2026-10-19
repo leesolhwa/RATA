@@ -256,6 +256,21 @@ const prototypeScreens = {
 };
 
 document.querySelector('#app').innerHTML = `
+  <div class="desktop-stage">
+    <aside class="desktop-intro" aria-label="RATA 소개">
+      <span class="desktop-brand-logo" role="img" aria-label="RATA"></span>
+      <h1>당신의<br>깊어질<br>취향을</h1>
+      <span class="desktop-accent-bar" aria-hidden="true"></span>
+      <p>RATA는 취향으로 라멘집과 팝업, 콜라보를 찾아주는 모바일 앱이에요.</p>
+    </aside>
+    <div class="phone-frame-slot">
+      <div class="phone-frame">
+        <span class="phone-island" aria-hidden="true"></span>
+        <span class="phone-side-button phone-side-button-one" aria-hidden="true"></span>
+        <span class="phone-side-button phone-side-button-two" aria-hidden="true"></span>
+        <span class="phone-side-button phone-side-button-three" aria-hidden="true"></span>
+        <span class="phone-side-button phone-side-button-four" aria-hidden="true"></span>
+        <div class="phone-screen">
   <div class="experience-shell">
   <section class="splash-screen" aria-label="RATA 시작 화면">
     <video class="splash-video" autoplay muted playsinline preload="auto" aria-label="라멘 온보딩 영상">
@@ -512,6 +527,20 @@ document.querySelector('#app').innerHTML = `
     ${Toast()}
   </main>
   </div>
+        </div>
+      </div>
+    </div>
+    <aside class="desktop-modes" aria-label="RATA 모드 선택">
+      <h2>모드를 골라 보세요</h2>
+      <button class="desktop-mode-card" type="button" data-desktop-mode="light" aria-pressed="false">
+        <span class="desktop-mode-copy"><em>라이트 모드</em><strong>쉬운 설명과 추천 위주</strong></span><i aria-hidden="true"></i>
+      </button>
+      <button class="desktop-mode-card" type="button" data-desktop-mode="rata" aria-pressed="false">
+        <span class="desktop-mode-copy"><em>라타 모드</em><strong>육수·타래·면 같은 진한 스토리</strong></span><i aria-hidden="true"></i>
+      </button>
+      <footer>2026 UX / UI Portfolio · Designed by 이솔화</footer>
+    </aside>
+  </div>
 `;
 
 const heroTrack = document.querySelector('.hero-track');
@@ -596,10 +625,31 @@ function setAppMode(selectedMode, announce = false) {
   applySheetModeContent();
   const compose = document.querySelector('.ratalk-compose');
   if (compose) compose.dataset.mode = selectedMode;
+  document.querySelectorAll('[data-desktop-mode]').forEach((button) => {
+    const selected = button.dataset.desktopMode === selectedMode;
+    button.classList.toggle('selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
   if (announce) showToast(selectedMode === 'rata' ? '라타 모드로 전환했어요' : '라이트 모드로 전환했어요');
 }
 document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => setAppMode(btn.dataset.mode, true)));
+document.querySelectorAll('[data-desktop-mode]').forEach((button) => button.addEventListener('click', () => setAppMode(button.dataset.desktopMode, true)));
+window.addEventListener('storage', (event) => {
+  if (event.key !== 'rata_mode' || event.newValue == null) return;
+  try {
+    const mode = JSON.parse(event.newValue);
+    if (mode === 'light' || mode === 'rata') setAppMode(mode);
+  } catch {}
+});
 setAppMode(appState.mode);
+
+const updateDesktopFrameScale = () => {
+  const scale = Math.min(1, (window.innerHeight - 48) / 940);
+  document.documentElement.style.setProperty('--s', String(Math.max(0, scale)));
+  document.documentElement.style.setProperty('--mobile-frame-scale', String(Math.min(1, window.innerWidth / 430)));
+};
+updateDesktopFrameScale();
+window.addEventListener('resize', updateDesktopFrameScale, { passive: true });
 
 document.querySelectorAll('.date-card').forEach(card => card.addEventListener('click', () => {
   document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
