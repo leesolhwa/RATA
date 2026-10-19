@@ -1,4 +1,6 @@
 import './styles.css';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Button, Dialog, Input, Toast } from './ui.js';
 
 const ramenPhotos = {
@@ -154,31 +156,7 @@ const prototypeScreens = {
   calendar: { nav: true },
   calendarMonth: { nav: true },
   calendarDetail: { nav: false },
-  map: { src: screenAsset('08_04_Map_edit_1-1225.png'), nav: true, hotspots: [
-    ['취향 편집', 285, 105, 132, 64, 'mapPrefsOld'], ['지도 매장 선택', 145, 300, 150, 320, 'mapSheet']
-  ] },
-  mapSheet: { src: screenAsset('09_04-1_Map_click_1-1273.png'), nav: true, hotspots: [
-    ['매장 패널 닫기', 370, 570, 60, 70, 'map'], ['매장 상세 보기', 0, 600, 360, 230, 'storeGuest']
-  ] },
-  storeGuest: { src: screenAsset('10_04-1_Map_datail_라린_1-1383.png'), nav: false, hotspots: [
-    ['뒤로', 0, 20, 60, 70, 'mapSheet'], ['저장하기', 350, 20, 80, 70, 'storeSaved'], ['상세 정보 펼치기', 0, 370, 430, 180, 'storeLight']
-  ] },
-  storeSaved: { src: screenAsset('11_04-1_Map_datail_라린_1-1460.png'), nav: false, hotspots: [
-    ['뒤로', 0, 20, 60, 70, 'mapSheet'], ['저장 취소', 350, 20, 80, 70, 'storeGuest'], ['상세 정보 펼치기', 0, 370, 430, 180, 'storeLight']
-  ] },
-  storeLight: { src: screenAsset('12_04-1_Map_datail_라이트_1-1537.png'), nav: false, hotspots: [
-    ['뒤로', 0, 20, 60, 70, 'mapSheet'], ['라타 상세 보기', 0, 980, 430, 360, 'storeRata']
-  ] },
-  storeRata: { src: screenAsset('13_04-1_Map_datail_라타_1-1652.png'), nav: false, hotspots: [
-    ['뒤로', 0, 20, 60, 70, 'mapSheet'], ['수정된 상세 보기', 330, 20, 100, 70, 'storeRataEdit']
-  ] },
-  storeRataEdit: { src: screenAsset('14_04-1_Map_datail_라타_수정중__1-1852.png'), nav: false, hotspots: [['뒤로', 0, 20, 60, 70, 'mapSheet']] },
-  mapPrefsOld: { src: screenAsset('15_04_map_라오타취향편집팝업_1-2040.png'), nav: false, hotspots: [
-    ['취향 편집 닫기', 365, 180, 65, 80, 'map'], ['취향 단계 변경', 20, 300, 390, 340, 'mapPrefsNew'], ['취향 저장', 20, 810, 390, 70, 'map']
-  ] },
-  mapPrefsNew: { src: screenAsset('16_04_map_라린이취향편집팝업_1-2100.png'), nav: false, hotspots: [
-    ['취향 편집 닫기', 365, 180, 65, 80, 'map'], ['취향 단계 변경', 20, 300, 390, 340, 'mapPrefsOld'], ['취향 저장', 20, 810, 390, 70, 'map']
-  ] },
+  map: { nav: true }, mapSheet: { nav: true }, storeGuest: { nav: false }, storeSaved: { nav: false }, storeLight: { nav: false }, storeRata: { nav: false }, storeRataEdit: { nav: false }, mapPrefsOld: { nav: false }, mapPrefsNew: { nav: false },
   ratalk: { src: screenAsset('18_05_ratalk_1-2191.png'), nav: true, hotspots: [
     ['게시글 상세 보기', 0, 150, 430, 590, 'ratalkDetail'], ['글쓰기', 340, 735, 90, 100, 'writePhoto']
   ] },
@@ -560,13 +538,15 @@ const tasteModal = document.querySelector('.taste-modal');
 let rataMap;
 let mapMarkers = [];
 let naverMapsPromise;
+let mapProvider = 'naver';
 const authRoutes = new Set(['loginVisual', 'loginForm', 'join', 'joinInput', 'joinValid', 'socialLogin']);
 const myRoutes = new Set(['my', 'myLogout', 'mySaved', 'settings', 'settingsLogout', 'myPlate']);
 const calendarRoutes = new Set(['calendar', 'calendarMonth', 'calendarDetail']);
+const mapRoutes = new Set(['map','mapSheet','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew']);
 
 const prototypeImageCache = new Map();
 Object.entries(prototypeScreens).forEach(([name, screen]) => {
-  if (['map', 'mapSheet', 'ratalk'].includes(name) || authRoutes.has(name) || myRoutes.has(name) || calendarRoutes.has(name)) return;
+  if (mapRoutes.has(name) || name === 'ratalk' || authRoutes.has(name) || myRoutes.has(name) || calendarRoutes.has(name)) return;
   const image = new Image();
   image.decoding = 'async';
   image.src = screen.src;
@@ -614,14 +594,23 @@ async function initMap() {
         icon: { content: `<button class="naver-ratav-marker${featured ? ' featured' : ''}" type="button" aria-label="${name}">${featured ? '<b>R</b>' : ''}</button>`, anchor: new maps.Point(featured ? 26 : 14, featured ? 58 : 34) }
       });
       maps.Event.addListener(marker, 'click', showStoreSheet);
-      return { marker, type };
+      return { marker, type, setVisible: (visible) => marker.setMap(visible ? rataMap : null) };
     });
     mapElement.classList.remove('loading');
     return rataMap;
   } catch (error) {
+    mapProvider = 'leaflet';
+    mapElement.innerHTML = '';
+    rataMap = L.map(mapElement, { zoomControl: false, attributionControl: false, minZoom: 12 }).setView([37.5556, 126.9238], 15);
+    L.tileLayer('/api/map-tile?z={z}&x={x}&y={y}', { maxZoom: 19 }).addTo(rataMap);
+    mapMarkers = mapPlaces.map(([name, lat, lng, type, featured]) => {
+      const marker = L.marker([lat, lng], { title: name, icon: L.divIcon({ className: `rata-marker${featured ? ' featured' : ''}`, html: featured ? '<span><b>R</b></span>' : '<span></span>', iconSize: featured ? [52,64] : [28,36], iconAnchor: featured ? [26,60] : [14,34] }) }).addTo(rataMap);
+      marker.on('click', showStoreSheet);
+      return { marker, type, setVisible: (visible) => { if (visible && !rataMap.hasLayer(marker)) marker.addTo(rataMap); if (!visible && rataMap.hasLayer(marker)) marker.removeFrom(rataMap); } };
+    });
     mapElement.classList.remove('loading');
-    mapElement.innerHTML = `<div class="map-error" role="alert"><strong>지도를 불러오지 못했어요</strong><p>${error.message}</p><button type="button" onclick="location.reload()">다시 시도</button></div>`;
-    throw error;
+    showToast('네이버 지도 연결이 지연되어 기본 지도로 전환했어요.');
+    return rataMap;
   }
 }
 
@@ -717,7 +706,7 @@ function openPrototype(name) {
   prototypeScreen.dataset.screen = name;
   prototypeScreen.setAttribute('aria-hidden', 'false');
   document.body.classList.add('prototype-open');
-  const isLiveMap = name === 'map' || name === 'mapSheet';
+  const isLiveMap = mapRoutes.has(name);
   const isLiveTalk = name === 'ratalk';
   const isLiveAuth = authRoutes.has(name);
   const isLiveMy = myRoutes.has(name);
@@ -745,9 +734,12 @@ function openPrototype(name) {
   if (isLiveMap) {
     prototypeHotspots.innerHTML = '';
     initMap().then(() => requestAnimationFrame(() => {
-      window.naver.maps.Event.trigger(rataMap, 'resize');
-      if (name === 'mapSheet') showStoreSheet();
-      else setSheetVisible(false);
+      if (mapProvider === 'naver') window.naver.maps.Event.trigger(rataMap, 'resize');
+      else rataMap.invalidateSize();
+      if (name.startsWith('mapPrefs')) { setSheetVisible(false); openTasteEditor(); }
+      else if (name === 'map') { setSheetVisible(false); closeTasteEditor(); }
+      else if (name === 'mapSheet') showStoreSheet();
+      else setSheetVisible(true, true);
     })).catch(() => {});
   } else if (isLiveTalk) {
     document.querySelector('.ratalk-feed').scrollTo({ top: 0 });
@@ -839,9 +831,9 @@ document.querySelectorAll('[data-map-filter]').forEach((button) => button.addEve
   document.querySelectorAll('[data-map-filter]').forEach((item) => item.classList.remove('active'));
   button.classList.add('active');
   const filter = button.dataset.mapFilter;
-  mapMarkers.forEach(({ marker, type }) => {
+  mapMarkers.forEach(({ type, setVisible }) => {
     const visible = filter === 'all' || filter === type;
-    marker.setMap(visible ? rataMap : null);
+    setVisible(visible);
   });
 }));
 document.querySelector('.sheet-close').addEventListener('click', () => {
