@@ -190,7 +190,7 @@ document.querySelector('#app').innerHTML = `
         <article class="onboarding-page" data-step="0">
           <div class="onboarding-title"><h1>어떤 국물 좋아하세요 ?</h1><p>3번만 답해주시면 첫 홈이 내 취향으로 채워져요.<br>나중에 언제든지 바꿀 수 있어요!</p></div>
           <div class="broth-grid">
-            ${brothChoices.map((item, i) => `<button class="broth-card ${i === 1 || i === 2 ? 'selected' : ''}" data-broth="${item.id}" aria-pressed="${i === 1 || i === 2}" style="--choice-image:url('${item.image}')">
+            ${brothChoices.map((item) => `<button class="broth-card" data-broth="${item.id}" aria-pressed="false" style="--choice-image:url('${item.image}')">
               <span><strong>${item.title}</strong><small>${item.copy}</small></span>
             </button>`).join('')}
           </div>
@@ -200,7 +200,7 @@ document.querySelector('#app').innerHTML = `
         <article class="onboarding-page" data-step="1">
           <div class="onboarding-title"><h1>어떻게 먹는게 좋아요?</h1><p>가게 추천과 일정 알림에 쓰여요.<br>하나만 골라주시면 금방 알아볼게요.</p></div>
           <div class="taste-list">
-            ${eatingChoices.map((item, i) => `<button class="taste-option ${i === 1 ? 'selected' : ''}" data-eating="${item.id}" aria-pressed="${i === 1}">
+            ${eatingChoices.map((item) => `<button class="taste-option" data-eating="${item.id}" aria-pressed="false">
               <span class="taste-image" style="--choice-image:url('${item.image}')"></span>
               <span class="taste-copy"><strong>${item.title}</strong><small>${item.copy}</small></span><i class="radio"></i>
             </button>`).join('')}
@@ -214,8 +214,7 @@ document.querySelector('#app').innerHTML = `
             ${[
               ['collab', '내 취향 콜라보 · 팝업 오픈', '방금 고른 국물 · 방식에 맞는 새 콜라보 · 팝업', true],
               ['shop', '좋아하는 가게 소식', '저장한 가게의 팝업 · 한정 · 시즌 메뉴 오픈 알림', true],
-              ['near', '근처 팝업', '내 위치 반경 3km 안 팝업 오픈 소식을 알려드려요', false],
-              ['near2', '근처 팝업', '내 위치 반경 3km 안 팝업 오픈 소식을 알려드려요', false]
+              ['near', '근처 팝업', '내 위치 반경 3km 안 팝업 오픈 소식을 알려드려요', false]
             ].map(([id,title,copy,on]) => `<div class="preference-row"><div><strong>${title}</strong><small>${copy}</small></div><button class="pref-toggle ${on ? 'on' : ''}" data-pref="${id}" aria-pressed="${on}" aria-label="${title} 알림 ${on ? '켜짐' : '꺼짐'}"><i></i></button></div>`).join('')}
           </div>
           <div class="onboarding-actions"><button class="primary-btn start-btn">시작하기</button><button class="secondary-btn onboarding-back">이전으로</button></div>
@@ -681,7 +680,7 @@ function renderMyView(name) {
     const photos=[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy,ramenPhotos.newsMiso,ramenPhotos.mixed,ramenPhotos.newsShoyu,ramenPhotos.hero,ramenPhotos.street,ramenPhotos.dipping,ramenPhotos.clear];
     liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${photos.map((src,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${src}" alt="라멘 기록 ${i+1}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">＋</button>`;
   } else {
-    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>설정</h1></header><section class="settings-list"><small>계정</small><button type="button">프로필 편집 <b>›</b></button><button type="button">취향 다시 고르기 <b>›</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button">문의하기 <b>›</b></button><button type="button">이용약관 · 개인정보 <b>›</b></button></section><footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>`;
+    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>설정</h1></header><section class="settings-list"><small>계정</small><button type="button">프로필 편집 <b>›</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>›</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button">문의하기 <b>›</b></button><button type="button">이용약관 · 개인정보 <b>›</b></button></section><footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>`;
     if (name === 'settingsLogout') requestAnimationFrame(() => openDialog('logout-dialog'));
   }
   liveMyScreen.scrollTop = 0;
@@ -833,6 +832,11 @@ document.querySelectorAll('[data-prototype-nav]').forEach((button) => button.add
 }));
 
 liveMyScreen.addEventListener('click', (event) => {
+  if (event.target.closest('[data-restart-onboarding]')) {
+    closePrototype();
+    openOnboarding(true);
+    return;
+  }
   const route = event.target.closest('[data-my-route]')?.dataset.myRoute;
   if (route) return openPrototype(route);
   const dialogId = event.target.closest('[data-open-dialog]')?.dataset.openDialog;
@@ -1070,8 +1074,35 @@ const onboardingTrack = document.querySelector('.onboarding-track');
 const onboardingProgress = [...document.querySelectorAll('.onboarding-progress i')];
 const stepCount = document.querySelector('.step-count');
 const query = new URLSearchParams(window.location.search);
+const ONBOARDED_KEY = 'rata_onboarded';
+const ONBOARDING_CHOICES_KEY = 'rata_onboarding_choices';
+const SPLASH_SEEN_KEY = 'rata_splash_seen';
 let onboardingStep = 0;
 let tickerTimer;
+let splashFinished = false;
+
+const storageHas = (storage, key) => {
+  try { return storage.getItem(key) === '1'; } catch { return false; }
+};
+const hasOnboarded = () => storageHas(window.localStorage, ONBOARDED_KEY);
+const hasSeenSplash = () => storageHas(window.sessionStorage, SPLASH_SEEN_KEY);
+const markSplashSeen = () => {
+  try { window.sessionStorage.setItem(SPLASH_SEEN_KEY, '1'); } catch {}
+};
+
+const getOnboardingChoices = () => ({
+  broth: [...document.querySelectorAll('.broth-card.selected')].map((card) => card.dataset.broth),
+  allBroth: document.querySelector('.wide-choice').classList.contains('selected'),
+  eating: document.querySelector('.taste-option.selected')?.dataset.eating || null,
+  notifications: Object.fromEntries([...document.querySelectorAll('.pref-toggle')].map((toggle) => [toggle.dataset.pref, toggle.classList.contains('on')]))
+});
+
+const saveOnboarding = () => {
+  try {
+    window.localStorage.setItem(ONBOARDED_KEY, '1');
+    window.localStorage.setItem(ONBOARDING_CHOICES_KEY, JSON.stringify(getOnboardingChoices()));
+  } catch {}
+};
 
 function startTickerTimer() {
   const header = document.querySelector('.app-header');
@@ -1093,21 +1124,34 @@ const setOnboardingStep = (nextStep) => {
   document.querySelectorAll('.onboarding-page').forEach((page, index) => page.setAttribute('aria-hidden', index !== onboardingStep));
 };
 
-const openOnboarding = () => {
+function openOnboarding(force = false) {
+  if (hasOnboarded() && !force) {
+    enterHome(false);
+    return;
+  }
   splash.classList.add('hidden');
   onboarding.classList.add('visible');
   onboarding.setAttribute('aria-hidden', 'false');
   document.body.classList.add('onboarding-open');
   setOnboardingStep(0);
-};
+}
 
 const enterHome = (remember = true) => {
+  if (remember) saveOnboarding();
   splash.classList.add('hidden');
   onboarding.classList.remove('visible');
   onboarding.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('onboarding-open');
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
   startTickerTimer();
+};
+
+const finishSplash = () => {
+  if (splashFinished) return;
+  splashFinished = true;
+  markSplashSeen();
+  if (hasOnboarded()) enterHome(false);
+  else openOnboarding();
 };
 
 document.querySelectorAll('.broth-card').forEach(card => card.addEventListener('click', () => {
@@ -1145,14 +1189,21 @@ document.querySelector('.start-btn').addEventListener('click', () => enterHome(t
 enableSwipe(document.querySelector('.onboarding-window'), () => setOnboardingStep(onboardingStep + 1), () => setOnboardingStep(onboardingStep - 1));
 
 if (query.has('home')) {
+  markSplashSeen();
   enterHome(false);
 } else if (query.has('screen') && prototypeScreens[query.get('screen')]) {
+  markSplashSeen();
   enterHome(false);
   openPrototype(query.get('screen'));
 } else if (query.has('skipSplash')) {
-  openOnboarding();
-} else if (!query.has('splash')) {
-  splashVideo.addEventListener('ended', openOnboarding, { once: true });
-  window.setTimeout(openOnboarding, 13500);
-  splash.addEventListener('click', openOnboarding, { once: true });
+  markSplashSeen();
+  if (hasOnboarded()) enterHome(false);
+  else openOnboarding();
+} else if (hasSeenSplash()) {
+  if (hasOnboarded()) enterHome(false);
+  else openOnboarding();
+} else {
+  splashVideo.addEventListener('ended', finishSplash, { once: true });
+  window.setTimeout(finishSplash, 13500);
+  splash.addEventListener('click', finishSplash, { once: true });
 }
