@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './styles.css';
+import { Button, Input, Toast } from './ui.js';
 
 const ramenPhotos = {
   hero: '/images/photos/hero-ramen.webp',
@@ -211,24 +212,12 @@ const prototypeScreens = {
   myPlate: { src: screenAsset('26_06_My_plate_1-2635.png'), nav: false, hotspots: [
     ['뒤로', 0, 20, 60, 70, 'my'], ['새 한 그릇 작성', 350, 820, 80, 90, 'writePhoto']
   ] },
-  loginVisual: { src: screenAsset('01_07_login_1-869.png'), nav: false, hotspots: [
-    ['로그인 입력', 20, 560, 390, 180, 'loginForm'], ['회원가입', 200, 800, 210, 100, 'join'], ['간편 로그인', 20, 700, 390, 100, 'socialLogin']
-  ] },
-  loginForm: { src: screenAsset('02_07_login_1-917.png'), nav: false, hotspots: [
-    ['로그인 완료', 20, 650, 390, 100, 'my'], ['회원가입', 200, 800, 210, 100, 'join']
-  ] },
-  join: { src: screenAsset('03_07_join_1-941.png'), nav: false, hotspots: [
-    ['가입 정보 입력', 20, 230, 390, 430, 'joinInput'], ['가입 완료', 20, 650, 390, 100, 'my']
-  ] },
-  joinInput: { src: screenAsset('36_SU1-Default_1_1-3042.png'), nav: false, hotspots: [
-    ['입력 완료 상태', 20, 480, 390, 300, 'joinValid'], ['뒤로', 0, 20, 60, 70, 'join']
-  ] },
-  joinValid: { src: screenAsset('37_SU3-Validate_1_1-3421.png'), nav: false, hotspots: [
-    ['가입 완료', 20, 700, 390, 100, 'my'], ['뒤로', 0, 20, 60, 70, 'join']
-  ] },
-  socialLogin: { src: screenAsset('35_Frame_382_1-2996.png'), nav: false, hotspots: [
-    ['뒤로', 0, 20, 80, 80, 'loginVisual'], ['로그인 폼', 130, 560, 300, 330, 'loginForm']
-  ] }
+  loginVisual: { nav: false },
+  loginForm: { nav: false },
+  join: { nav: false },
+  joinInput: { nav: false },
+  joinValid: { nav: false },
+  socialLogin: { nav: false }
 };
 
 document.querySelector('#app').innerHTML = `
@@ -458,19 +447,24 @@ document.querySelector('#app').innerHTML = `
         <button class="ratalk-compose" aria-label="글쓰기">✎</button>
       </section>
       <section class="live-auth-screen" hidden aria-label="로그인">
-        <div class="auth-visual"><img src="/brand/R_logo_RATA.svg" alt="RATA"><h1>당신의<br>깊어질<br>취향을</h1></div>
+        <div class="auth-visual">
+          <button class="auth-back" type="button" aria-label="이전 화면">‹</button>
+          <img src="/brand/R_logo_RATA.svg" alt="RATA">
+          <h1>당신의<br>깊어질<br>취향을</h1>
+        </div>
         <section class="auth-card">
-          <button class="auth-close" aria-label="닫기">×</button>
-          <header><h2 class="auth-title">로그인하고 취향을 이어가요</h2><p class="auth-subtitle">저장 · 댓글 · 글쓰기는 로그인 후 이용가능합니다.</p></header>
-          <form class="auth-form">
-            <label class="auth-name-field" hidden><span>이름</span><input name="name" autocomplete="name" placeholder="이름"></label>
-            <label><span>이메일</span><input name="email" type="email" autocomplete="email" placeholder="example@example.com"></label>
-            <label><span>비밀번호</span><input name="password" type="password" autocomplete="current-password" placeholder="8자 이상 입력"></label>
-            <button class="auth-submit" type="submit">로그인</button>
+          <header><img class="auth-card-logo" src="/brand/R_logo_RATA.svg" alt=""><h2 class="auth-title">로그인하고 취향을 이어가요</h2><p class="auth-subtitle">저장 · 댓글 · 글쓰기는 로그인 후 이용가능합니다.</p></header>
+          <form class="auth-form" novalidate>
+            <div class="auth-name-field">${Input({ name: 'name', label: '이름(닉네임)', placeholder: '이름(닉네임)', autocomplete: 'nickname', required: true })}</div>
+            ${Input({ name: 'email', label: '이메일 주소', type: 'email', placeholder: '이메일 주소', autocomplete: 'email', required: true })}
+            ${Input({ name: 'password', label: '비밀번호', type: 'password', placeholder: '비밀번호', autocomplete: 'current-password', required: true, hint: '영문, 숫자 포함 8자 이상' })}
+            <div class="auth-confirm-field">${Input({ name: 'passwordConfirm', label: '비밀번호 다시 입력', type: 'password', placeholder: '비밀번호 다시 입력', autocomplete: 'new-password', required: true })}</div>
+            <p class="auth-terms">가입하면 <button type="button">이용약관</button>과 <button type="button">개인정보 처리방침</button>에 동의해요.</p>
+            ${Button({ label: '로그인하기', type: 'submit', className: 'auth-submit', disabled: true })}
           </form>
           <div class="auth-divider"><span>간편로그인</span></div>
-          <div class="auth-socials"><button aria-label="구글 로그인">G</button><button class="naver" aria-label="네이버 로그인">N</button><button class="kakao" aria-label="카카오 로그인">●</button></div>
-          <footer><p>아직 계정이 없으신가요? <button class="auth-join">회원가입</button></p><p class="login-only">계정이나 비밀번호를 잊어버리셨나요? <button>e-mail/pw찾기</button></p></footer>
+          <div class="auth-socials"><button type="button" data-provider="구글" aria-label="구글로 계속하기">G</button><button type="button" class="naver" data-provider="네이버" aria-label="네이버로 계속하기">N</button><button type="button" class="kakao" data-provider="카카오" aria-label="카카오로 계속하기"><span></span></button></div>
+          <footer><p class="auth-switch-copy">아직 계정이 없으신가요? <button class="auth-switch" type="button">회원가입</button></p><p class="login-only">계정이나 비밀번호를 잊어버리셨나요? <button type="button">e-mail/pw찾기</button></p></footer>
         </section>
       </section>
       <nav class="prototype-nav" aria-label="피그마 하단 메뉴">
@@ -478,7 +472,7 @@ document.querySelector('#app').innerHTML = `
         ${[['home','메인'],['calendar','일정'],['map','지도'],['ratalk','라톡'],['my','마이']].map(([key,label], index) => `<button class="nav-item ${index===0?'active':''}" data-prototype-nav="${index}" aria-label="${label}"><img class="nav-off" src="/figma/nav-items/${key}_off.png" alt=""><img class="nav-on" src="/figma/nav-items/${key}_on.png" alt=""></button>`).join('')}
       </nav>
     </section>
-    <div class="toast" role="status" aria-live="polite"></div>
+    ${Toast()}
   </main>
   </div>
 `;
@@ -827,28 +821,91 @@ document.querySelector('.talk-place-filter').addEventListener('click', () => sho
 
 let currentAuthView = 'loginVisual';
 function renderAuthView(name) {
+  const previousView = currentAuthView;
   currentAuthView = name;
   const joining = ['join', 'joinInput', 'joinValid'].includes(name);
   liveAuthScreen.classList.toggle('join-view', joining);
-  document.querySelector('.auth-name-field').hidden = !joining;
-  document.querySelector('.auth-title').textContent = joining ? '회원가입하고 취향을 시작해요' : '로그인하고 취향을 이어가요';
-  document.querySelector('.auth-subtitle').textContent = joining ? '기본 정보만 입력하면 바로 시작할 수 있어요.' : '저장 · 댓글 · 글쓰기는 로그인 후 이용가능합니다.';
-  document.querySelector('.auth-submit').textContent = joining ? '가입하고 시작하기' : '로그인';
-  document.querySelector('.auth-join').closest('p').hidden = joining;
-  requestAnimationFrame(() => document.querySelector(joining ? '.auth-form input[name="name"]' : '.auth-form input[name="email"]')?.focus({ preventScroll: true }));
-}
-document.querySelector('.auth-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const form = new FormData(event.currentTarget);
-  if (!form.get('email') || !form.get('password') || (liveAuthScreen.classList.contains('join-view') && !form.get('name'))) {
-    showToast('입력 내용을 확인해주세요');
-    return;
+  document.querySelector('.auth-title').innerHTML = joining ? '나만의 라멘 취향을<br>시작해보세요.' : '로그인하고 취향을 이어가요';
+  document.querySelector('.auth-subtitle').textContent = joining ? '회원가입 후 나만의 라멘 취향을 찾아가보세요!' : '저장 · 댓글 · 글쓰기는 로그인 후 이용가능합니다.';
+  document.querySelector('.auth-submit').textContent = joining ? '시작하기' : '로그인하기';
+  document.querySelector('.auth-switch-copy').firstChild.textContent = joining ? '이미 계정이 있나요? ' : '아직 계정이 없으신가요? ';
+  document.querySelector('.auth-switch').textContent = joining ? '로그인' : '회원가입';
+  const password = document.querySelector('.auth-form input[name="password"]');
+  password.autocomplete = joining ? 'new-password' : 'current-password';
+  if (previousView !== name) {
+    document.querySelector('.auth-form').reset();
+    document.querySelectorAll('.auth-form .ui-field').forEach((field) => {
+      field.classList.remove('is-error');
+      field.dataset.touched = 'false';
+      field.querySelector('input').removeAttribute('aria-invalid');
+    });
   }
-  showToast(liveAuthScreen.classList.contains('join-view') ? '가입이 완료됐어요' : '로그인했어요');
-  window.setTimeout(() => openPrototype('my'), 350);
+  updateAuthFormState();
+}
+
+const authForm = document.querySelector('.auth-form');
+const authSubmit = document.querySelector('.auth-submit');
+const authInputs = Object.fromEntries([...authForm.querySelectorAll('input')].map((input) => [input.name, input]));
+const isJoining = () => liveAuthScreen.classList.contains('join-view');
+const authError = (name) => {
+  const value = authInputs[name].value.trim();
+  if (name === 'name') return value.length >= 2 ? '' : '이름은 2자 이상 입력해주세요.';
+  if (name === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : '올바른 이메일 주소를 입력해주세요.';
+  if (name === 'password') return value.length >= 8 && /[A-Za-z]/.test(value) && /\d/.test(value) ? '' : '영문과 숫자를 포함해 8자 이상 입력해주세요.';
+  if (name === 'passwordConfirm') return value && value === authInputs.password.value ? '' : '비밀번호가 일치하지 않아요.';
+  return '';
+};
+function updateAuthFormState(showErrors = false) {
+  const requiredNames = isJoining() ? ['name', 'email', 'password', 'passwordConfirm'] : ['email', 'password'];
+  requiredNames.forEach((name) => {
+    const input = authInputs[name];
+    const field = input.closest('.ui-field');
+    const error = authError(name);
+    const shouldShow = Boolean(error) && (showErrors || field.dataset.touched === 'true');
+    field.classList.toggle('is-error', shouldShow);
+    input.setAttribute('aria-invalid', String(shouldShow));
+    field.querySelector('.ui-field__message').textContent = shouldShow ? error : (name === 'password' ? '영문, 숫자 포함 8자 이상' : '');
+  });
+  const valid = requiredNames.every((name) => !authError(name));
+  authSubmit.disabled = !valid;
+  return valid;
+}
+
+authForm.addEventListener('input', (event) => {
+  const field = event.target.closest('.ui-field');
+  if (field) field.dataset.touched = 'true';
+  updateAuthFormState();
 });
-document.querySelector('.auth-join').addEventListener('click', () => openPrototype('join'));
-document.querySelector('.auth-socials').addEventListener('click', () => showToast('간편로그인을 연결하고 있어요'));
+authForm.addEventListener('focusout', (event) => {
+  const field = event.target.closest('.ui-field');
+  if (field) field.dataset.touched = 'true';
+  updateAuthFormState();
+});
+authForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!updateAuthFormState(true)) return;
+  const joining = isJoining();
+  authSubmit.disabled = true;
+  authSubmit.textContent = joining ? '가입하는 중…' : '로그인 중…';
+  window.setTimeout(() => {
+    showToast(joining ? '회원가입이 완료됐어요.' : '로그인했어요.');
+    openPrototype('my');
+  }, 450);
+});
+document.querySelectorAll('[data-reveal]').forEach((button) => button.addEventListener('click', () => {
+  const input = authInputs[button.dataset.reveal];
+  const visible = input.type === 'text';
+  input.type = visible ? 'password' : 'text';
+  button.setAttribute('aria-label', visible ? '비밀번호 보기' : '비밀번호 숨기기');
+}));
+document.querySelector('.auth-switch').addEventListener('click', () => openPrototype(isJoining() ? 'loginVisual' : 'join'));
+document.querySelector('.auth-back').addEventListener('click', () => openPrototype(isJoining() ? 'loginVisual' : 'myLogout'));
+document.querySelectorAll('.auth-socials [data-provider]').forEach((button) => button.addEventListener('click', () => {
+  const joining = isJoining();
+  const provider = button.dataset.provider;
+  showToast(`${provider} ${joining ? '회원가입이 완료됐어요.' : '로그인했어요.'}`);
+  window.setTimeout(() => openPrototype('my'), 450);
+}));
 
 document.querySelectorAll('[data-toast]').forEach(btn => btn.addEventListener('click', () => showToast(btn.dataset.toast)));
 
