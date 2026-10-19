@@ -720,6 +720,7 @@ async function initMap() {
 
 function setSheetVisible(visible, expanded = false) {
   const state = !visible ? 'hidden' : expanded ? 'full' : 'peek';
+  resetSheetDragStyles();
   storeSheet.dataset.state = state;
   storeSheet.classList.toggle('visible', visible);
   storeSheet.classList.remove('half');
@@ -730,12 +731,29 @@ function setSheetVisible(visible, expanded = false) {
 }
 function setSheetState(state) {
   if (state === 'hidden') return setSheetVisible(false);
+  resetSheetDragStyles();
   storeSheet.dataset.state = state;
   storeSheet.classList.add('visible');
   storeSheet.classList.toggle('half', state === 'half');
   storeSheet.classList.toggle('expanded', state === 'full');
   prototypeNav.classList.toggle('sheet-expanded', state === 'full');
   storeSheet.setAttribute('aria-hidden', 'false');
+}
+
+function resetSheetDragStyles() {
+  storeSheet.classList.remove('dragging');
+  ['height', 'bottom', 'transform', 'transition'].forEach((property) => storeSheet.style.removeProperty(property));
+}
+
+function closeStoreSheet() {
+  setSheetVisible(false);
+  storeSheet.classList.remove('visible', 'half', 'expanded', 'dragging');
+  storeSheet.dataset.state = 'hidden';
+  storeSheet.setAttribute('aria-hidden', 'true');
+  prototypeNav.classList.remove('sheet-expanded');
+  appState.selectedPlaceId = null;
+  refreshMapMarkerSelection();
+  history.replaceState(null, '', `${location.pathname}?screen=map`);
 }
 
 function renderSelectedStore() {
@@ -819,7 +837,33 @@ const savedRows = (items) => items.map((item) => {
   return `<article class="my-saved-row" data-saved-id="${item.id}" data-type="${item.type}"><img src="${item.image}" alt="${item.title}"><div><span><b>${diff >= 0 ? `D-${diff}` : '종료'}</b> ${shortDate(item.date)} · ${item.place}</span><strong>${item.title}</strong></div><button type="button" class="saved-bookmark ${active ? 'active' : ''}" aria-label="${item.title} ${active ? '저장 취소' : '저장'}" aria-pressed="${active}">${icon('bookmark', 20)}</button></article>`;
 }).join('');
 
-const tasteGraph = () => `<svg class="taste-graph" viewBox="0 0 190 170" role="img" aria-label="진한 국물 90, 굵은 면 80, 감칠맛 70, 기름기 60, 매운맛 35"><g class="taste-grid"><path d="M95 20 165 72 138 150 52 150 25 72Z"/><path d="M95 43 143 79 125 132 66 132 47 79Z"/><path d="M95 66 122 86 112 114 78 114 68 86Z"/><path d="M95 20V150M25 72l113 78M165 72 52 150M138 150 25 72M52 150l113-78"/></g><path class="taste-data" d="M95 30 151 76 124 139 61 130 57 81Z"/><g class="taste-points"><circle cx="95" cy="30" r="4"/><circle cx="151" cy="76" r="4"/><circle cx="124" cy="139" r="4"/><circle cx="61" cy="130" r="4"/><circle cx="57" cy="81" r="4"/></g><g class="taste-labels"><text x="95" y="12">진한 국물</text><text x="168" y="72">굵은 면</text><text x="145" y="164">감칠맛</text><text x="45" y="164">기름기</text><text x="2" y="72">매운맛</text></g></svg>`;
+const tasteGraph = (values = [90, 80, 70, 60, 35]) => {
+  const center = { x: 105, y: 92 };
+  const radius = 58;
+  const labels = ['진한 국물', '굵은 면', '감칠맛', '기름기', '매운맛'];
+  const directions = labels.map((_, index) => {
+    const angle = (-90 + (72 * index)) * (Math.PI / 180);
+    return { x: Math.cos(angle), y: Math.sin(angle) };
+  });
+  const point = (scale, index) => ({ x: center.x + radius * scale * directions[index].x, y: center.y + radius * scale * directions[index].y });
+  const polygon = (scale) => directions.map((_, index) => {
+    const vertex = point(scale, index);
+    return `${vertex.x.toFixed(2)},${vertex.y.toFixed(2)}`;
+  }).join(' ');
+  const dataPoints = values.map((value, index) => point(Math.max(0, Math.min(100, value)) / 100, index));
+  const axes = directions.map((_, index) => {
+    const vertex = point(1, index);
+    return `<line x1="${center.x}" y1="${center.y}" x2="${vertex.x.toFixed(2)}" y2="${vertex.y.toFixed(2)}"/>`;
+  }).join('');
+  const labelPositions = [
+    { x: 105, y: 16, anchor: 'middle' },
+    { x: 204, y: 66, anchor: 'end' },
+    { x: 178, y: 171, anchor: 'end' },
+    { x: 32, y: 171, anchor: 'start' },
+    { x: 6, y: 66, anchor: 'start' }
+  ];
+  return `<svg class="taste-graph" viewBox="0 0 210 180" role="img" aria-label="${labels.map((label, index) => `${label} ${values[index]}`).join(', ')}"><g class="taste-grid"><polygon points="${polygon(.33)}"/><polygon points="${polygon(.66)}"/><polygon points="${polygon(1)}"/>${axes}</g><polygon class="taste-data" points="${dataPoints.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ')}"/><g class="taste-points">${dataPoints.map(({ x, y }) => `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4"/>`).join('')}</g><g class="taste-labels">${labels.map((label, index) => `<text x="${labelPositions[index].x}" y="${labelPositions[index].y}" text-anchor="${labelPositions[index].anchor}">${label}</text>`).join('')}</g></svg>`;
+};
 
 function renderSavedView() {
   const source = savedItems.filter((item) => savedView === 'upcoming' ? item.date >= today : item.date < today);
@@ -1264,8 +1308,7 @@ document.querySelectorAll('[data-map-filter]').forEach((button) => button.addEve
   });
 }));
 document.querySelector('.sheet-close').addEventListener('click', () => {
-  setSheetVisible(false);
-  history.replaceState(null, '', `${location.pathname}?screen=map`);
+  closeStoreSheet();
 });
 document.querySelector('.sheet-save').addEventListener('click', (event) => {
   if (!ensureLoggedIn()) return;
@@ -1278,24 +1321,77 @@ document.querySelector('.sheet-save').addEventListener('click', (event) => {
 });
 document.querySelector('.sheet-more').addEventListener('click', () => setSheetState('full'));
 document.querySelector('.sheet-handle').addEventListener('click', () => {
+  if (sheetDrag.didMove) {
+    sheetDrag.didMove = false;
+    return;
+  }
   const state = storeSheet.dataset.state || 'peek';
   setSheetState(state === 'peek' ? 'half' : state === 'half' ? 'full' : 'peek');
 });
 
-let sheetStartY = 0;
-storeSheet.addEventListener('pointerdown', (event) => { sheetStartY = event.clientY; });
-storeSheet.addEventListener('pointerup', (event) => {
-  const delta = event.clientY - sheetStartY;
-  const state = storeSheet.dataset.state || 'peek';
-  if (delta < -44) setSheetState(state === 'peek' ? 'half' : 'full');
-  if (delta > 64) {
-    if (state === 'full') setSheetState('half');
-    else if (state === 'half') setSheetState('peek');
-    else {
-      setSheetVisible(false);
-      history.replaceState(null, '', `${location.pathname}?screen=map`);
-    }
+const sheetTopByState = { full: 24, half: 352, peek: 612, hidden: 932 };
+const sheetDrag = { pointerId: null, startY: 0, startTop: 0, lastY: 0, lastTime: 0, velocity: 0, initialState: 'peek', didMove: false };
+const sheetHandle = document.querySelector('.sheet-handle');
+
+function nearestSheetState(top, states = ['full', 'half', 'peek', 'hidden']) {
+  return states.reduce((nearest, state) => Math.abs(sheetTopByState[state] - top) < Math.abs(sheetTopByState[nearest] - top) ? state : nearest, states[0]);
+}
+
+function finishSheetDrag(cancelled = false) {
+  if (sheetDrag.pointerId === null) return;
+  const currentTop = storeSheet.getBoundingClientRect().top;
+  const delta = sheetDrag.lastY - sheetDrag.startY;
+  let target;
+  if (cancelled) {
+    target = nearestSheetState(currentTop);
+  } else if (sheetDrag.velocity < -.75) {
+    target = 'full';
+  } else if (sheetDrag.velocity > .75) {
+    target = sheetDrag.initialState === 'full' ? 'half' : sheetDrag.initialState === 'half' ? 'peek' : 'hidden';
+  } else if (delta > 0) {
+    const downwardStates = sheetDrag.initialState === 'full' ? ['full', 'half'] : sheetDrag.initialState === 'half' ? ['half', 'peek'] : ['peek', 'hidden'];
+    target = nearestSheetState(currentTop, downwardStates);
+  } else {
+    const upwardStates = sheetDrag.initialState === 'peek' ? ['peek', 'half', 'full'] : sheetDrag.initialState === 'half' ? ['half', 'full'] : ['full'];
+    target = nearestSheetState(currentTop, upwardStates);
   }
+  sheetDrag.pointerId = null;
+  resetSheetDragStyles();
+  if (target === 'hidden') closeStoreSheet();
+  else setSheetState(target);
+}
+
+sheetHandle.addEventListener('pointerdown', (event) => {
+  sheetDrag.pointerId = event.pointerId;
+  sheetDrag.startY = event.clientY;
+  sheetDrag.lastY = event.clientY;
+  sheetDrag.lastTime = event.timeStamp;
+  sheetDrag.velocity = 0;
+  sheetDrag.initialState = storeSheet.dataset.state || 'peek';
+  sheetDrag.startTop = storeSheet.getBoundingClientRect().top;
+  sheetDrag.didMove = false;
+  sheetHandle.setPointerCapture(event.pointerId);
+  storeSheet.classList.add('dragging');
+});
+sheetHandle.addEventListener('pointermove', (event) => {
+  if (event.pointerId !== sheetDrag.pointerId) return;
+  const elapsed = Math.max(1, event.timeStamp - sheetDrag.lastTime);
+  sheetDrag.velocity = (event.clientY - sheetDrag.lastY) / elapsed;
+  sheetDrag.lastY = event.clientY;
+  sheetDrag.lastTime = event.timeStamp;
+  const top = Math.max(sheetTopByState.full, Math.min(sheetTopByState.hidden, sheetDrag.startTop + event.clientY - sheetDrag.startY));
+  sheetDrag.didMove ||= Math.abs(event.clientY - sheetDrag.startY) > 4;
+  storeSheet.style.height = `${932 - top}px`;
+  storeSheet.style.bottom = '0px';
+  storeSheet.style.transform = 'translateY(0)';
+});
+sheetHandle.addEventListener('pointerup', (event) => {
+  if (event.pointerId !== sheetDrag.pointerId) return;
+  finishSheetDrag(false);
+});
+sheetHandle.addEventListener('pointercancel', (event) => {
+  if (event.pointerId !== sheetDrag.pointerId) return;
+  finishSheetDrag(true);
 });
 
 const talkSortButton = document.querySelector('.talk-sort');

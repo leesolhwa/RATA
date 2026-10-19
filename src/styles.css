@@ -309,6 +309,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .rata-marker.recommended span, .naver-ratav-marker.recommended { box-shadow: 0 0 0 4px rgba(214,40,41,.2), 0 3px 10px rgba(36,34,34,.28); }
 
 .store-sheet { position: absolute; z-index: 80; left: 0; right: 0; bottom: 100px; height: 220px; overflow: hidden; border-radius: 24px 24px 0 0; background: #fff; box-shadow: 0 -8px 30px rgba(36,34,34,.15); transform: translateY(calc(100% + 16px)); transition: height .42s cubic-bezier(.22,.75,.24,1), bottom .42s cubic-bezier(.22,.75,.24,1), transform .42s cubic-bezier(.22,.75,.24,1), border-radius .3s; }
+.store-sheet.dragging { transition: none; }
 .store-sheet.visible { transform: translateY(0); }
 .store-sheet.half { height: 480px; }
 .store-sheet.expanded { z-index: 90; height: 908px; bottom: 0; border-radius: 24px 24px 0 0; }
@@ -471,8 +472,10 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .my-taste small { color: var(--accent); font-size: var(--font-caption); }
 .my-taste h2 { margin: var(--space-6) 0 var(--space-2); font-size: var(--font-screen-title); line-height: 1.25; letter-spacing: -.6px; }
 .my-taste p { margin: 0; color: #aaa7a5; font-size: var(--font-meta); line-height: 1.45; }
-.my-taste svg path { fill: none; stroke: #dedbd9; }
-.my-taste svg .taste-data { fill: rgba(214,40,41,.17); stroke: var(--accent); }
+.my-taste svg .taste-grid polygon, .my-taste svg .taste-grid line { fill: none; stroke: #dedbd9; stroke-width: 1; }
+.my-taste svg .taste-data { fill: rgba(214,40,41,.17); stroke: var(--accent); stroke-width: 1.5; }
+.my-taste svg .taste-points circle { fill: var(--accent); }
+.my-taste svg .taste-labels { fill: #767371; font-size: var(--font-caption); }
 .my-taste.locked { min-height: 275px; padding: var(--card-padding); display: block; border: 1px solid #e5e2e0; border-radius: 16px; margin: 0 var(--space-6) var(--card-gap); }
 .my-taste.locked h2 { margin-top: var(--space-2); font-size: var(--font-body); }
 .my-taste.locked svg { width: 180px; display: block; margin: 0 auto; opacity: .28; }
