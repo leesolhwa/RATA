@@ -1,7 +1,7 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './styles.css';
-import { Button, Input, Toast } from './ui.js';
+import { Button, Dialog, Input, Toast } from './ui.js';
 
 const ramenPhotos = {
   hero: '/images/photos/hero-ramen.webp',
@@ -196,22 +196,12 @@ const prototypeScreens = {
     ['닫기', 0, 20, 60, 70, 'ratalk'], ['이야기 쓰기', 215, 80, 215, 70, 'writeText'], ['매장 선택', 0, 250, 430, 100, 'writePicker']
   ] },
   writePicker: { src: screenAsset('28_05_ratalk_write_option_1-2752.png'), nav: false, hotspots: [['매장 선택 완료', 0, 520, 430, 300, 'writePhoto']] },
-  my: { src: screenAsset('19_06_My_1-2218.png'), nav: true, hotspots: [
-    ['설정', 350, 35, 80, 90, 'settings'], ['저장한 일정', 0, 400, 430, 220, 'mySaved'], ['내 한 그릇', 0, 620, 430, 220, 'myPlate']
-  ] },
-  myLogout: { src: screenAsset('20_06_My_logout_1-2314.png'), nav: true, hotspots: [
-    ['로그인', 20, 110, 390, 140, 'loginVisual'], ['설정', 350, 35, 80, 90, 'settings']
-  ] },
-  mySaved: { src: screenAsset('23_06_My_save_1-2469.png'), nav: false, hotspots: [['뒤로', 0, 20, 60, 70, 'my']] },
-  settings: { src: screenAsset('24_06_my_setting_1-2545.png'), nav: false, hotspots: [
-    ['뒤로', 0, 20, 60, 70, 'my'], ['로그아웃', 20, 820, 390, 80, 'settingsLogout']
-  ] },
-  settingsLogout: { src: screenAsset('25_06_my_setting_1-2589.png'), nav: false, hotspots: [
-    ['취소', 30, 520, 170, 80, 'settings'], ['로그아웃 확인', 210, 520, 190, 80, 'myLogout']
-  ] },
-  myPlate: { src: screenAsset('26_06_My_plate_1-2635.png'), nav: false, hotspots: [
-    ['뒤로', 0, 20, 60, 70, 'my'], ['새 한 그릇 작성', 350, 820, 80, 90, 'writePhoto']
-  ] },
+  my: { nav: true },
+  myLogout: { nav: true },
+  mySaved: { nav: false },
+  settings: { nav: false },
+  settingsLogout: { nav: false },
+  myPlate: { nav: false },
   loginVisual: { nav: false },
   loginForm: { nav: false },
   join: { nav: false },
@@ -446,6 +436,7 @@ document.querySelector('#app').innerHTML = `
         </div>
         <button class="ratalk-compose" aria-label="글쓰기">✎</button>
       </section>
+      <section class="live-my-screen" hidden aria-label="마이"></section>
       <section class="live-auth-screen" hidden aria-label="로그인">
         <div class="auth-visual">
           <button class="auth-back" type="button" aria-label="이전 화면">‹</button>
@@ -472,6 +463,8 @@ document.querySelector('#app').innerHTML = `
         ${[['home','메인'],['calendar','일정'],['map','지도'],['ratalk','라톡'],['my','마이']].map(([key,label], index) => `<button class="nav-item ${index===0?'active':''}" data-prototype-nav="${index}" aria-label="${label}"><img class="nav-off" src="/figma/nav-items/${key}_off.png" alt=""><img class="nav-on" src="/figma/nav-items/${key}_on.png" alt=""></button>`).join('')}
       </nav>
     </section>
+    ${Dialog({ id: 'logout-dialog', title: '로그아웃 할까요?', body: '저장한 일정, 취향, 한 그릇은 그대로 남아있어요. 다시 로그인 하면 이어서 볼 수 있어요.', confirmLabel: '로그아웃' })}
+    ${Dialog({ id: 'delete-dialog', title: '정말 탈퇴할까요?', body: '저장한 일정과 취향 기록이 모두 삭제되며 되돌릴 수 없어요.', confirmLabel: '탈퇴하기' })}
     ${Toast()}
   </main>
   </div>
@@ -564,16 +557,18 @@ const prototypeNav = document.querySelector('.prototype-nav');
 const prototypeCanvas = document.querySelector('.prototype-canvas');
 const liveMapScreen = document.querySelector('.live-map-screen');
 const liveRatalkScreen = document.querySelector('.live-ratalk-screen');
+const liveMyScreen = document.querySelector('.live-my-screen');
 const liveAuthScreen = document.querySelector('.live-auth-screen');
 const storeSheet = document.querySelector('.store-sheet');
 const tasteModal = document.querySelector('.taste-modal');
 let rataMap;
 let mapMarkers = [];
 const authRoutes = new Set(['loginVisual', 'loginForm', 'join', 'joinInput', 'joinValid', 'socialLogin']);
+const myRoutes = new Set(['my', 'myLogout', 'mySaved', 'settings', 'settingsLogout', 'myPlate']);
 
 const prototypeImageCache = new Map();
 Object.entries(prototypeScreens).forEach(([name, screen]) => {
-  if (['map', 'mapSheet', 'ratalk'].includes(name) || authRoutes.has(name)) return;
+  if (['map', 'mapSheet', 'ratalk'].includes(name) || authRoutes.has(name) || myRoutes.has(name)) return;
   const image = new Image();
   image.decoding = 'async';
   image.src = screen.src;
@@ -642,6 +637,44 @@ function closeTasteEditor(saved = false) {
   if (saved) showToast('취향을 지도 추천에 반영했어요');
 }
 
+const myStatus = '<div class="home-status dark-status"><strong>9:41</strong><span><i></i><i></i><i></i><b></b></span></div>';
+const savedItems = [
+  ['웅성 X 코하루', '10.19 · 합정', 'D-5', ramenPhotos.spicy],
+  ['미드나잇 라멘夜', '10.30 · 연남', 'D-16', ramenPhotos.street],
+  ['멘야준 육해공', '11.08 · 성수', 'D-25', ramenPhotos.hero]
+];
+const savedRows = (count = savedItems.length) => savedItems.slice(0, count).map(([title, meta, day, image]) => `<article class="my-saved-row"><img src="${image}" alt="${title}"><div><span><b>${day}</b> ${meta}</span><strong>${title}</strong></div><button type="button" class="saved-bookmark active" aria-label="${title} 저장 취소">${icon('bookmark', 20)}</button></article>`).join('');
+
+function renderMyView(name) {
+  if (name === 'my' || name === 'myLogout') {
+    const loggedOut = name === 'myLogout';
+    liveMyScreen.innerHTML = `${myStatus}<header class="my-topbar"><h1>마이</h1><button type="button" data-my-route="settings" aria-label="설정">⚙</button></header>
+      ${loggedOut ? `<section class="my-login-prompt"><img src="/brand/R_logo_RATA.svg" alt=""><h2>로그인하고 내 취향을<br>저장해보세요</h2><div>${Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } })}${Button({ label: '회원가입', variant: 'secondary', attributes: { 'data-my-route': 'join' } })}</div></section>` : `<section class="my-profile"><span><img src="/brand/R_logo_RATA.svg" alt=""></span><div><h2>Roalraota <em>라타</em></h2><p>한 그릇의 기록이, 취향이 된다.</p></div></section>`}
+      <section class="my-taste ${loggedOut ? 'locked' : ''}"><div><small>내 취향</small><h2>${loggedOut ? '로그인하면 내 취향이 보여요' : '진한 국물에<br>굵은 면, 츠케멘을<br>좋아해요'}</h2>${loggedOut ? '' : '<p>진한 국물 90 · 굵은 면 80 · 감칠맛 70<br>기름기 60 · 매운맛 35</p>'}</div><svg viewBox="0 0 160 140" aria-label="취향 그래프"><path d="M80 10 145 55 120 130 40 130 15 55Z"/><path class="taste-data" d="M80 30 132 60 112 114 48 110 28 60Z"/></svg></section>
+      <section class="my-block"><header><b>저장됨 ${loggedOut ? '' : '14'}</b><button type="button" data-my-route="mySaved">전체보기 ›</button></header>${savedRows(2)}</section>
+      <section class="my-block my-plates"><header><b>내 한 그릇 ${loggedOut ? '' : '24'}</b><button type="button" data-my-route="myPlate">전체보기 ›</button></header><div>${[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy].map((src)=>`<button type="button" data-my-route="myPlate"><img src="${src}" alt="기록한 라멘"></button>`).join('')}</div></section>`;
+  } else if (name === 'mySaved') {
+    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>저장</h1></header><nav class="my-tabs"><button class="active">다가오는 일정 5</button><button>지난 일정 9</button></nav><div class="my-filterbar"><button>날짜 가까운 순⌄</button><button>콜라보만⌄</button></div><section class="my-saved-list"><h2>10월</h2>${savedRows(2)}<h2>11월</h2>${savedRows(3)}</section>`;
+  } else if (name === 'myPlate') {
+    const photos=[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy,ramenPhotos.newsMiso,ramenPhotos.mixed,ramenPhotos.newsShoyu,ramenPhotos.hero,ramenPhotos.street,ramenPhotos.dipping,ramenPhotos.clear];
+    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${photos.map((src,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${src}" alt="라멘 기록 ${i+1}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">＋</button>`;
+  } else {
+    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>설정</h1></header><section class="settings-list"><small>계정</small><button type="button">프로필 편집 <b>›</b></button><button type="button">취향 다시 고르기 <b>›</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button">문의하기 <b>›</b></button><button type="button">이용약관 · 개인정보 <b>›</b></button></section><footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>`;
+    if (name === 'settingsLogout') requestAnimationFrame(() => openDialog('logout-dialog'));
+  }
+  liveMyScreen.scrollTop = 0;
+}
+
+function openDialog(id) {
+  const dialog = document.getElementById(id);
+  dialog.hidden = false;
+  requestAnimationFrame(() => dialog.classList.add('visible'));
+}
+function closeDialog(dialog) {
+  dialog.classList.remove('visible');
+  window.setTimeout(() => { dialog.hidden = true; }, 180);
+}
+
 function openPrototype(name) {
   const screen = prototypeScreens[name];
   if (!screen) return;
@@ -651,13 +684,15 @@ function openPrototype(name) {
   const isLiveMap = name === 'map' || name === 'mapSheet';
   const isLiveTalk = name === 'ratalk';
   const isLiveAuth = authRoutes.has(name);
-  const isLiveScreen = isLiveMap || isLiveTalk || isLiveAuth;
+  const isLiveMy = myRoutes.has(name);
+  const isLiveScreen = isLiveMap || isLiveTalk || isLiveAuth || isLiveMy;
   prototypeCanvas.hidden = isLiveScreen;
   liveMapScreen.hidden = !isLiveMap;
   liveRatalkScreen.hidden = !isLiveTalk;
+  liveMyScreen.hidden = !isLiveMy;
   liveAuthScreen.hidden = !isLiveAuth;
-  [liveMapScreen, liveRatalkScreen, liveAuthScreen].forEach((view) => view.classList.remove('route-enter'));
-  const liveView = isLiveMap ? liveMapScreen : isLiveTalk ? liveRatalkScreen : isLiveAuth ? liveAuthScreen : null;
+  [liveMapScreen, liveRatalkScreen, liveMyScreen, liveAuthScreen].forEach((view) => view.classList.remove('route-enter'));
+  const liveView = isLiveMap ? liveMapScreen : isLiveTalk ? liveRatalkScreen : isLiveMy ? liveMyScreen : isLiveAuth ? liveAuthScreen : null;
   if (liveView) {
     void liveView.offsetWidth;
     liveView.classList.add('route-enter');
@@ -665,7 +700,7 @@ function openPrototype(name) {
   prototypeScreen.classList.toggle('map-open', isLiveMap);
   prototypeNav.classList.toggle('map-nav', isLiveMap);
   prototypeNav.classList.toggle('talk-nav', isLiveTalk);
-  const navIndex = name.startsWith('calendar') ? 1 : isLiveMap ? 2 : isLiveTalk ? 3 : name.startsWith('my') ? 4 : 0;
+  const navIndex = name.startsWith('calendar') ? 1 : isLiveMap ? 2 : isLiveTalk ? 3 : isLiveMy ? 4 : 0;
   prototypeNav.style.setProperty('--nav-index', navIndex);
   prototypeNav.querySelectorAll('.nav-item').forEach((item, index) => item.classList.toggle('active', index === navIndex));
   prototypeNav.hidden = !screen.nav;
@@ -681,6 +716,8 @@ function openPrototype(name) {
     document.querySelector('.ratalk-feed').scrollTo({ top: 0 });
   } else if (isLiveAuth) {
     renderAuthView(name);
+  } else if (isLiveMy) {
+    renderMyView(name);
   } else {
     const cached = prototypeImageCache.get(name);
     prototypeImage.src = cached?.src || screen.src;
@@ -700,6 +737,7 @@ function closePrototype() {
   document.body.classList.remove('prototype-open');
   liveMapScreen.hidden = true;
   liveRatalkScreen.hidden = true;
+  liveMyScreen.hidden = true;
   liveAuthScreen.hidden = true;
   prototypeCanvas.hidden = false;
   bottomNav.style.setProperty('--nav-index', 0);
@@ -719,6 +757,34 @@ document.querySelectorAll('[data-prototype-nav]').forEach((button) => button.add
   if (index === 0) closePrototype();
   else openPrototype(['', 'calendar', 'map', 'ratalk', 'my'][index]);
 }));
+
+liveMyScreen.addEventListener('click', (event) => {
+  const route = event.target.closest('[data-my-route]')?.dataset.myRoute;
+  if (route) return openPrototype(route);
+  const dialogId = event.target.closest('[data-open-dialog]')?.dataset.openDialog;
+  if (dialogId) return openDialog(dialogId);
+  const bookmark = event.target.closest('.saved-bookmark');
+  if (bookmark) {
+    bookmark.classList.toggle('active');
+    showToast(bookmark.classList.contains('active') ? '일정을 저장했어요.' : '저장을 취소했어요.');
+  }
+});
+document.querySelectorAll('.ui-dialog').forEach((dialog) => {
+  dialog.querySelectorAll('[data-dialog-close]').forEach((button) => button.addEventListener('click', () => {
+    closeDialog(dialog);
+    if (location.search === '?screen=settingsLogout') openPrototype('settings');
+  }));
+  dialog.querySelector('[data-dialog-confirm]').addEventListener('click', () => {
+    closeDialog(dialog);
+    if (dialog.id === 'logout-dialog') {
+      showToast('로그아웃했어요.');
+      openPrototype('myLogout');
+    } else {
+      showToast('회원탈퇴가 완료됐어요.');
+      openPrototype('myLogout');
+    }
+  });
+});
 
 document.querySelector('.map-home').addEventListener('click', closePrototype);
 document.querySelector('.taste-edit-btn').addEventListener('click', openTasteEditor);

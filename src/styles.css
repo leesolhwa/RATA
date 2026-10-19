@@ -403,7 +403,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .ui-field__message { min-height: 0; margin: 6px 0 0; display: none; color: #777371; font-size: 11px; line-height: 1.35; }
 .ui-field.has-hint .ui-field__message, .ui-field.is-error .ui-field__message { display: block; }
 .ui-field.is-error .ui-field__message { color: var(--accent); }
-.ui-dialog { position: fixed; z-index: 140; inset: 0; display: grid; place-items: center; }
+.ui-dialog { width: 430px; height: 932px; position: fixed; z-index: 140; left: 50%; top: 0; display: grid; place-items: center; transform: translateX(-50%); }
 .ui-dialog[hidden], .ui-bottom-sheet[hidden] { display: none; }
 .ui-dialog__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.42); }
 .ui-dialog__panel { width: 342px; padding: 24px; position: relative; border-radius: 16px; background: #fff; box-shadow: 0 16px 48px rgba(0,0,0,.18); }
@@ -420,6 +420,80 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .ui-state > strong { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; color: var(--muted); border: 1px solid #d9d6d4; font-size: 20px; }
 .ui-state h2 { margin: 20px 0 8px; font-size: 18px; }
 .ui-state p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+.live-my-screen { width: 430px; height: 932px; padding-bottom: 100px; overflow-x: hidden; overflow-y: auto; background: #fff; scrollbar-width: none; }
+.live-my-screen[hidden] { display: none; }
+.live-my-screen::-webkit-scrollbar { display: none; }
+.my-topbar, .my-pagebar { height: 56px; padding: 0 20px; display: flex; align-items: center; position: relative; }
+.my-topbar { justify-content: space-between; }
+.my-topbar h1, .my-pagebar h1 { margin: 0; font-size: 20px; }
+.my-topbar > button { width: 40px; height: 40px; padding: 0; background: transparent; font-size: 24px; }
+.my-pagebar { justify-content: center; }
+.my-pagebar > button { width: 44px; height: 44px; padding: 0; position: absolute; left: 10px; background: transparent; font: 300 40px/1 Arial,sans-serif; }
+.my-profile { padding: 16px 20px 24px; display: flex; align-items: center; gap: 12px; }
+.my-profile > span, .my-login-prompt > img { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid #eee; border-radius: 50%; }
+.my-profile img, .my-login-prompt img { width: 22px; height: 22px; }
+.my-profile h2 { margin: 0; font-size: 18px; }
+.my-profile h2 em { padding: 3px 7px; border-radius: 999px; color: #fff; background: var(--ink); font-size: 9px; font-style: normal; }
+.my-profile p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+.my-login-prompt { padding: 16px 20px 20px; display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 10px; }
+.my-login-prompt h2 { margin: 0; font-size: 17px; line-height: 1.35; }
+.my-login-prompt > div { grid-column: 1/-1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.my-login-prompt .ui-button { min-height: 48px; font-size: 13px; }
+.my-taste { min-height: 190px; padding: 8px 20px 24px; display: grid; grid-template-columns: 1fr 170px; align-items: center; border-bottom: 8px solid #f1f0ee; }
+.my-taste small { color: var(--accent); font-size: 11px; }
+.my-taste h2 { margin: 20px 0 8px; font-size: 23px; line-height: 1.25; letter-spacing: -.6px; }
+.my-taste p { margin: 0; color: #aaa7a5; font-size: 10px; line-height: 1.45; }
+.my-taste svg path { fill: none; stroke: #dedbd9; }
+.my-taste svg .taste-data { fill: rgba(214,40,41,.17); stroke: var(--accent); }
+.my-taste.locked { min-height: 275px; padding: 20px; display: block; border: 1px solid #e5e2e0; border-radius: 16px; margin: 0 20px 12px; }
+.my-taste.locked h2 { margin-top: 8px; font-size: 15px; }
+.my-taste.locked svg { width: 180px; display: block; margin: 0 auto; opacity: .28; }
+.my-block { padding: 20px; border-bottom: 8px solid #f1f0ee; }
+.my-block > header { margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 11px; }
+.my-block > header button { padding: 0; color: var(--muted); background: transparent; }
+.my-saved-row { min-height: 70px; display: grid; grid-template-columns: 52px 1fr 30px; align-items: center; gap: 10px; border-bottom: 1px solid #eceae7; }
+.my-saved-row > img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
+.my-saved-row > div { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.my-saved-row span { color: #8f8b89; font-size: 10px; }
+.my-saved-row span b { margin-right: 8px; padding: 4px 8px; border-radius: 999px; color: #fff; background: var(--ink); }
+.my-saved-row strong { font-size: 12px; }
+.saved-bookmark { padding: 0; color: #aaa; background: transparent; }
+.saved-bookmark.active { color: var(--accent); }
+.saved-bookmark.active svg { fill: currentColor; }
+.my-plates > div { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.my-plates > div button { height: 90px; padding: 0; border-radius: 8px; overflow: hidden; background: #eee; }
+.my-plates img { width: 100%; height: 100%; object-fit: cover; }
+.my-tabs { height: 52px; padding: 0 20px; display: flex; gap: 22px; border-bottom: 1px solid #e5e2e0; }
+.my-tabs button { padding: 0 7px; position: relative; color: #999593; background: transparent; font-weight: 700; }
+.my-tabs button.active { color: var(--ink); }
+.my-tabs button.active::after { content: ''; height: 2px; position: absolute; left: 0; right: 0; bottom: 0; background: var(--ink); }
+.my-filterbar { height: 58px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+.my-filterbar button { padding: 8px 0; background: transparent; font-size: 11px; }
+.my-filterbar button:last-child { padding: 8px 14px; border: 1px solid #dedbd9; border-radius: 999px; }
+.my-saved-list { padding: 0 20px 40px; }
+.my-saved-list h2 { margin: 16px 0 6px; font-size: 12px; }
+.my-saved-list .my-saved-row > img { border-radius: 8px; }
+.plate-summary { height: 42px; margin: 0; padding: 14px 20px 0; color: #888482; font-size: 11px; }
+.plate-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; }
+.plate-grid button { aspect-ratio: 1; padding: 0; position: relative; background: #eee; }
+.plate-grid img { width: 100%; height: 100%; object-fit: cover; }
+.plate-grid span { position: absolute; left: 8px; bottom: 8px; padding: 3px 15px; border-radius: 999px; color: #fff; background: rgba(36,34,34,.8); font-size: 10px; }
+.plate-add { width: 52px; height: 52px; position: fixed; z-index: 86; left: calc(50% + 135px); bottom: max(24px, calc(100vh - 908px)); border-radius: 50%; color: #fff; background: var(--ink); font-size: 28px; box-shadow: 0 6px 18px rgba(36,34,34,.2); }
+.settings-list { padding: 24px 20px 0; }
+.settings-list > small { margin: 20px 0 10px; display: block; color: #8e8a88; font-size: 11px; }
+.settings-list > button, .settings-list > label { width: 100%; height: 60px; padding: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e7e5e3; background: transparent; font-size: 15px; }
+.settings-list em { color: #8e8a88; font-style: normal; font-weight: 400; }
+.settings-list b { color: #777371; font-size: 28px; font-weight: 300; }
+.settings-list label { position: relative; }
+.settings-list label input { position: absolute; opacity: 0; }
+.settings-list label i { width: 56px; height: 32px; padding: 4px; border-radius: 999px; background: #dedede; }
+.settings-list label i::after { content: ''; width: 24px; height: 24px; display: block; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); transition: transform .2s; }
+.settings-list label input:checked + i { background: var(--accent); }
+.settings-list label input:checked + i::after { transform: translateX(24px); }
+.settings-actions { padding: 80px 20px 32px; text-align: center; }
+.settings-actions .ui-button { min-height: 52px; color: var(--ink); background: #f7f7f7; }
+.settings-actions > button:last-child { margin-top: 16px; padding: 8px; color: #999593; background: transparent; font-size: 11px; text-decoration: underline; }
 
 .live-auth-screen { width: 430px; height: 932px; position: relative; overflow: hidden; background: #777; }
 .live-auth-screen[hidden] { display: none; }
