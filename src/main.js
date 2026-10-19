@@ -1,5 +1,3 @@
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import './styles.css';
 import { Button, Dialog, Input, Toast } from './ui.js';
 
@@ -561,6 +559,7 @@ const storeSheet = document.querySelector('.store-sheet');
 const tasteModal = document.querySelector('.taste-modal');
 let rataMap;
 let mapMarkers = [];
+let naverMapsPromise;
 const authRoutes = new Set(['loginVisual', 'loginForm', 'join', 'joinInput', 'joinValid', 'socialLogin']);
 const myRoutes = new Set(['my', 'myLogout', 'mySaved', 'settings', 'settingsLogout', 'myPlate']);
 const calendarRoutes = new Set(['calendar', 'calendarMonth', 'calendarDetail']);
@@ -585,31 +584,45 @@ const mapPlaces = [
   ['쿠로라멘', 37.5517, 126.9265, 'rich']
 ];
 
-function initMap() {
-  if (rataMap) return;
-  rataMap = L.map('rata-map', { zoomControl: false, attributionControl: false, minZoom: 12 }).setView([37.5556, 126.9238], 15);
-  const tileUrl = ['localhost', '127.0.0.1'].includes(location.hostname)
-    ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-    : '/api/map-tile?z={z}&x={x}&y={y}';
-  L.tileLayer(tileUrl, {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-  }).addTo(rataMap);
-  L.control.attribution({ position: 'bottomright', prefix: false }).addAttribution('© OpenStreetMap').addTo(rataMap);
-  mapMarkers = mapPlaces.map(([name, lat, lng, type, featured]) => {
-    const marker = L.marker([lat, lng], {
-      icon: L.divIcon({
-        className: `rata-marker${featured ? ' featured' : ''}`,
-        html: featured ? '<span><b>R</b></span>' : '<span></span>',
-        iconSize: featured ? [52, 64] : [28, 36],
-        iconAnchor: featured ? [26, 60] : [14, 34]
-      }),
-      keyboard: true,
-      title: name
-    }).addTo(rataMap);
-    marker.on('click', () => showStoreSheet());
-    return { marker, type };
+function loadNaverMaps() {
+  if (window.naver?.maps) return Promise.resolve(window.naver.maps);
+  if (naverMapsPromise) return naverMapsPromise;
+  naverMapsPromise = new Promise((resolve, reject) => {
+    const clientId = import.meta.env.VITE_NAVER_MAP_CLIENT_ID;
+    if (!clientId) return reject(new Error('네이버 지도 Client ID가 없습니다.'));
+    window.navermap_authFailure = () => reject(new Error('네이버 지도 도메인 인증에 실패했습니다.'));
+    const script = document.createElement('script');
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(clientId)}`;
+    script.async = true;
+    script.onload = () => window.naver?.maps ? resolve(window.naver.maps) : reject(new Error('네이버 지도 SDK를 불러오지 못했습니다.'));
+    script.onerror = () => reject(new Error('네이버 지도 네트워크 연결에 실패했습니다.'));
+    document.head.append(script);
   });
+  return naverMapsPromise;
+}
+
+async function initMap() {
+  if (rataMap) return rataMap;
+  const mapElement = document.getElementById('rata-map');
+  mapElement.classList.add('loading');
+  try {
+    const maps = await loadNaverMaps();
+    rataMap = new maps.Map(mapElement, { center: new maps.LatLng(37.5556, 126.9238), zoom: 15, minZoom: 12, scaleControl: false, mapDataControl: false, logoControlOptions: { position: maps.Position.BOTTOM_LEFT } });
+    mapMarkers = mapPlaces.map(([name, lat, lng, type, featured]) => {
+      const marker = new maps.Marker({
+        position: new maps.LatLng(lat, lng), map: rataMap, title: name,
+        icon: { content: `<button class="naver-ratav-marker${featured ? ' featured' : ''}" type="button" aria-label="${name}">${featured ? '<b>R</b>' : ''}</button>`, anchor: new maps.Point(featured ? 26 : 14, featured ? 58 : 34) }
+      });
+      maps.Event.addListener(marker, 'click', showStoreSheet);
+      return { marker, type };
+    });
+    mapElement.classList.remove('loading');
+    return rataMap;
+  } catch (error) {
+    mapElement.classList.remove('loading');
+    mapElement.innerHTML = `<div class="map-error" role="alert"><strong>지도를 불러오지 못했어요</strong><p>${error.message}</p><button type="button" onclick="location.reload()">다시 시도</button></div>`;
+    throw error;
+  }
 }
 
 function setSheetVisible(visible, expanded = false) {
@@ -731,12 +744,11 @@ function openPrototype(name) {
   prototypeNav.hidden = !screen.nav;
   if (isLiveMap) {
     prototypeHotspots.innerHTML = '';
-    initMap();
-    requestAnimationFrame(() => {
-      rataMap.invalidateSize();
+    initMap().then(() => requestAnimationFrame(() => {
+      window.naver.maps.Event.trigger(rataMap, 'resize');
       if (name === 'mapSheet') showStoreSheet();
       else setSheetVisible(false);
-    });
+    })).catch(() => {});
   } else if (isLiveTalk) {
     document.querySelector('.ratalk-feed').scrollTo({ top: 0 });
   } else if (isLiveAuth) {
@@ -829,8 +841,7 @@ document.querySelectorAll('[data-map-filter]').forEach((button) => button.addEve
   const filter = button.dataset.mapFilter;
   mapMarkers.forEach(({ marker, type }) => {
     const visible = filter === 'all' || filter === type;
-    if (visible && !rataMap.hasLayer(marker)) marker.addTo(rataMap);
-    if (!visible && rataMap.hasLayer(marker)) marker.removeFrom(rataMap);
+    marker.setMap(visible ? rataMap : null);
   });
 }));
 document.querySelector('.sheet-close').addEventListener('click', () => {
