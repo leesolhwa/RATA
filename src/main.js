@@ -153,13 +153,9 @@ const eatingChoices = [
 
 const screenAsset = (name) => `/figma/screens/${name}`;
 const prototypeScreens = {
-  calendar: { src: screenAsset('06_03_Calendar_1-1131.png'), nav: true, hotspots: [
-    ['지난 일정 보기', 320, 72, 110, 80, 'calendarMonth'], ['진행 중인 일정 보기', 0, 150, 430, 300, 'calendarDetail']
-  ] },
-  calendarMonth: { src: screenAsset('07_03_Calendar_1-1152.png'), nav: true, hotspots: [
-    ['뒤로', 0, 40, 64, 72, 'calendar'], ['일정 상세 보기', 0, 250, 430, 560, 'calendarDetail']
-  ] },
-  calendarDetail: { src: screenAsset('17_03_Calendar_1-2157.png'), nav: false, hotspots: [['뒤로', 0, 32, 64, 72, 'calendar']] },
+  calendar: { nav: true },
+  calendarMonth: { nav: true },
+  calendarDetail: { nav: false },
   map: { src: screenAsset('08_04_Map_edit_1-1225.png'), nav: true, hotspots: [
     ['취향 편집', 285, 105, 132, 64, 'mapPrefsOld'], ['지도 매장 선택', 145, 300, 150, 320, 'mapSheet']
   ] },
@@ -436,6 +432,7 @@ document.querySelector('#app').innerHTML = `
         </div>
         <button class="ratalk-compose" aria-label="글쓰기">✎</button>
       </section>
+      <section class="live-calendar-screen" hidden aria-label="일정"></section>
       <section class="live-my-screen" hidden aria-label="마이"></section>
       <section class="live-auth-screen" hidden aria-label="로그인">
         <div class="auth-visual">
@@ -557,6 +554,7 @@ const prototypeNav = document.querySelector('.prototype-nav');
 const prototypeCanvas = document.querySelector('.prototype-canvas');
 const liveMapScreen = document.querySelector('.live-map-screen');
 const liveRatalkScreen = document.querySelector('.live-ratalk-screen');
+const liveCalendarScreen = document.querySelector('.live-calendar-screen');
 const liveMyScreen = document.querySelector('.live-my-screen');
 const liveAuthScreen = document.querySelector('.live-auth-screen');
 const storeSheet = document.querySelector('.store-sheet');
@@ -565,10 +563,11 @@ let rataMap;
 let mapMarkers = [];
 const authRoutes = new Set(['loginVisual', 'loginForm', 'join', 'joinInput', 'joinValid', 'socialLogin']);
 const myRoutes = new Set(['my', 'myLogout', 'mySaved', 'settings', 'settingsLogout', 'myPlate']);
+const calendarRoutes = new Set(['calendar', 'calendarMonth', 'calendarDetail']);
 
 const prototypeImageCache = new Map();
 Object.entries(prototypeScreens).forEach(([name, screen]) => {
-  if (['map', 'mapSheet', 'ratalk'].includes(name) || authRoutes.has(name) || myRoutes.has(name)) return;
+  if (['map', 'mapSheet', 'ratalk'].includes(name) || authRoutes.has(name) || myRoutes.has(name) || calendarRoutes.has(name)) return;
   const image = new Image();
   image.decoding = 'async';
   image.src = screen.src;
@@ -675,6 +674,30 @@ function closeDialog(dialog) {
   window.setTimeout(() => { dialog.hidden = true; }, 180);
 }
 
+const calendarItems = [
+  ['D-7', '신죠오사카게오 X 나니요리', '콜라보 | 서울 · 잠실'],
+  ['D-10', '대충팝업', '팝업 | 서울 · 잠실'],
+  ['D-14', '대충팝업', '시즌메뉴 | 서울 · 잠실'],
+  ['D-21', '대충팝업', '팝업 | 서울 · 잠실']
+];
+const calendarRows = () => calendarItems.map(([day,title,meta],index)=>`<article class="calendar-row"><time>${day}<small>10.${20+index*3}</small></time><button type="button" data-calendar-route="calendarDetail"><strong>${title}</strong><span>${meta}</span></button><button type="button" class="calendar-save ${index!==1?'active':''}" aria-label="${title} 저장">${icon('bookmark',20)}</button></article>`).join('');
+function renderCalendarView(name) {
+  if (name === 'calendar') {
+    liveCalendarScreen.innerHTML = `<header class="calendar-title"><h1>콜라보 · 일정</h1><button type="button" data-calendar-route="calendarMonth">지난 일정 보기</button></header><section class="calendar-section"><h2><i></i> 지금 진행중 <b>2</b></h2><div class="calendar-heroes"><button type="button" data-calendar-route="calendarDetail" style="--cal:url('${ramenPhotos.newsShoyu}')"><span>콜라보</span><strong>요아케X비밀이야 부티크</strong><small>10.3 — 10.17 | 서울 · 신당</small></button><button type="button" data-calendar-route="calendarDetail" style="--cal:url('${ramenPhotos.mixed}')"><span>시즌메뉴</span><strong>멘야하나비 가을 메뉴</strong><small>10.10 — 재료 소진시</small></button></div><h2 class="soon"><i></i> 곧 시작 <b>4</b></h2>${calendarRows()}</section>`;
+  } else if (name === 'calendarMonth') {
+    liveCalendarScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-calendar-route="calendar" aria-label="뒤로">‹</button><h1>지난일정</h1></header><nav class="month-chips"><button>2026⌄</button>${['9월','8월','7월','6월','5월'].map((m,i)=>`<button class="${i===0?'active':''}">${m}</button>`).join('')}</nav><header class="month-title"><h2>9월</h2><span>4개일정</span></header><section class="past-list">${calendarItems.map(([d,t,m],i)=>`<article><img src="${ramenPhotos.spicy}" alt="${t}"><button type="button" data-calendar-route="calendarDetail"><span><b>${i?'한정메뉴':'콜라보'}</b> 종료</span><strong>${t}</strong><small>9.${2+i*4} | 서울 · 합정</small></button><button type="button" class="calendar-save ${i%3===0?'active':''}" aria-label="저장">${icon('bookmark',20)}</button></article>`).join('')}</section>`;
+  } else {
+    liveCalendarScreen.innerHTML = `<article class="calendar-detail"><header style="--detail:url('${ramenPhotos.newsMiso}')">${myStatus}<button type="button" data-calendar-route="calendar" aria-label="뒤로">‹</button><button type="button" class="calendar-save" aria-label="저장">${icon('bookmark',24)}</button></header><section><span class="pill dark">콜라보</span><h1>신죠오사카게오X나니요리</h1><h2>10.5 — 10.8</h2><p>서울 송파구 오금로31가길 13</p><h3>콜라보 메뉴</h3><dl><div><dt>한정특선쇼유</dt><dd>29,000 원</dd></div><div><dt>한정특선시오</dt><dd>29,000 원</dd></div></dl><div class="calendar-detail-actions">${Button({label:'콜라보 가게 살펴보기',variant:'secondary'})}${Button({label:'일정 저장하기',attributes:{'data-save-detail':true}})}</div></section></article>`;
+  }
+}
+
+liveCalendarScreen.addEventListener('click',(event)=>{
+  const route=event.target.closest('[data-calendar-route]')?.dataset.calendarRoute;
+  if(route) return openPrototype(route);
+  const save=event.target.closest('.calendar-save,[data-save-detail]');
+  if(save){save.classList.toggle('active');showToast(save.classList.contains('active')?'일정을 저장했어요.':'저장을 취소했어요.');}
+});
+
 function openPrototype(name) {
   const screen = prototypeScreens[name];
   if (!screen) return;
@@ -685,14 +708,16 @@ function openPrototype(name) {
   const isLiveTalk = name === 'ratalk';
   const isLiveAuth = authRoutes.has(name);
   const isLiveMy = myRoutes.has(name);
-  const isLiveScreen = isLiveMap || isLiveTalk || isLiveAuth || isLiveMy;
+  const isLiveCalendar = calendarRoutes.has(name);
+  const isLiveScreen = isLiveMap || isLiveTalk || isLiveAuth || isLiveMy || isLiveCalendar;
   prototypeCanvas.hidden = isLiveScreen;
   liveMapScreen.hidden = !isLiveMap;
   liveRatalkScreen.hidden = !isLiveTalk;
+  liveCalendarScreen.hidden = !isLiveCalendar;
   liveMyScreen.hidden = !isLiveMy;
   liveAuthScreen.hidden = !isLiveAuth;
-  [liveMapScreen, liveRatalkScreen, liveMyScreen, liveAuthScreen].forEach((view) => view.classList.remove('route-enter'));
-  const liveView = isLiveMap ? liveMapScreen : isLiveTalk ? liveRatalkScreen : isLiveMy ? liveMyScreen : isLiveAuth ? liveAuthScreen : null;
+  [liveMapScreen, liveRatalkScreen, liveCalendarScreen, liveMyScreen, liveAuthScreen].forEach((view) => view.classList.remove('route-enter'));
+  const liveView = isLiveMap ? liveMapScreen : isLiveTalk ? liveRatalkScreen : isLiveCalendar ? liveCalendarScreen : isLiveMy ? liveMyScreen : isLiveAuth ? liveAuthScreen : null;
   if (liveView) {
     void liveView.offsetWidth;
     liveView.classList.add('route-enter');
@@ -700,7 +725,7 @@ function openPrototype(name) {
   prototypeScreen.classList.toggle('map-open', isLiveMap);
   prototypeNav.classList.toggle('map-nav', isLiveMap);
   prototypeNav.classList.toggle('talk-nav', isLiveTalk);
-  const navIndex = name.startsWith('calendar') ? 1 : isLiveMap ? 2 : isLiveTalk ? 3 : isLiveMy ? 4 : 0;
+  const navIndex = isLiveCalendar ? 1 : isLiveMap ? 2 : isLiveTalk ? 3 : isLiveMy ? 4 : 0;
   prototypeNav.style.setProperty('--nav-index', navIndex);
   prototypeNav.querySelectorAll('.nav-item').forEach((item, index) => item.classList.toggle('active', index === navIndex));
   prototypeNav.hidden = !screen.nav;
@@ -718,6 +743,8 @@ function openPrototype(name) {
     renderAuthView(name);
   } else if (isLiveMy) {
     renderMyView(name);
+  } else if (isLiveCalendar) {
+    renderCalendarView(name);
   } else {
     const cached = prototypeImageCache.get(name);
     prototypeImage.src = cached?.src || screen.src;
@@ -737,6 +764,7 @@ function closePrototype() {
   document.body.classList.remove('prototype-open');
   liveMapScreen.hidden = true;
   liveRatalkScreen.hidden = true;
+  liveCalendarScreen.hidden = true;
   liveMyScreen.hidden = true;
   liveAuthScreen.hidden = true;
   prototypeCanvas.hidden = false;
