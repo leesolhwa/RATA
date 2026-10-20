@@ -1246,3 +1246,148 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .phone-shell { overflow: visible; }
 
 .phone-screen.chrome-hidden[data-route^="store"] .map-header { transform: translateY(-100%); transition: transform .25s ease-out; }
+
+/* Unified authentication canvas and frame level status surface. */
+.phone-screen {
+  --statusbar-bg: #fff;
+  --statusbar-color: var(--ink);
+}
+.prototype-open .phone-shell > .app-header[aria-hidden="true"] { visibility: hidden; }
+.phone-screen[data-route="splash"] .app-header,
+.phone-screen[data-route="loginVisual"] .app-header,
+.phone-screen[data-route="loginForm"] .app-header,
+.phone-screen[data-route="join"] .app-header,
+.phone-screen[data-route="joinInput"] .app-header,
+.phone-screen[data-route="joinValid"] .app-header,
+.phone-screen[data-route="socialLogin"] .app-header { visibility: hidden; }
+.frame-status {
+  color: var(--statusbar-color);
+  background: var(--statusbar-bg);
+}
+.status-on-dark .frame-status,
+.status-on-light .frame-status { color: var(--statusbar-color); }
+
+.live-auth-screen,
+.live-auth-screen.join-view {
+  height: 932px;
+  overflow: hidden;
+  background: var(--ink);
+  scrollbar-width: none;
+}
+.live-auth-screen::-webkit-scrollbar { display: none; }
+.auth-visual,
+.live-auth-screen.join-view .auth-visual {
+  width: 100%;
+  height: 264px;
+  padding: 72px var(--space-8) var(--space-6);
+  flex: 0 0 264px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-6);
+  background-position: center 42%;
+}
+.live-auth-screen.join-view .auth-visual > img,
+.live-auth-screen.join-view .auth-visual h1 { display: block; }
+.auth-visual > img,
+.live-auth-screen.join-view .auth-visual > img { width: 42px; height: 42px; flex: 0 0 auto; }
+.auth-visual h1,
+.live-auth-screen.join-view .auth-visual h1 { margin: 0; font-size: var(--font-display); line-height: 1.12; }
+.auth-card,
+.live-auth-screen.join-view .auth-card {
+  width: 100%;
+  height: 668px;
+  min-height: 0;
+  padding: var(--space-6) var(--space-8) var(--space-6);
+  position: relative;
+  overflow: hidden;
+  border-radius: 48px 48px 0 0;
+}
+.auth-card-logo,
+.live-auth-screen.join-view .auth-card-logo { display: none; }
+.auth-login-back {
+  display: none;
+  width: 44px;
+  height: 44px;
+  margin: calc(-1 * var(--space-2)) 0 var(--space-1) calc(-1 * var(--space-3));
+  padding: 0;
+  place-items: center;
+  color: var(--ink);
+  background: transparent;
+}
+.live-auth-screen.join-view .auth-login-back { display: grid; }
+.auth-form,
+.live-auth-screen.join-view .auth-form { margin-top: var(--space-4); gap: var(--space-2); }
+.auth-card footer,
+.live-auth-screen.join-view .auth-card footer { margin-top: var(--space-2); padding-bottom: 0; }
+.auth-card footer p { margin: var(--space-1) 0; }
+.live-auth-screen.join-view .auth-terms {
+  margin: 0;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.live-auth-screen.join-view .auth-terms button {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  display: inline;
+  border: 0;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  line-height: inherit;
+}
+
+/* Main screens share one clickable mode header. */
+.section-app-header {
+  height: 105px;
+  min-height: 105px;
+  padding: 48px var(--space-6) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  background: var(--ink);
+}
+.rata-mode .section-app-header { background: var(--accent); }
+body:not(.rata-mode) .live-calendar-screen > .section-app-header,
+body:not(.rata-mode) .live-ratalk-screen > .section-app-header,
+body:not(.rata-mode) .live-my-screen > .section-app-header {
+  color: #fff;
+  background: var(--ink);
+}
+.section-header-title { min-width: 0; display: flex; align-items: center; gap: var(--space-1); }
+.section-header-title h1 { margin: 0; color: inherit; font-size: var(--font-section-title); white-space: nowrap; }
+.section-header-title > button { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; color: inherit; background: transparent; }
+.section-app-header .header-actions { gap: var(--space-2); }
+.section-app-header .icon-btn { color: inherit; }
+.section-app-header .mode-btn { min-width: 46px; padding: var(--space-2) var(--space-3); }
+.calendar-title.section-app-header,
+.my-topbar.section-app-header,
+.ratalk-header.section-app-header {
+  height: 105px;
+  min-height: 105px;
+  padding: 48px var(--space-6) 0;
+  position: sticky;
+  z-index: 90;
+  top: 0;
+}
+.calendar-past-link {
+  min-height: 44px;
+  margin: 0 0 var(--space-3) auto;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--muted);
+  background: transparent;
+  font-size: var(--font-meta);
+}
+
+/* Mode confirmation stays below the fixed status/header area. */
+.phone-screen > .toast {
+  top: 113px;
+  bottom: auto;
+  transform: translate(-50%, -12px);
+}
+.phone-screen > .toast.show { transform: translate(-50%, 0); }

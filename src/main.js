@@ -52,6 +52,20 @@ const socialIcon = (provider) => {
 
 const StatusBar = ({ className = 'home-status' } = {}) => `<div class="${className}"><strong>9:41</strong><span class="status-icons"><span class="status-signal" aria-hidden="true"><i></i><i></i><i></i></span><svg class="status-wifi" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 4.2a10.6 10.6 0 0 1 14 0M3.6 7a6.7 6.7 0 0 1 8.8 0M6.2 9.6a2.7 2.7 0 0 1 3.6 0"/></svg><b aria-hidden="true"></b></span></div>`;
 
+const ModeControls = ({ extra = '' } = {}) => `<div class="header-actions">
+  <div class="mode-switch" role="group" aria-label="모드 선택">
+    <button class="mode-btn" data-mode="light" type="button">라이트</button>
+    <button class="mode-btn" data-mode="rata" type="button">라타</button>
+  </div>
+  <button class="icon-btn notify" type="button" data-notifications aria-label="알림">${icon('bell', 23)}<i></i></button>
+  ${extra}
+</div>`;
+
+const SectionHeader = ({ title, className, backRoute = '', routeType = 'my', extra = '' }) => `<header class="${className} section-app-header">
+  <div class="section-header-title">${backRoute ? `<button type="button" data-${routeType}-route="${backRoute}" aria-label="뒤로">${icon('back', 24)}</button>` : ''}<h1>${title}</h1></div>
+  ${ModeControls({ extra })}
+</header>`;
+
 let ratingGradientId = 0;
 const RatingStars = ({ score, interactive = false } = {}) => {
   const value = Math.max(0, Math.min(5, Number(score) || 0));
@@ -339,13 +353,7 @@ document.querySelector('#app').innerHTML = `
     <header class="app-header">
       <div class="header-top">
         <a href="#top" class="logo" aria-label="RATA 홈"><img src="/brand/txt_logo_RATA.svg" alt="RATA"></a>
-        <div class="header-actions">
-          <div class="mode-switch" role="group" aria-label="모드 선택">
-            <button class="mode-btn active" data-mode="light">라이트</button>
-            <button class="mode-btn" data-mode="rata">라타</button>
-          </div>
-          <button class="icon-btn notify" aria-label="알림">${icon('bell', 23)}<i></i></button>
-        </div>
+        ${ModeControls()}
       </div>
     </header>
 
@@ -434,12 +442,9 @@ document.querySelector('#app').innerHTML = `
       </div>
       <section class="live-map-screen" hidden aria-label="라멘 지도">
         <header class="map-header">
-              <div class="header-top">
+          <div class="header-top">
             <button class="logo map-home" aria-label="홈으로"><img src="/brand/txt_logo_RATA.svg" alt="RATA"></button>
-            <div class="header-actions">
-              <div class="mode-switch" aria-label="모드 선택"><button class="mode-btn active" data-mode="light">라이트</button><button class="mode-btn" data-mode="rata">라타</button></div>
-              <button class="icon-btn notify" aria-label="알림">${icon('bell', 23)}<i></i></button>
-            </div>
+            ${ModeControls()}
           </div>
         </header>
         <div id="rata-map" class="rata-map" aria-label="홍대 주변 라멘집 지도"></div>
@@ -481,9 +486,7 @@ document.querySelector('#app').innerHTML = `
         </div>
       </section>
       <section class="live-ratalk-screen" hidden aria-label="라톡">
-        <header class="ratalk-header">
-          <div class="ratalk-titlebar"><h1>라톡</h1><div><button data-notifications aria-label="알림">${icon('bell', 23)}</button><button class="talk-search-toggle" aria-label="검색">${icon('search', 23)}</button></div></div>
-        </header>
+        ${SectionHeader({ title: '라톡', className: 'ratalk-header', extra: `<button class="icon-btn talk-search-toggle" type="button" aria-label="검색">${icon('search', 23)}</button>` })}
         <form class="ratalk-search" hidden><input type="search" aria-label="라톡 검색" placeholder="글, 작성자, 매장 검색"><button type="button" class="talk-search-close">취소</button></form>
         <nav class="ratalk-categories" aria-label="라톡 분류">
           <button class="active" data-talk-filter="all">전체</button><button data-talk-filter="plate">한 그릇</button><button data-talk-filter="story">이야기</button>
@@ -507,6 +510,7 @@ document.querySelector('#app').innerHTML = `
           <h1>당신의<br>깊어질<br>취향을</h1>
         </div>
         <section class="auth-card">
+          <button class="auth-login-back" type="button" aria-label="로그인으로 돌아가기">${icon('back', 24)}</button>
           <header><img class="auth-card-logo" src="/brand/R_logo_RATA.svg" alt=""><h2 class="auth-title">로그인하고 취향을 이어가요</h2><p class="auth-subtitle">저장 · 댓글 · 글쓰기는 로그인 후 이용가능합니다.</p></header>
           <form class="auth-form" novalidate>
             <div class="auth-nickname" hidden>${Input({ name: 'nickname', label: '닉네임', type: 'text', placeholder: '라톡에서 사용할 닉네임', autocomplete: 'nickname', required: true })}</div>
@@ -517,7 +521,7 @@ document.querySelector('#app').innerHTML = `
           </form>
           <div class="auth-divider"><span>간편로그인</span></div>
           <div class="auth-socials"><button type="button" class="kakao" data-provider="카카오" aria-label="카카오로 계속하기">${socialIcon('카카오')}</button><button type="button" class="naver" data-provider="네이버" aria-label="네이버로 계속하기">${socialIcon('네이버')}</button><button type="button" class="google" data-provider="구글" aria-label="구글로 계속하기">${socialIcon('구글')}</button></div>
-          <footer><p class="auth-switch-copy">아직 계정이 없으신가요? <button class="auth-switch" type="button">회원가입</button></p><p class="login-only">계정이나 비밀번호를 잊어버리셨나요? <button type="button" data-auth-help>e-mail/pw찾기</button></p><button class="auth-browse" type="button">먼저 둘러보기</button><p class="auth-mock-notice">수업용 목업 로그인입니다. 실제 계정 서버와 연결되어 있지 않아요.</p></footer>
+          <footer><p class="auth-switch-copy">아직 계정이 없으신가요? <button class="auth-switch" type="button">회원가입</button></p><p class="login-only">계정이나 비밀번호를 잊어버리셨나요? <button type="button" data-auth-help>e-mail/pw찾기</button></p><button class="auth-browse" type="button">먼저 둘러보기</button></footer>
         </section>
       </section>
       <nav class="prototype-nav" aria-label="피그마 하단 메뉴">
@@ -575,15 +579,16 @@ const routeScrollContainer = (route) => {
 };
 const showFrameChrome = () => phoneScreen.classList.remove('chrome-hidden');
 const setFrameStatusSurface = (route = currentRoute) => {
-  const darkRoute = route === 'home' || route === 'splash' || route === 'calendarDetail' || ['map','mapSheet','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew'].includes(route) || ['loginVisual','loginForm','join','joinInput','joinValid','socialLogin'].includes(route);
-  const modeHeader = route === 'ratalk' || route === 'ratalkDetail' || ['my','myLogout','mySaved','myPlate','settings','settingsLogout'].includes(route);
-  const dark = darkRoute || (modeHeader && appState.mode === 'rata');
-  phoneScreen.classList.toggle('status-on-dark', dark);
-  phoneScreen.classList.toggle('status-on-light', !dark);
-  if (route === 'home' || ['map','mapSheet','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew'].includes(route) || (modeHeader && appState.mode === 'rata')) {
-    frameStatus.style.backgroundColor = appState.mode === 'rata' ? 'var(--accent)' : 'var(--ink)';
-  } else if (dark) frameStatus.style.backgroundColor = 'var(--ink)';
-  else frameStatus.style.backgroundColor = '#fff';
+  const authRoute = ['loginVisual','loginForm','join','joinInput','joinValid','socialLogin'].includes(route);
+  const transparentRoute = route === 'splash' || authRoute;
+  const primaryRoute = ['home','calendar','map','mapSheet','ratalk','my','myLogout','settings','settingsLogout'].includes(route);
+  const imageRoute = route === 'calendarDetail';
+  const background = transparentRoute ? 'transparent' : primaryRoute ? (appState.mode === 'rata' ? 'var(--accent)' : 'var(--ink)') : imageRoute ? 'transparent' : '#fff';
+  const lightText = transparentRoute || primaryRoute || imageRoute;
+  phoneScreen.style.setProperty('--statusbar-bg', background);
+  phoneScreen.style.setProperty('--statusbar-color', lightText ? '#fff' : 'var(--ink)');
+  phoneScreen.classList.toggle('status-on-dark', lightText);
+  phoneScreen.classList.toggle('status-on-light', !lightText);
 };
 const resetFrameChrome = (route, container = routeScrollContainer(route)) => {
   currentRoute = route;
@@ -786,12 +791,16 @@ function applySheetModeContent(baseMatch) {
   if (match && Number.isFinite(numericBase)) match.textContent = `취향 ${Math.min(99, numericBase + sheet.matchOffset)}% 일치`;
 }
 
+function syncModeControls() {
+  document.querySelectorAll('.mode-btn').forEach((button) => button.classList.toggle('active', button.dataset.mode === appState.mode));
+}
+
 function setAppMode(selectedMode, announce = false) {
   appState.mode = selectedMode;
   persistState('rata_mode', selectedMode);
   document.body.classList.toggle('rata-mode', selectedMode === 'rata');
   if (typeof setFrameStatusSurface === 'function') setFrameStatusSurface();
-  document.querySelectorAll('.mode-btn').forEach((button) => button.classList.toggle('active', button.dataset.mode === selectedMode));
+  syncModeControls();
   renderTasteEditorMode();
   applySheetModeContent();
   const compose = document.querySelector('.ratalk-compose');
@@ -805,7 +814,10 @@ function setAppMode(selectedMode, announce = false) {
   });
   if (announce) showToast(selectedMode === 'rata' ? '라타 모드로 전환했어요 · 육수·타래·면 스토리가 보여요' : '라이트 모드로 전환했어요 · 쉬운 설명과 추천이 보여요');
 }
-document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => setAppMode(btn.dataset.mode, true)));
+phoneScreen.addEventListener('click', (event) => {
+  const modeButton = event.target.closest('.mode-btn');
+  if (modeButton) setAppMode(modeButton.dataset.mode, true);
+});
 document.querySelectorAll('[data-desktop-mode]').forEach((button) => button.addEventListener('click', () => setAppMode(button.dataset.desktopMode, true)));
 window.addEventListener('storage', (event) => {
   if (event.key !== 'rata_mode' || event.newValue == null) return;
@@ -1175,7 +1187,7 @@ function renderMyView(name) {
     const tasteTitle = appState.mode === 'rata' ? '고농도 돈백탕에<br>극태 저가수면을<br>좋아해요' : '진한 국물에<br>굵은 면, 츠케멘을<br>좋아해요';
     const tasteSummary = '<span>진한 국물 4.5 · 굵은 면 4.0</span><span>감칠맛 3.5 · 기름기 3.0</span><span>매운맛 1.8</span>';
     const platePhotos = [ramenPhotos.banrai, ramenPhotos.koreanShoyu, ramenPhotos.koreanClear, ramenPhotos.koreanSpicy];
-    liveMyScreen.innerHTML = `${screenChrome()}<header class="my-topbar"><h1>마이</h1><button type="button" data-my-route="settings" aria-label="설정">${icon('settings', 24)}</button></header>
+    liveMyScreen.innerHTML = `${screenChrome()}${SectionHeader({ title: '마이', className: 'my-topbar', extra: `<button class="icon-btn" type="button" data-my-route="settings" aria-label="설정">${icon('settings', 24)}</button>` })}
       ${loggedOut ? `<section class="my-login-prompt"><img src="/brand/R_logo_RATA.svg" alt=""><h2>로그인하고 내 취향을<br>저장해보세요</h2><div>${Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } })}${Button({ label: '회원가입', variant: 'secondary', attributes: { 'data-my-route': 'join' } })}</div></section>` : `<section class="my-profile"><span><img src="/brand/R_logo_RATA.svg" alt=""></span><div><h2>${appState.userName} <em>${appState.mode === 'rata' ? '라타' : '라이트'}</em></h2><p>한 그릇의 기록이, 취향이 된다.</p></div></section>`}
       <section class="my-taste ${loggedOut ? 'locked' : ''}"><div><small>내 취향</small><h2>${loggedOut ? '로그인하면 내 취향이 보여요' : tasteTitle}</h2>${loggedOut ? '' : `<p>${tasteSummary}</p>`}</div>${tasteGraph()}</section>
       ${loggedOut ? '' : `<section class="my-block"><header><b>저장됨 ${savedCount}</b><button type="button" data-my-route="mySaved">전체보기 ${icon('chevron', 18)}</button></header>${savedRows(upcomingSaved)}</section>`}
@@ -1188,10 +1200,11 @@ function renderMyView(name) {
     const photos=[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy,ramenPhotos.newsMiso,ramenPhotos.mixed,ramenPhotos.newsShoyu,ramenPhotos.hero,ramenPhotos.street,ramenPhotos.dipping,ramenPhotos.clear];
     liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${photos.map((src,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${src}" alt="라멘 기록 ${i+1}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">${icon('edit', 24)}</button>`;
   } else {
-    liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>설정</h1></header><section class="settings-list"><small>모드</small><div class="settings-current-mode"><span>현재 모드</span><strong>${appState.mode === 'rata' ? '라타' : '라이트'}</strong></div><button type="button" data-open-taste-editor>내 취향 편집 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
+    liveMyScreen.innerHTML = `${screenChrome()}${SectionHeader({ title: '설정', className: 'my-topbar', backRoute: 'my' })}<section class="settings-list"><small>모드</small><div class="settings-current-mode"><span>현재 모드</span><strong>${appState.mode === 'rata' ? '라타' : '라이트'}</strong></div><button type="button" data-open-taste-editor>내 취향 편집 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
     if (name === 'settingsLogout') requestAnimationFrame(() => openDialog('logout-dialog'));
   }
   liveMyScreen.scrollTop = 0;
+  syncModeControls();
   setupSnapCarousel(liveMyScreen.querySelector('.my-plates > div'), { itemSelector: ':scope > button' });
 }
 
@@ -1220,7 +1233,7 @@ const calendarRows = () => calendarUpcoming.map((item) => {
 }).join('');
 function renderCalendarView(name) {
   if (name === 'calendar') {
-    liveCalendarScreen.innerHTML = `${screenChrome()}<header class="calendar-title"><h1>콜라보 · 일정</h1><button type="button" data-calendar-route="calendarMonth">지난 일정 보기</button></header><section class="calendar-section"><h2><i></i> 지금 진행중 <b>${calendarCurrent.length}</b></h2><div class="calendar-heroes">${calendarCurrent.map((item,index)=>`<button type="button" data-calendar-route="calendarDetail" data-calendar-id="${item.id}" aria-label="${index+1} / 2" style="--cal:url('${item.image}')"><span>${item.shop}</span><strong>${item.title}</strong><small>${shortDate(item.date)} · 서울 ${item.place}</small></button>`).join('')}</div><h2 class="soon"><i></i> 곧 시작 <b>${calendarUpcoming.length}</b></h2>${calendarRows()}</section>`;
+    liveCalendarScreen.innerHTML = `${screenChrome()}${SectionHeader({ title: '일정', className: 'calendar-title' })}<section class="calendar-section"><button class="calendar-past-link" type="button" data-calendar-route="calendarMonth">지난 일정 보기 ${icon('chevron', 16)}</button><h2><i></i> 지금 진행중 <b>${calendarCurrent.length}</b></h2><div class="calendar-heroes">${calendarCurrent.map((item,index)=>`<button type="button" data-calendar-route="calendarDetail" data-calendar-id="${item.id}" aria-label="${index+1} / 2" style="--cal:url('${item.image}')"><span>${item.shop}</span><strong>${item.title}</strong><small>${shortDate(item.date)} · 서울 ${item.place}</small></button>`).join('')}</div><h2 class="soon"><i></i> 곧 시작 <b>${calendarUpcoming.length}</b></h2>${calendarRows()}</section>`;
   } else if (name === 'calendarMonth') {
     const past = savedItems.filter((item) => item.date < today).sort((a, b) => b.date - a.date);
     const groups = past.reduce((result, item) => { const key = `${item.date.getFullYear()}-${item.date.getMonth() + 1}`; (result[key] ||= []).push(item); return result; }, {});
@@ -1231,6 +1244,7 @@ function renderCalendarView(name) {
     const detailSaved = appState.savedEventIds.includes(item.id);
     liveCalendarScreen.innerHTML = `<article class="calendar-detail" data-calendar-id="${item.id}"><header style="--detail:url('${item.image}')">${screenChrome()}<button type="button" data-calendar-route="calendar" aria-label="뒤로">${icon('back', 24)}</button><button type="button" class="calendar-save ${detailSaved ? 'active' : ''}" aria-label="저장" aria-pressed="${detailSaved}">${icon('bookmark',24)}</button></header><section><span class="pill dark">${item.shop}</span><h1>${item.title}</h1><h2>${shortDate(item.date)} ${item.time}</h2><p>서울 ${item.place} · ${item.detail}</p><h3>대표 메뉴</h3><dl><div><dt>${item.title.includes('츠케멘') ? '특제 츠케멘' : '오늘의 한정 라멘'}</dt><dd>16,000 원</dd></div><div><dt>추가 토핑</dt><dd>3,000 원</dd></div></dl><div class="calendar-detail-actions">${Button({label:'가게 지도에서 보기',variant:'secondary',attributes:{'data-calendar-route':'map'}})}${Button({label:`${icon('bookmark', 20)} <span>${detailSaved ? '저장됨' : '일정 저장하기'}</span>`,attributes:{'data-save-detail':true,'aria-pressed':String(detailSaved)}})}</div></section></article>`;
   }
+  syncModeControls();
   setupSnapCarousel(liveCalendarScreen.querySelector('.calendar-heroes'), { itemSelector: ':scope > button' });
 }
 
@@ -1545,7 +1559,7 @@ liveMyScreen.addEventListener('click', (event) => {
     return;
   }
   if (event.target.closest('[data-legal]')) {
-    liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="settings" aria-label="뒤로">${icon('back', 24)}</button><h1>약관 · 개인정보</h1></header><article class="legal-copy"><h2>이용약관</h2><p>RATA는 수업용 프로토타입이며 제공된 목업 정보는 서비스 기능 확인을 위해 사용됩니다.</p><h2>개인정보 처리방침</h2><p>입력한 목업 계정 정보는 서버로 전송하지 않고 현재 브라우저 안에서만 처리합니다.</p></article>`;
+    liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="settings" aria-label="뒤로">${icon('back', 24)}</button><h1>약관 · 개인정보</h1></header><article class="legal-copy"><h2>이용약관</h2><p>RATA 프로토타입의 제공 정보는 서비스 기능 확인을 위해 사용됩니다.</p><h2>개인정보 처리방침</h2><p>입력한 목업 계정 정보는 서버로 전송하지 않고 현재 브라우저 안에서만 처리합니다.</p></article>`;
     return;
   }
   const dialogId = event.target.closest('[data-open-dialog]')?.dataset.openDialog;
@@ -1598,11 +1612,12 @@ function renderNotifications() {
   document.querySelector('[data-clear-notifications]').hidden = appState.notificationItems.length === 0;
   document.querySelectorAll('.notify i').forEach((dot) => { dot.hidden = appState.notificationItems.length === 0; });
 }
-document.querySelectorAll('[aria-label="알림"]').forEach((button) => button.addEventListener('click', () => {
+phoneScreen.addEventListener('click', (event) => {
+  if (!event.target.closest('[data-notifications], [aria-label="알림"]')) return;
   renderNotifications();
   notificationPanel.hidden = false;
   requestAnimationFrame(() => notificationPanel.classList.add('visible'));
-}));
+});
 document.querySelector('[data-close-notifications]').addEventListener('click', () => {
   notificationPanel.classList.remove('visible');
   window.setTimeout(() => { notificationPanel.hidden = true; }, 180);
@@ -1944,6 +1959,7 @@ document.querySelectorAll('[data-reveal]').forEach((button) => button.addEventLi
   button.setAttribute('aria-pressed', String(!visible));
 }));
 document.querySelector('.auth-switch').addEventListener('click', () => openPrototype(isJoining() ? 'loginVisual' : 'join'));
+document.querySelector('.auth-login-back').addEventListener('click', () => openPrototype('loginVisual'));
 document.querySelectorAll('.auth-socials [data-provider]').forEach((button) => button.addEventListener('click', () => {
   const joining = isJoining();
   const provider = button.dataset.provider;
