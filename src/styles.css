@@ -1324,8 +1324,15 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 
 /* The global header owns all header coordinates. */
 .phone-screen > .app-header .header-actions { gap: var(--space-4); }
+.phone-screen > .app-header .mode-switch {
+  width: 128px;
+  flex: 0 0 128px;
+}
 .phone-screen > .app-header .mode-btn {
+  min-width: 0;
+  flex: 1 1 50%;
   min-height: 44px;
+  padding: var(--space-2) 0;
   font-size: var(--font-meta);
 }
 
