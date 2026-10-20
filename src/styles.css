@@ -125,7 +125,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .pref-toggle.on i { transform: translateX(24px); }
 
 .app-header { height: 130px; color: #fff; background: var(--ink); position: relative; z-index: 5; transition: height .35s cubic-bezier(.22,.75,.24,1), background-color .2s; }
-.app-header.ticker-hidden { height: 105px; }
 .rata-mode .app-header { background-color: var(--accent); }
 .home-status { height: 48px; padding: 0 var(--space-6); display: flex; align-items: center; justify-content: space-between; color: var(--ink); font: 400 var(--font-meta) Arial, sans-serif; }
 .home-status .status-icons { color: currentColor; }
@@ -141,16 +140,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .icon-btn { display: grid; place-items: center; padding: 0; background: transparent; color: #fff; position: relative; }
 .notify i { position: absolute; width: 6px; height: 6px; right: -1px; top: 0; border-radius: 50%; background: var(--accent); border: 1.5px solid #fff; }
 .rata-mode .notify i { background: #fff; border-color: var(--accent); }
-.ticker { height: 25px; padding: 0 var(--space-6); display: flex; align-items: center; font-size: var(--font-caption); background: #171717; overflow: hidden; white-space: nowrap; opacity: 1; transition: height .35s cubic-bezier(.22,.75,.24,1), opacity .25s, padding .35s; }
-.ticker.dismissed { height: 0; padding-top: 0; padding-bottom: 0; opacity: 0; }
-.rata-mode .ticker { background: #d62829; }
-.ticker-message { display: flex; align-items: center; gap: var(--space-2); color: rgba(255,255,255,.72); }
-.ticker-message b { color: #fff; }
-.ticker-message i { color: var(--accent); font-size: var(--font-caption); font-style: normal; }
-.ticker-rata { display: none; }
-.rata-mode .ticker-light { display: none; }
-.rata-mode .ticker-rata { display: flex; }
-.rata-mode .ticker-message i { color: #fff; }
 .rata-only { display: none !important; }
 .rata-mode .rata-only { display: block !important; }
 .rata-mode .light-only { display: none !important; }
@@ -174,7 +163,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .section h2 { margin: 0; font-size: var(--font-screen-title); line-height: 1.35; letter-spacing: -.55px; }
 .section h2 span { font-size: var(--font-screen-title); }
 .section h2 .heading-icon { display: inline-flex; vertical-align: -4px; }
-.ticker-message i svg { display: block; }
 .sub { margin: var(--space-3) 0 0; color: var(--muted); font-size: var(--font-body); }
 .text-btn { display: flex; align-items: center; padding: var(--space-2) 0; color: var(--muted); background: transparent; font-size: var(--font-caption); }
 .divider { height: 8px; background: #f5f5f5; }
@@ -297,9 +285,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .map-filters button:active { transform: scale(.96); }
 .map-filters button.active { color: #fff; background: var(--ink); }
 .map-filters .taste-edit-btn { margin-left: auto; padding: 0 var(--space-4); }
-.naver-ratav-marker { width:28px;height:28px;padding:0;border:4px solid #fff;border-radius:50% 50% 50% 0;background:var(--accent);box-shadow:0 3px 10px rgba(36,34,34,.28);transform:rotate(-45deg); }
-.naver-ratav-marker::after{content:'';width:6px;height:6px;position:absolute;left:7px;top:7px;border-radius:50%;background:#fff}.naver-ratav-marker.featured{width:52px;height:52px;color:#fff;font:900 var(--font-card-title) Arial}.naver-ratav-marker.featured::after{display:none}.naver-ratav-marker.featured b{display:block;transform:rotate(45deg)}
-.naver-ratav-marker.recommended { box-shadow: 0 0 0 4px rgba(214,40,41,.2), 0 3px 10px rgba(36,34,34,.28); }
 
 .store-sheet { position: absolute; z-index: 80; left: 0; right: 0; bottom: 100px; height: 220px; overflow: hidden; border-radius: 24px 24px 0 0; background: #fff; box-shadow: 0 -8px 30px rgba(36,34,34,.15); transform: translateY(calc(100% + 16px)); transition: height .2s ease, bottom .2s ease, transform .2s ease, border-radius .2s ease; }
 .store-sheet.dragging { transition: none; }
@@ -1007,10 +992,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .my-plates > div { display: flex; grid-template-columns: none; overflow-x: auto; }
 .my-plates > div button { flex: 0 0 42%; scroll-snap-align: start; }
 
-/* Mode context is shared by every primary screen. */
-.mode-context { min-height: 28px; margin: 0; padding: var(--space-1) var(--page-gutter); display: flex; align-items: center; color: var(--muted); background: #fff; font-size: var(--font-caption); line-height: 20px; }
-.live-map-screen > .mode-context { position: absolute; z-index: 73; top: 105px; left: 0; right: 0; }
-.live-map-screen > .mode-context + .map-filters { top: 145px; }
 
 /* Auth content scrolls as one screen, so helper and browse actions remain reachable. */
 .live-auth-screen { overflow-x: hidden; overflow-y: auto; }
@@ -1065,10 +1046,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .splash-screen.hidden video { visibility: hidden; }
 
 /* Map markers keep a 44px target and the full sheet stops below the status bar. */
-.naver-ratav-marker:not(.featured) { width: 44px; height: 44px; min-width: 44px; min-height: 44px; border: 0; background: transparent; box-shadow: none; transform: none; }
-.naver-ratav-marker:not(.featured)::after { display: none; }
-.naver-ratav-marker:not(.featured) > i { width: 40px; height: 40px; position: absolute; left: 2px; top: 2px; border: 4px solid #fff; border-radius: 50% 50% 50% 0; background: var(--accent); box-shadow: 0 3px 10px rgba(36,34,34,.28); transform: rotate(-45deg); }
-.naver-ratav-marker:not(.featured) > i::after { content: ''; width: 6px; height: 6px; position: absolute; left: 13px; top: 13px; border-radius: 50%; background: #fff; }
 .store-sheet.expanded { height: calc(100% - 144px); bottom: 100px; }
 .prototype-nav.map-nav.sheet-expanded { transform: none; }
 .term-help { width: 44px; height: 44px; margin: -12px; display: inline-grid; place-items: center; color: var(--muted); background: transparent; }
@@ -1092,3 +1069,80 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
   .splash-screen,
   .onboarding { width: 100%; height: 100%; min-width: 0; min-height: 0; }
 }
+
+/* 2026-10-20 visual consistency pass */
+.app-header { height: 105px; }
+
+/* Use the supplied RATA logo asset for both marker states. */
+.naver-ratav-marker,
+.naver-ratav-marker:not(.featured),
+.naver-ratav-marker.featured {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 7px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(36,34,34,.22);
+  transform: rotate(-45deg);
+}
+.naver-ratav-marker::after,
+.naver-ratav-marker:not(.featured)::after { display: none; }
+.naver-ratav-marker img { width: 24px; height: 24px; display: block; transform: rotate(45deg); }
+.naver-ratav-marker.recommended { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(214,40,41,.2), 0 3px 10px rgba(36,34,34,.22); }
+.naver-ratav-marker.featured { width: 52px; height: 52px; min-width: 52px; min-height: 52px; border-color: #fff; background: var(--accent); }
+.naver-ratav-marker.featured img { width: 28px; height: 28px; filter: brightness(0) invert(1); }
+
+.map-filters { top: 121px; }
+.map-filters .taste-edit-btn { min-width: 104px; }
+
+/* One header palette across all app sections. */
+.ratalk-header, .my-topbar, .my-pagebar { transition: color .2s, background-color .2s; }
+.rata-mode .ratalk-header,
+.rata-mode .my-topbar,
+.rata-mode .my-pagebar { color: #fff; background: var(--accent); }
+.rata-mode .ratalk-header button,
+.rata-mode .my-topbar button,
+.rata-mode .my-pagebar button { color: #fff; }
+.rata-mode .ratalk-header .home-status,
+.rata-mode .my-topbar + *,
+.rata-mode .my-pagebar + * { border-color: var(--line); }
+
+/* Likes and comments share the same visual state in feed and detail. */
+.talk-like { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; gap: var(--space-2); color: var(--muted); background: transparent; }
+.talk-like.liked { color: var(--accent); }
+.talk-actions { display: flex; align-items: center; gap: var(--space-4); color: var(--muted); }
+.detail-comment-total { display: inline-flex; align-items: center; gap: var(--space-2); }
+.talk-comment-item { grid-template-columns: 28px minmax(0,1fr); align-items: center; border-bottom: 1px solid var(--line); }
+.talk-comment-item > div { min-width: 0; display: grid; gap: var(--space-1); }
+.talk-comment-item > div > b { font-size: var(--font-meta); line-height: 1.4; }
+.talk-comments .talk-comment-item p { margin: 0; padding: 0; border: 0; font-size: var(--font-body); line-height: 1.5; }
+.talk-comments > p { border-bottom: 0; }
+
+/* Saved and plate previews expose exactly the rendered items. */
+.my-plates { overflow: visible; }
+.my-plates > div { padding-bottom: 0; background: transparent; scrollbar-width: none; }
+.my-plates > div::-webkit-scrollbar { display: none; }
+.my-plates > div > button { height: 104px; border-radius: 8px; background: transparent; }
+.my-plates > .carousel-dots,
+.my-plates + .carousel-dots { margin-top: var(--space-3); }
+.settings-current-mode { min-height: 56px; padding: 0 var(--space-4); display: flex; align-items: center; justify-content: space-between; border-radius: 12px; background: var(--line); font-size: var(--font-body); }
+.settings-current-mode span { color: var(--muted); }
+.settings-current-mode strong { color: var(--ink); }
+
+/* Login hero is a simple vertical stack, with room after the final action. */
+.auth-visual { height: 300px; padding: 80px var(--space-8) var(--space-8); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-6); }
+.auth-visual > img { width: 42px; height: 42px; position: static; transform: none; }
+.auth-visual h1 { margin: 0; position: static; }
+.auth-back { display: none !important; }
+.auth-card { min-height: 656px; padding-bottom: var(--space-8); }
+.auth-card footer { padding-bottom: var(--space-4); }
+.ui-field__reveal svg { width: 20px; height: 20px; stroke-width: 1.5; }
+
+.rata-mode .live-my-screen > .home-status,
+.rata-mode .live-ratalk-sub > .home-status { color: #fff; background: var(--accent); }

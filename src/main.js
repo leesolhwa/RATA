@@ -10,7 +10,11 @@ const ramenPhotos = {
   mixed: '/images/photos/style-mazesoba.webp',
   street: '/images/photos/news-street.webp',
   newsMiso: '/images/photos/news-miso.webp',
-  newsShoyu: '/images/photos/news-shoyu.webp'
+  newsShoyu: '/images/photos/news-shoyu.webp',
+  banrai: '/images/photos/figma/banrai-tsukemen.jpg',
+  koreanShoyu: '/images/photos/figma/shoyu-bowl.jpg',
+  koreanClear: '/images/photos/figma/clear-ramen.jpg',
+  koreanSpicy: '/images/photos/figma/spicy-ramen.jpg'
 };
 
 const icon = (name, size = 24) => {
@@ -24,7 +28,6 @@ const icon = (name, size = 24) => {
     chat: '<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>',
     user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
     bookmark: '<path d="M6 3h12v18l-6-4-6 4z"/>',
-    spark: '<path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
     search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
     pin: '<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2"/>',
     edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>',
@@ -48,7 +51,6 @@ const socialIcon = (provider) => {
 };
 
 const StatusBar = ({ className = 'home-status' } = {}) => `<div class="${className}"><strong>9:41</strong><span class="status-icons"><span class="status-signal" aria-hidden="true"><i></i><i></i><i></i></span><svg class="status-wifi" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 4.2a10.6 10.6 0 0 1 14 0M3.6 7a6.7 6.7 0 0 1 8.8 0M6.2 9.6a2.7 2.7 0 0 1 3.6 0"/></svg><b aria-hidden="true"></b></span></div>`;
-const ModeContext = () => `<p class="mode-context" data-mode-context aria-live="polite">${appState?.mode === 'rata' ? '현재 라타 모드 · 육수, 타래, 면의 전문 정보를 보여줘요.' : '현재 라이트 모드 · 쉬운 설명과 추천을 보여줘요.'}</p>`;
 
 let ratingGradientId = 0;
 const RatingStars = ({ score, interactive = false } = {}) => {
@@ -72,7 +74,7 @@ const modeContent = {
       ['좋아하는 맛', ['구수하고 짭짤한 맛', '얼큰하고 매콤한', '독특하고 이색적인 맛', '풍부하고 깊은 풍미']],
       ['먹는 방식', ['국물에 말아 나오는 방식', '소스에 찍어 먹는 방식', '국물없이 비벼 먹는 방식']]
     ],
-    sheet: { chips: ['소스에 찍어 먹는 방식', '진하고 꾸덕한'], scores: { light: 4.3, rata: 3.8, expected: 4.1 }, matchOffset: 0, description: '진하고 꾸덕한 소스와 탄력 있는 면을 좋아하는 취향에 잘 맞아요.' }
+    sheet: { chips: ['츠케멘', '진하고 꾸덕한'], scores: { light: 4.8, rata: 4.6, expected: 4.7 }, matchOffset: 0, description: '진한 어패류 소스와 탄력 있는 굵은 면을 좋아하는 취향에 잘 맞아요.' }
   },
   rata: {
     panelSubtitle: '',
@@ -81,7 +83,7 @@ const modeContent = {
       ['', ['농도', '기름기', '짠맛', '면 굵기']],
       ['', ['돼지 • 유화', '쇼유 • 카에시강함', '극태면 • 저가수면']]
     ],
-    sheet: { chips: ['지로인스파이어', '돈백탕', '돈청탕'], scores: { light: 4.8, rata: 4.8, expected: 4.8 }, matchOffset: 9, description: '육수　돼지 • 유화\n타래　쇼유 • 카에시강함\n면　극태면 • 저가수면' }
+    sheet: { chips: ['돈코츠 어패류', '쇼유 카에시', '극태 저가수면'], scores: { light: 4.8, rata: 4.6, expected: 4.7 }, matchOffset: 9, description: '육수　돈코츠·어패류 블렌드\n타래　쇼유 카에시\n면　극태 저가수면' }
   }
 };
 
@@ -143,6 +145,7 @@ const appState = {
   userName: readStored('rata_user_name', 'Realraota'),
   selectedPostId: 1,
   selectedPlaceId: 'banrai',
+  selectedEventId: 'jun-limited',
   rating: 0,
   selectedWriteStore: 'banrai',
   selectedPhoto: '',
@@ -150,7 +153,8 @@ const appState = {
   writeDraft: { title: '', body: '' },
   comments: {},
   savedEventIds: readStored('rata_saved_events', ['yuzu-koharu', 'jun-limited', 'akari-miso', 'shikou-guest', 'past-clear', 'past-salt']),
-  savedStoreIds: readStored('rata_saved_stores', ['banrai']),
+  savedStoreIds: readStored('rata_saved_stores', []),
+  likedPostIds: readStored('rata_liked_posts', []),
   notificationItems: [
     { id: 1, title: '유즈시오 × 코하루 콜라보', body: '내일 정오에 연남에서 시작해요.' },
     { id: 2, title: '저장한 일정이 곧 시작해요', body: '멘야준 육해공 시리즈 · 오늘 18:00' }
@@ -159,42 +163,30 @@ const appState = {
 const persistState = (key, value) => {
   try { window.localStorage.setItem(key, JSON.stringify(value)); } catch {}
 };
+if (!readStored('rata_saved_stores_v2', false)) {
+  if (appState.savedStoreIds.length === 1 && appState.savedStoreIds[0] === 'banrai') appState.savedStoreIds = [];
+  persistState('rata_saved_stores', appState.savedStoreIds);
+  persistState('rata_saved_stores_v2', true);
+}
 
-const events = [
-  {
-    date: todayKey,
-    order: 1,
-    shop: '오늘 오픈',
-    dday: 'TODAY',
-    title: '멘야준의 육해공 시리즈',
-    time: `${shortDate(today)} 18:00 · 서울 합정`,
-    detail: '닭과 해산물 육수를 한 그릇에 담은 오늘의 한정 팝업',
-    image: heroSlides[0].image
-  },
-  {
-    date: todayKey,
-    order: 2,
-    shop: '한정 메뉴',
-    dday: 'TODAY',
-    title: '아카리 가을 미소 라멘',
-    time: `${shortDate(today)} 20:00 · 서울 망원`,
-    detail: '구운 버섯과 진한 미소를 더한 저녁 한정 메뉴',
-    image: ramenPhotos.rich
-  },
-  {
-    date: dateKey(addDays(today, 1)),
-    order: 3,
-    shop: '콜라보',
-    dday: 'D-1',
-    title: '유즈시오 × 코하루',
-    time: `${shortDate(addDays(today, 1))} 12:00 · 서울 연남`,
-    detail: '유자 향을 더한 맑은 육수와 수제면 콜라보',
-    image: ramenPhotos.clear
-  }
-].sort((a, b) => a.order - b.order);
+const eventCatalog = [
+  { id: 'jun-limited', date: today, shop: '오늘 오픈', title: '멘야준 육해공 한정전', place: '합정', type: 'limited', time: '18:00', detail: '닭과 해산물 육수를 한 그릇에 담은 오늘의 한정 팝업', image: ramenPhotos.koreanShoyu },
+  { id: 'akari-miso', date: today, shop: '한정 메뉴', title: '아카리 가을 미소 라멘', place: '망원', type: 'popup', time: '20:00', detail: '구운 버섯과 진한 미소를 더한 저녁 한정 메뉴', image: ramenPhotos.koreanSpicy },
+  { id: 'yuzu-koharu', date: addDays(today, 1), shop: '콜라보', title: '유즈시오 × 코하루', place: '연남', type: 'collab', time: '12:00', detail: '유자 향을 더한 맑은 육수와 수제면 콜라보', image: ramenPhotos.koreanClear },
+  { id: 'banrai-week', date: addDays(today, 5), shop: '한정 메뉴', title: '마포 반라이 가을 츠케멘 주간', place: '마포', type: 'limited', time: '11:30', detail: '돈코츠 어패류 소스와 극태면을 선보이는 한정 주간', image: ramenPhotos.banrai },
+  { id: 'shikou-guest', date: addDays(today, 12), shop: '게스트데이', title: '시코우 × 소바샤 게스트데이', place: '성수', type: 'collab', time: '12:00', detail: '맑은 쇼유 육수와 수제면을 함께 선보이는 게스트데이', image: ramenPhotos.koreanShoyu },
+  { id: 'koharu-chicken', date: addDays(today, 18), shop: '팝업', title: '코하루 닭백탕 팝업', place: '신촌', type: 'popup', time: '17:00', detail: '진한 닭백탕과 곧은 중면을 준비한 하루 팝업', image: ramenPhotos.koreanSpicy },
+  { id: 'past-clear', date: addDays(today, -12), shop: '한정 메뉴', title: '하쿠텐 가을 이에케 위크', place: '홍대', type: 'limited', time: '11:30', detail: '가을 한정 이에케 라멘', image: ramenPhotos.koreanShoyu },
+  { id: 'past-salt', date: addDays(today, -24), shop: '팝업', title: '시오한입 제철채소 팝업', place: '신촌', type: 'popup', time: '12:00', detail: '제철채소를 더한 시오 팝업', image: ramenPhotos.koreanClear }
+];
+const dDayLabel = (date) => { const diff = Math.round((date - today) / 86400000); return diff === 0 ? 'TODAY' : `D-${diff}`; };
+const events = eventCatalog.filter((item) => item.date >= weekDates[0] && item.date <= weekDates[6]).map((item, order) => ({
+  ...item, date: dateKey(item.date), order, dday: dDayLabel(item.date),
+  time: `${shortDate(item.date)} ${item.time} · 서울 ${item.place}`
+}));
 
 const news = [
-  { tag: 'NEW', place: '이에케 · 신촌', title: '멘야 이치도', copy: '오사카의 직수제자가 선보이는 원조 이에케 라멘', image: ramenPhotos.hero },
+  { tag: 'NEW', place: '이에케 · 신촌', title: '멘야 이치도', copy: '오사카의 직수제자가 선보이는 원조 이에케 라멘', image: ramenPhotos.koreanShoyu },
   { tag: 'HOT', place: '츠케멘 · 망원', title: '츠케야 엔', copy: '최근 라타 언급량 150% 상승', image: ramenPhotos.newsMiso },
   { tag: 'HOT', place: '니보시 · 합정', title: '니보시팩토리', copy: '이게 시멘트야… 라멘이야…', image: ramenPhotos.newsShoyu }
 ];
@@ -219,7 +211,7 @@ const talks = [
 ];
 
 const ratalkPosts = [
-  { id: 1, category: 'plate', author: '역삼동 라오타', badge: '라이트', time: '방금', place: '반라이', score: '5.0', title: '처음 먹어본 진한 츠케멘', copy: '면의 탄력이 좋고 소스가 진하지만 마지막 스프와리까지 편안하게 먹었어요.', image: ramenPhotos.rich, likes: 12, comments: 2, popularity: 98 },
+  { id: 1, category: 'plate', author: '역삼동 라오타', badge: '라이트', time: '방금', place: '마포 반라이', score: '4.8', title: '처음 먹어본 진한 츠케멘', copy: '면의 탄력이 좋고 소스가 진하지만 마지막 스프와리까지 편안하게 먹었어요.', image: ramenPhotos.banrai, likes: 12, comments: 2, popularity: 98 },
   { id: 2, category: 'story', author: '통풍주의', badge: '라타', time: '3시간 전', place: '웅성', score: '', title: '웅성 콜라보 첫날 가실 분?', copy: '토요일 첫 타임을 예약했어요. 현장에서 같이 줄 서실 분 계신가요?', image: '', likes: 6, comments: 4, popularity: 76 },
   { id: 3, category: 'plate', author: '면발수집가', badge: '라타', time: '어제', place: '하쿠텐', score: '4.8', title: '하쿠텐 오픈런 후기', copy: '단단한 면과 짭짤한 국물이 잘 맞았고 시금치 추가가 특히 좋았습니다.', image: ramenPhotos.clear, likes: 24, comments: 5, popularity: 120 },
   { id: 4, category: 'plate', author: '망원동 면치기', badge: '라이트', time: '어제', place: '멘야준', score: '4.7', title: '맑은 국물 좋아하면 추천', copy: '닭 향이 과하지 않고 끝맛이 깔끔해서 첫 쇼유 라멘으로 좋았어요.', image: ramenPhotos.hero, likes: 7, comments: 3, popularity: 45 },
@@ -237,7 +229,7 @@ const ratalkPostMarkup = (post) => `<article class="ratalk-post" data-post-id="$
   <header>${avatarMarkup(post.author)}<strong>${escapeText(post.author)}</strong><em>${post.badge}</em><time>${post.time}</time></header>
   ${post.image ? `<img class="talk-photo" src="${post.image}" alt="${escapeText(post.place)} 라멘">` : ''}
   <div class="talk-post-body">${post.place ? `<p class="talk-place">${icon('pin', 15)} <b>${escapeText(post.place)}</b>${post.score ? `${RatingStars({ score: post.score })}<strong>${Number(post.score).toFixed(1)}</strong>` : ''}</p>` : ''}${post.title ? `<h2>${escapeText(post.title)}</h2>` : ''}<p class="talk-copy">${escapeText(post.copy)}</p></div>
-  <footer><button class="talk-like" aria-pressed="false" aria-label="좋아요">${icon('heart', 20)}<span>${post.likes}</span></button><button class="talk-comment">${icon('chat', 20)} <span>${post.comments}</span></button></footer>
+  <footer><button class="talk-like ${appState.likedPostIds.includes(post.id) ? 'liked' : ''}" data-post-id="${post.id}" aria-pressed="${appState.likedPostIds.includes(post.id)}" aria-label="좋아요">${icon('heart', 20)}<span>${post.likes}</span></button><button class="talk-comment">${icon('chat', 20)} <span>${post.comments}</span></button></footer>
 </article>`;
 
 const brothChoices = [
@@ -314,7 +306,7 @@ document.querySelector('#app').innerHTML = `
               <span><strong>${item.title}</strong><small>${item.copy}</small></span>
             </button>`).join('')}
           </div>
-          <div class="onboarding-actions"><button class="wide-choice" data-broth="all">다 좋아요👌</button><button class="primary-btn onboarding-next">다음</button><button class="secondary-btn later-btn">건너뛰기</button></div>
+          <div class="onboarding-actions"><button class="wide-choice" data-broth="all">다 좋아요</button><button class="primary-btn onboarding-next">다음</button><button class="secondary-btn later-btn">건너뛰기</button></div>
         </article>
 
         <article class="onboarding-page" data-step="1">
@@ -355,10 +347,6 @@ document.querySelector('#app').innerHTML = `
           </div>
           <button class="icon-btn notify" aria-label="알림">${icon('bell', 23)}<i></i></button>
         </div>
-      </div>
-      <div class="ticker" role="status">
-        <span class="ticker-message ticker-light"><b>라이트 모드</b><span>쉬운 설명과 추천 위주로 홈이 보여요</span><i>${icon('bowl', 16)}</i></span>
-        <span class="ticker-message ticker-rata"><b>라타 모드</b><span>육수·타래·면 같은 진한 스토리까지 보여요</span><i>${icon('spark', 16)}</i></span>
       </div>
     </header>
 
@@ -456,27 +444,26 @@ document.querySelector('#app').innerHTML = `
             </div>
           </div>
         </header>
-        ${ModeContext()}
         <div id="rata-map" class="rata-map" aria-label="홍대 주변 라멘집 지도"></div>
         <div class="map-filters" aria-label="지도 필터">
           <button class="active" data-map-filter="all">전체</button>
           <button data-map-filter="rich">백탕</button>
           <button data-map-filter="clear">청탕</button>
-          <button class="taste-edit-btn">${icon('spark', 17)} 취향편집</button>
+          <button class="taste-edit-btn">취향편집</button>
         </div>
         <aside class="store-sheet" aria-hidden="true">
           <button class="sheet-handle" aria-label="매장 정보 펼치기"><i></i></button>
           <div class="sheet-scroll">
             <div class="store-title-row">
-              <div><h2 class="store-name">반라이</h2><span class="store-match">취향 78% 일치</span></div>
+              <div><h2 class="store-name">마포 반라이</h2><span class="store-match">취향 78% 일치</span></div>
               <div><button class="sheet-save" aria-label="저장">${icon('bookmark', 23)}</button><button class="sheet-close" aria-label="닫기">${icon('close', 24)}</button></div>
             </div>
             <div class="store-chips"></div>
             <div class="store-scores"><div><span>라이트</span><strong data-store-score="light"></strong></div><div><span>라타</span><strong data-store-score="rata"></strong></div><div><span>내 예상별점</span><strong data-store-score="expected"></strong></div></div>
             <div class="store-gallery">
-              <img src="${ramenPhotos.clear}" alt="반라이 라멘">
-              <img src="${ramenPhotos.rich}" alt="반라이 츠케멘">
-              <img src="${ramenPhotos.mixed}" alt="반라이 마제소바">
+              <img src="${ramenPhotos.banrai}" alt="마포 반라이 츠케멘">
+              <img src="${ramenPhotos.koreanShoyu}" alt="마포 반라이 쇼유 라멘">
+              <img src="${ramenPhotos.koreanClear}" alt="마포 반라이 맑은 라멘">
             </div>
             <button class="sheet-more">매장 상세정보 보기 ${icon('chevron', 18)}</button>
             <div class="store-expanded-content">
@@ -500,7 +487,6 @@ document.querySelector('#app').innerHTML = `
           ${StatusBar({ className: 'home-status dark-status' })}
           <div class="ratalk-titlebar"><h1>라톡</h1><div><button data-notifications aria-label="알림">${icon('bell', 23)}</button><button class="talk-search-toggle" aria-label="검색">${icon('search', 23)}</button></div></div>
         </header>
-        ${ModeContext()}
         <form class="ratalk-search" hidden><input type="search" aria-label="라톡 검색" placeholder="글, 작성자, 매장 검색"><button type="button" class="talk-search-close">취소</button></form>
         <nav class="ratalk-categories" aria-label="라톡 분류">
           <button class="active" data-talk-filter="all">전체</button><button data-talk-filter="plate">한 그릇</button><button data-talk-filter="story">이야기</button>
@@ -521,7 +507,6 @@ document.querySelector('#app').innerHTML = `
       <section class="live-auth-screen" hidden aria-label="로그인">
         ${StatusBar({ className: 'home-status auth-status' })}
         <div class="auth-visual">
-          <button class="auth-back" type="button" aria-label="이전 화면">${icon('back', 24)}</button>
           <img src="/brand/R_logo_RATA.svg" alt="RATA">
           <h1>당신의<br>깊어질<br>취향을</h1>
         </div>
@@ -745,23 +730,16 @@ function setAppMode(selectedMode, announce = false) {
   persistState('rata_mode', selectedMode);
   document.body.classList.toggle('rata-mode', selectedMode === 'rata');
   document.querySelectorAll('.mode-btn').forEach((button) => button.classList.toggle('active', button.dataset.mode === selectedMode));
-  document.querySelectorAll('[data-settings-mode]').forEach((button) => button.classList.toggle('active', button.dataset.settingsMode === selectedMode));
   renderTasteEditorMode();
   applySheetModeContent();
   const compose = document.querySelector('.ratalk-compose');
   if (compose) compose.dataset.mode = selectedMode;
+  const settingsMode = document.querySelector('.settings-current-mode strong');
+  if (settingsMode) settingsMode.textContent = selectedMode === 'rata' ? '라타' : '라이트';
   document.querySelectorAll('[data-desktop-mode]').forEach((button) => {
     const selected = button.dataset.desktopMode === selectedMode;
     button.classList.toggle('selected', selected);
     button.setAttribute('aria-pressed', String(selected));
-  });
-  const modeHelp = selectedMode === 'rata'
-    ? '현재 라타 모드 · 육수, 타래, 면의 전문 정보를 보여줘요.'
-    : '현재 라이트 모드 · 쉬운 설명과 추천을 보여줘요.';
-  document.querySelectorAll('[data-mode-context]').forEach((element) => { element.textContent = modeHelp; });
-  document.querySelectorAll('.phone-shell, .prototype-screen, .mode-btn').forEach((element) => {
-    element.title = modeHelp;
-    element.setAttribute('aria-description', modeHelp);
   });
   if (announce) showToast(selectedMode === 'rata' ? '라타 모드로 전환했어요 · 육수·타래·면 스토리가 보여요' : '라이트 모드로 전환했어요 · 쉬운 설명과 추천이 보여요');
 }
@@ -804,11 +782,12 @@ eventsTrack.addEventListener('click', (event) => {
     showToast(active ? '일정을 저장했어요' : '저장을 취소했어요');
     return;
   }
-  if (card) openPrototype('calendarDetail');
+  if (card) { appState.selectedEventId = card.dataset.eventId; openPrototype('calendarDetail'); }
 });
 eventsTrack.addEventListener('keydown', (event) => {
   if ((event.key === 'Enter' || event.key === ' ') && event.target.closest('.event-card')) {
     event.preventDefault();
+    appState.selectedEventId = event.target.closest('.event-card').dataset.eventId;
     openPrototype('calendarDetail');
   }
 });
@@ -897,7 +876,7 @@ Object.entries(prototypeScreens).forEach(([name, screen]) => {
 });
 
 const mapPlaces = [
-  { id: 'banrai', name: '반라이', lat: 37.5563, lng: 126.9236, type: 'rich', address: '서울 마포구 동교로 212', tags: ['츠케멘', '진하고 꾸덕한'], match: 78, image: ramenPhotos.rich },
+  { id: 'banrai', name: '마포 반라이', lat: 37.5563, lng: 126.9236, type: 'rich', address: '서울 마포구 동교로 212', tags: ['츠케멘', '진하고 꾸덕한'], match: 78, image: ramenPhotos.banrai },
   { id: 'menyajun', name: '멘야준', lat: 37.5589, lng: 126.9211, type: 'clear', address: '서울 마포구 연희로1길 36', tags: ['쇼유', '깔끔하고 담백한'], match: 84, image: ramenPhotos.hero },
   { id: 'hakuten', name: '하쿠텐', lat: 37.5536, lng: 126.9190, type: 'rich', address: '서울 마포구 와우산로29길 14', tags: ['이에케', '짭짤하고 진한'], match: 72, image: ramenPhotos.spicy },
   { id: 'ramen-truck', name: '라멘트럭', lat: 37.5504, lng: 126.9228, type: 'clear', address: '서울 마포구 독막로6길 15', tags: ['시오', '깊고 시원한'], match: 81, image: ramenPhotos.clear },
@@ -905,6 +884,8 @@ const mapPlaces = [
   { id: 'yuzushio', name: '유즈시오', lat: 37.5551, lng: 126.9284, type: 'clear', address: '서울 마포구 동교로38길 27', tags: ['유자 시오', '산뜻하고 맑은'], match: 91, image: ramenPhotos.newsShoyu },
   { id: 'kuro', name: '쿠로라멘', lat: 37.5517, lng: 126.9265, type: 'rich', address: '서울 마포구 양화로6길 9', tags: ['카라미소', '얼큰하고 진한'], match: 75, image: ramenPhotos.mixed }
 ];
+const mapMarkerMarkup = (place, selected = false) => `<button class="naver-ratav-marker${selected ? ' featured' : ''}${place.match >= 85 ? ' recommended' : ''}" type="button" aria-label="${place.name}"><img src="/brand/R_logo_RATA.svg" alt=""></button>`;
+
 if (appState.tasteEdit?.matches) {
   mapPlaces.forEach((place) => { if (appState.tasteEdit.matches[place.id]) place.match = appState.tasteEdit.matches[place.id]; });
 }
@@ -953,7 +934,7 @@ async function initMap() {
       const selected = place.id === appState.selectedPlaceId;
       const marker = new maps.Marker({
         position: new maps.LatLng(place.lat, place.lng), map: rataMap, title: place.name,
-        icon: { content: `<button class="naver-ratav-marker${selected ? ' featured' : ''}${place.match >= 85 ? ' recommended' : ''}" type="button" aria-label="${place.name}">${selected ? '<b>R</b>' : '<i aria-hidden="true"></i>'}</button>`, anchor: new maps.Point(selected ? 26 : 22, selected ? 58 : 44) }
+        icon: { content: mapMarkerMarkup(place, selected), anchor: new maps.Point(selected ? 26 : 22, selected ? 52 : 44) }
       });
       maps.Event.addListener(marker, 'click', () => selectMapPlace(place.id));
       return { marker, place, type: place.type, setVisible: (visible) => marker.setMap(visible ? rataMap : null) };
@@ -1030,7 +1011,7 @@ function renderSelectedStore() {
 function refreshMapMarkerSelection() {
   mapMarkers.forEach(({ marker, place }) => {
     const selected = place.id === appState.selectedPlaceId;
-    marker.setIcon({ content: `<button class="naver-ratav-marker${selected ? ' featured' : ''}${place.match >= 85 ? ' recommended' : ''}" type="button" aria-label="${place.name}">${selected ? '<b>R</b>' : ''}</button>`, anchor: new window.naver.maps.Point(selected ? 26 : 14, selected ? 58 : 34) });
+    marker.setIcon({ content: mapMarkerMarkup(place, selected), anchor: new window.naver.maps.Point(selected ? 26 : 22, selected ? 52 : 44) });
   });
 }
 
@@ -1069,15 +1050,8 @@ function closeTasteEditor(saved = false) {
 }
 
 const myStatus = StatusBar({ className: 'home-status dark-status' });
-const screenChrome = () => `${myStatus}${ModeContext()}`;
-const savedItems = [
-  { id: 'yuzu-koharu', date: addDays(today, 2), title: '유즈시오 × 코하루 청탕전', place: '연남', type: 'collab', image: ramenPhotos.clear },
-  { id: 'jun-limited', date: addDays(today, 5), title: '멘야준 닭백탕 한정주간', place: '성수', type: 'limited', image: ramenPhotos.hero },
-  { id: 'akari-miso', date: addDays(today, 11), title: '아카리 구운버섯 미소 팝업', place: '망원', type: 'popup', image: ramenPhotos.rich },
-  { id: 'shikou-guest', date: addDays(today, 18), title: '시코우 × 소바샤 게스트데이', place: '합정', type: 'collab', image: ramenPhotos.newsShoyu },
-  { id: 'past-clear', date: addDays(today, -12), title: '하쿠텐 가을 이에케 위크', place: '홍대', type: 'limited', image: ramenPhotos.spicy },
-  { id: 'past-salt', date: addDays(today, -24), title: '시오한입 제철채소 팝업', place: '신촌', type: 'popup', image: ramenPhotos.mixed }
-];
+const screenChrome = () => myStatus;
+const savedItems = eventCatalog;
 const legacySavedDefaults = ['yuzu-koharu', 'jun-limited', 'akari-miso'];
 if (!readStored('rata_saved_data_v2', false) && appState.savedEventIds.length === legacySavedDefaults.length && legacySavedDefaults.every((id) => appState.savedEventIds.includes(id))) {
   appState.savedEventIds = savedItems.map((item) => item.id);
@@ -1138,14 +1112,13 @@ function renderMyView(name) {
     const upcomingSaved = savedScheduleItems().filter((item) => item.date >= today);
     const savedCount = upcomingSaved.length;
     const tasteTitle = appState.mode === 'rata' ? '고농도 돈백탕에<br>극태 저가수면을<br>좋아해요' : '진한 국물에<br>굵은 면, 츠케멘을<br>좋아해요';
-    const tasteSummary = appState.mode === 'rata'
-      ? '<span>점도 4.5 · 가수율 4.0</span><span>감칠맛 3.5 · 유화도 3.0</span><span>매운맛 1.8</span>'
-      : '<span>진한 국물 4.5 · 굵은 면 4.0</span><span>감칠맛 3.5 · 기름기 3.0</span><span>매운맛 1.8</span>';
+    const tasteSummary = '<span>진한 국물 4.5 · 굵은 면 4.0</span><span>감칠맛 3.5 · 기름기 3.0</span><span>매운맛 1.8</span>';
+    const platePhotos = [ramenPhotos.banrai, ramenPhotos.koreanShoyu, ramenPhotos.koreanClear, ramenPhotos.koreanSpicy];
     liveMyScreen.innerHTML = `${screenChrome()}<header class="my-topbar"><h1>마이</h1><button type="button" data-my-route="settings" aria-label="설정">${icon('settings', 24)}</button></header>
       ${loggedOut ? `<section class="my-login-prompt"><img src="/brand/R_logo_RATA.svg" alt=""><h2>로그인하고 내 취향을<br>저장해보세요</h2><div>${Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } })}${Button({ label: '회원가입', variant: 'secondary', attributes: { 'data-my-route': 'join' } })}</div></section>` : `<section class="my-profile"><span><img src="/brand/R_logo_RATA.svg" alt=""></span><div><h2>${appState.userName} <em>${appState.mode === 'rata' ? '라타' : '라이트'}</em></h2><p>한 그릇의 기록이, 취향이 된다.</p></div></section>`}
       <section class="my-taste ${loggedOut ? 'locked' : ''}"><div><small>내 취향</small><h2>${loggedOut ? '로그인하면 내 취향이 보여요' : tasteTitle}</h2>${loggedOut ? '' : `<p>${tasteSummary}</p>`}</div>${tasteGraph()}</section>
-      ${loggedOut ? '' : `<section class="my-block"><header><b>저장됨 ${savedCount}</b><button type="button" data-my-route="mySaved">전체보기 ${icon('chevron', 18)}</button></header>${savedRows(upcomingSaved.slice(0, 2))}</section>`}
-      <section class="my-block my-plates"><header><b>내 한 그릇 ${loggedOut ? '' : '24'}</b><button type="button" data-my-route="myPlate">전체보기 ${icon('chevron', 18)}</button></header><div>${[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy].map((src,index)=>`<button type="button" data-my-route="myPlate" aria-label="기록한 라멘 ${index + 1} 보기"><img src="${src}" alt=""></button>`).join('')}</div></section>`;
+      ${loggedOut ? '' : `<section class="my-block"><header><b>저장됨 ${savedCount}</b><button type="button" data-my-route="mySaved">전체보기 ${icon('chevron', 18)}</button></header>${savedRows(upcomingSaved)}</section>`}
+      <section class="my-block my-plates"><header><b>내 한 그릇 ${loggedOut ? '' : platePhotos.length}</b><button type="button" data-my-route="myPlate">전체보기 ${icon('chevron', 18)}</button></header><div>${platePhotos.map((src,index)=>`<button type="button" data-my-route="myPlate" aria-label="기록한 라멘 ${index + 1} 보기"><img src="${src}" alt=""></button>`).join('')}</div></section>`;
   } else if (name === 'mySaved') {
     if (!appState.loggedIn) {
       liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>저장</h1></header>${EmptyState({ title: '로그인이 필요해요', description: '로그인하면 저장한 일정과 매장을 볼 수 있어요.', action: Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } }) })}`;
@@ -1154,7 +1127,7 @@ function renderMyView(name) {
     const photos=[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy,ramenPhotos.newsMiso,ramenPhotos.mixed,ramenPhotos.newsShoyu,ramenPhotos.hero,ramenPhotos.street,ramenPhotos.dipping,ramenPhotos.clear];
     liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${photos.map((src,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${src}" alt="라멘 기록 ${i+1}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">${icon('edit', 24)}</button>`;
   } else {
-    liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>설정</h1></header><section class="settings-list"><small>모드</small><div class="settings-mode" role="group" aria-label="모드 선택"><button type="button" data-settings-mode="light" class="${appState.mode === 'light' ? 'active' : ''}">라이트</button><button type="button" data-settings-mode="rata" class="${appState.mode === 'rata' ? 'active' : ''}">라타</button></div><button type="button" data-open-taste-editor>${icon('spark', 18)} 내 취향 편집 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
+    liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>설정</h1></header><section class="settings-list"><small>모드</small><div class="settings-current-mode"><span>현재 모드</span><strong>${appState.mode === 'rata' ? '라타' : '라이트'}</strong></div><button type="button" data-open-taste-editor>내 취향 편집 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
     if (name === 'settingsLogout') requestAnimationFrame(() => openDialog('logout-dialog'));
   }
   liveMyScreen.scrollTop = 0;
@@ -1176,39 +1149,42 @@ function ensureLoggedIn() {
   return false;
 }
 
-const calendarItems = [
-  { id: 'seongsu-clear', date: addDays(today, 7), title: '멘야준 × 유즈시오 맑은육수전', meta: '콜라보 | 서울 · 성수', type: 'collab', image: ramenPhotos.clear },
-  { id: 'mangwon-miso', date: addDays(today, 10), title: '아카리 제철버섯 미소 팝업', meta: '팝업 | 서울 · 망원', type: 'popup', image: ramenPhotos.rich },
-  { id: 'hapjeong-tsuke', date: addDays(today, 14), title: '반라이 가을 츠케멘 한정주간', meta: '한정메뉴 | 서울 · 합정', type: 'limited', image: ramenPhotos.dipping },
-  { id: 'sinchon-chicken', date: addDays(today, 21), title: '코하루 닭백탕 게스트데이', meta: '게스트데이 | 서울 · 신촌', type: 'guest', image: ramenPhotos.hero }
-];
-const calendarRows = () => calendarItems.map((item) => {
+const calendarItems = eventCatalog.filter((item) => item.date >= today);
+const calendarCurrent = calendarItems.filter((item) => item.date.getTime() === today.getTime());
+const calendarUpcoming = calendarItems.filter((item) => item.date > today);
+const calendarRows = () => calendarUpcoming.map((item) => {
   const diff = Math.ceil((item.date - today) / 86400000);
   const active = appState.savedEventIds.includes(item.id);
-  return `<article class="calendar-row" data-calendar-id="${item.id}"><time>D-${diff}<small>${shortDate(item.date)}</small></time><button type="button" data-calendar-route="calendarDetail"><strong>${item.title}</strong><span>${item.meta}</span></button><button type="button" class="calendar-save ${active ? 'active' : ''}" aria-label="${item.title} 저장" aria-pressed="${active}">${icon('bookmark',20)}</button></article>`;
+  return `<article class="calendar-row" data-calendar-id="${item.id}"><time>D-${diff}<small>${shortDate(item.date)}</small></time><button type="button" data-calendar-route="calendarDetail"><strong>${item.title}</strong><span>${item.shop} | 서울 · ${item.place}</span></button><button type="button" class="calendar-save ${active ? 'active' : ''}" aria-label="${item.title} 저장" aria-pressed="${active}">${icon('bookmark',20)}</button></article>`;
 }).join('');
 function renderCalendarView(name) {
   if (name === 'calendar') {
-    liveCalendarScreen.innerHTML = `${screenChrome()}<header class="calendar-title"><h1>콜라보 · 일정</h1><button type="button" data-calendar-route="calendarMonth">지난 일정 보기</button></header><section class="calendar-section"><h2><i></i> 지금 진행중 <b>2</b></h2><div class="calendar-heroes"><button type="button" data-calendar-route="calendarDetail" style="--cal:url('${ramenPhotos.newsShoyu}')"><span>콜라보</span><strong>요아케 × 비밀이야 청탕전</strong><small>${shortDate(today)} — ${shortDate(addDays(today, 4))} | 서울 · 신당</small></button><button type="button" data-calendar-route="calendarDetail" style="--cal:url('${ramenPhotos.mixed}')"><span>시즌메뉴</span><strong>멘야하나비 가을 마제소바</strong><small>${shortDate(today)} — ${shortDate(addDays(today, 6))} | 서울 · 잠실</small></button></div><h2 class="soon"><i></i> 곧 시작 <b>4</b></h2>${calendarRows()}</section>`;
+    liveCalendarScreen.innerHTML = `${screenChrome()}<header class="calendar-title"><h1>콜라보 · 일정</h1><button type="button" data-calendar-route="calendarMonth">지난 일정 보기</button></header><section class="calendar-section"><h2><i></i> 지금 진행중 <b>${calendarCurrent.length}</b></h2><div class="calendar-heroes">${calendarCurrent.map((item,index)=>`<button type="button" data-calendar-route="calendarDetail" data-calendar-id="${item.id}" aria-label="${index+1} / 2" style="--cal:url('${item.image}')"><span>${item.shop}</span><strong>${item.title}</strong><small>${shortDate(item.date)} · 서울 ${item.place}</small></button>`).join('')}</div><h2 class="soon"><i></i> 곧 시작 <b>${calendarUpcoming.length}</b></h2>${calendarRows()}</section>`;
   } else if (name === 'calendarMonth') {
     const past = savedItems.filter((item) => item.date < today).sort((a, b) => b.date - a.date);
     const groups = past.reduce((result, item) => { const key = `${item.date.getFullYear()}-${item.date.getMonth() + 1}`; (result[key] ||= []).push(item); return result; }, {});
-    const pastMarkup = Object.entries(groups).map(([key, items]) => `<header class="month-title"><h2>${Number(key.split('-')[1])}월</h2><span>${items.length}개 일정</span></header>${items.map((item)=>`<article><img src="${item.image}" alt="${item.title}"><button type="button" data-calendar-route="calendarDetail"><span><b>${item.type === 'collab' ? '콜라보' : '한정메뉴'}</b> 종료</span><strong>${item.title}</strong><small>${shortDate(item.date)} | 서울 · ${item.place}</small></button><button type="button" class="calendar-save" aria-label="저장" aria-pressed="false">${icon('bookmark',20)}</button></article>`).join('')}`).join('');
+    const pastMarkup = Object.entries(groups).map(([key, items]) => `<header class="month-title"><h2>${Number(key.split('-')[1])}월</h2><span>${items.length}개 일정</span></header>${items.map((item)=>`<article data-calendar-id="${item.id}"><img src="${item.image}" alt="${item.title}"><button type="button" data-calendar-route="calendarDetail"><span><b>${item.type === 'collab' ? '콜라보' : '한정메뉴'}</b> 종료</span><strong>${item.title}</strong><small>${shortDate(item.date)} | 서울 · ${item.place}</small></button><button type="button" class="calendar-save" aria-label="저장" aria-pressed="false">${icon('bookmark',20)}</button></article>`).join('')}`).join('');
     liveCalendarScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-calendar-route="calendar" aria-label="뒤로">${icon('back', 24)}</button><h1>지난 일정</h1></header><nav class="month-chips"><button>${today.getFullYear()} ${icon('chevron', 16)}</button></nav><section class="past-list">${pastMarkup}</section>`;
   } else {
-    const detailSaved = appState.savedEventIds.includes('seongsu-clear');
-    liveCalendarScreen.innerHTML = `<article class="calendar-detail" data-calendar-id="seongsu-clear"><header style="--detail:url('${ramenPhotos.newsMiso}')">${screenChrome()}<button type="button" data-calendar-route="calendar" aria-label="뒤로">${icon('back', 24)}</button><button type="button" class="calendar-save ${detailSaved ? 'active' : ''}" aria-label="저장" aria-pressed="${detailSaved}">${icon('bookmark',24)}</button></header><section><span class="pill dark">콜라보</span><h1>멘야준 × 유즈시오 맑은육수전</h1><h2>${shortDate(addDays(today, 7))} — ${shortDate(addDays(today, 10))}</h2><p>서울 성동구 연무장길 41</p><h3>콜라보 메뉴</h3><dl><div><dt>유자 특선 쇼유</dt><dd>16,000 원</dd></div><div><dt>맑은 닭육수 시오</dt><dd>15,000 원</dd></div></dl><div class="calendar-detail-actions">${Button({label:'콜라보 가게 살펴보기',variant:'secondary',attributes:{'data-calendar-route':'map'}})}${Button({label:`${icon('bookmark', 20)} <span>${detailSaved ? '저장됨' : '일정 저장하기'}</span>`,attributes:{'data-save-detail':true,'aria-pressed':String(detailSaved)}})}</div></section></article>`;
+    const item = eventCatalog.find((event) => event.id === appState.selectedEventId) || eventCatalog[0];
+    const detailSaved = appState.savedEventIds.includes(item.id);
+    liveCalendarScreen.innerHTML = `<article class="calendar-detail" data-calendar-id="${item.id}"><header style="--detail:url('${item.image}')">${screenChrome()}<button type="button" data-calendar-route="calendar" aria-label="뒤로">${icon('back', 24)}</button><button type="button" class="calendar-save ${detailSaved ? 'active' : ''}" aria-label="저장" aria-pressed="${detailSaved}">${icon('bookmark',24)}</button></header><section><span class="pill dark">${item.shop}</span><h1>${item.title}</h1><h2>${shortDate(item.date)} ${item.time}</h2><p>서울 ${item.place} · ${item.detail}</p><h3>대표 메뉴</h3><dl><div><dt>${item.title.includes('츠케멘') ? '특제 츠케멘' : '오늘의 한정 라멘'}</dt><dd>16,000 원</dd></div><div><dt>추가 토핑</dt><dd>3,000 원</dd></div></dl><div class="calendar-detail-actions">${Button({label:'가게 지도에서 보기',variant:'secondary',attributes:{'data-calendar-route':'map'}})}${Button({label:`${icon('bookmark', 20)} <span>${detailSaved ? '저장됨' : '일정 저장하기'}</span>`,attributes:{'data-save-detail':true,'aria-pressed':String(detailSaved)}})}</div></section></article>`;
   }
   setupSnapCarousel(liveCalendarScreen.querySelector('.calendar-heroes'), { itemSelector: ':scope > button' });
 }
 
 liveCalendarScreen.addEventListener('click',(event)=>{
-  const route=event.target.closest('[data-calendar-route]')?.dataset.calendarRoute;
-  if(route) return openPrototype(route);
+  const routeTarget = event.target.closest('[data-calendar-route]');
+  const route = routeTarget?.dataset.calendarRoute;
+  if (route) {
+    const item = routeTarget.closest('[data-calendar-id]');
+    if (route === 'calendarDetail' && item) appState.selectedEventId = item.dataset.calendarId;
+    return openPrototype(route);
+  }
   const save=event.target.closest('.calendar-save,[data-save-detail]');
   if(save){
     if (!ensureLoggedIn()) return;
-    const id = save.closest('[data-calendar-id]')?.dataset.calendarId || 'seongsu-clear';
+    const id = save.closest('[data-calendar-id]')?.dataset.calendarId || appState.selectedEventId;
     const active = !appState.savedEventIds.includes(id);
     appState.savedEventIds = active ? [...appState.savedEventIds, id] : appState.savedEventIds.filter((savedId) => savedId !== id);
     persistState('rata_saved_events', appState.savedEventIds);
@@ -1228,13 +1204,13 @@ function renderRatalkSub(name) {
   if (name === 'ratalkDetail') {
     const post = ratalkPosts.find((item) => item.id === appState.selectedPostId) || ratalkPosts[0];
     const comments = appState.comments[post.id] || initialComments();
-    liveRatalkSub.innerHTML = `${screenChrome()}<header class="my-pagebar"><button data-talk-route="ratalk" aria-label="뒤로">${icon('back', 24)}</button><h1>${post.category === 'plate' ? '한 그릇' : '이야기'}</h1></header><article class="talk-detail" data-detail-post="${post.id}"><div class="talk-author">${avatarMarkup(post.author)}<b>${post.author}</b><span>${post.badge}</span><time>${post.time}</time></div>${post.image ? `<img class="talk-detail-photo" src="${post.image}" alt="${post.place} 라멘">` : ''}${post.place ? `<button class="talk-store" type="button" data-open-map-store="${post.place}"><span><b>${post.place}</b><small>${mapPlaces.find((place) => place.name === post.place)?.address || '서울 라멘 매장'}</small></span>${icon('chevron', 24)}</button>` : ''}${post.score ? `<p class="talk-rating">${RatingStars({ score: post.score })}<b>${Number(post.score).toFixed(1)}</b></p>` : ''}${post.title ? `<h2>${post.title}</h2>` : ''}<p>${post.copy}</p><div class="talk-actions">${icon('heart', 20)} ${post.likes}　${icon('chat', 20)} <span class="detail-comment-count">${comments.length}</span></div><section class="talk-comments"><h2>댓글 ${comments.length}</h2><div class="talk-comment-list">${comments.map((comment) => `<article class="talk-comment-item">${avatarMarkup(comment.author)}<p><b>${comment.author}</b><br>${comment.copy}</p></article>`).join('')}</div></section></article><form class="talk-comment-form"><input aria-label="댓글" placeholder="댓글을 남겨보세요"><button type="submit" aria-label="댓글 전송">${icon('send', 22)}</button></form>`;
+    liveRatalkSub.innerHTML = `${screenChrome()}<header class="my-pagebar"><button data-talk-route="ratalk" aria-label="뒤로">${icon('back', 24)}</button><h1>${post.category === 'plate' ? '한 그릇' : '이야기'}</h1></header><article class="talk-detail" data-detail-post="${post.id}"><div class="talk-author">${avatarMarkup(post.author)}<b>${post.author}</b><span>${post.badge}</span><time>${post.time}</time></div>${post.image ? `<img class="talk-detail-photo" src="${post.image}" alt="${post.place} 라멘">` : ''}${post.place ? `<button class="talk-store" type="button" data-open-map-store="${post.place}"><span><b>${post.place}</b><small>${mapPlaces.find((place) => place.name === post.place)?.address || '서울 라멘 매장'}</small></span>${icon('chevron', 24)}</button>` : ''}${post.score ? `<p class="talk-rating">${RatingStars({ score: post.score })}<b>${Number(post.score).toFixed(1)}</b></p>` : ''}${post.title ? `<h2>${post.title}</h2>` : ''}<p>${post.copy}</p><div class="talk-actions"><button class="talk-like ${appState.likedPostIds.includes(post.id) ? 'liked' : ''}" data-post-id="${post.id}" aria-pressed="${appState.likedPostIds.includes(post.id)}" aria-label="좋아요">${icon('heart', 20)}<span>${post.likes}</span></button><span class="detail-comment-total">${icon('chat', 20)} <b class="detail-comment-count">${comments.length}</b></span></div><section class="talk-comments"><h2>댓글 ${comments.length}</h2><div class="talk-comment-list">${comments.map((comment) => `<article class="talk-comment-item">${avatarMarkup(comment.author)}<div><b>${comment.author}</b><p>${comment.copy}</p></div></article>`).join('')}</div></section></article><form class="talk-comment-form"><input aria-label="댓글" placeholder="댓글을 남겨보세요"><button type="submit" aria-label="댓글 전송">${icon('send', 22)}</button></form>`;
     return;
   }
   const story = name === 'writeText';
   const selectedStore = mapPlaces.find((place) => place.id === appState.selectedWriteStore) || mapPlaces[0];
   const writeValid = Boolean(appState.writeDraft.body.trim()) && (story || appState.rating > 0);
-  liveRatalkSub.innerHTML = `${screenChrome()}<header class="talk-write-head"><button type="button" data-talk-route="ratalk" aria-label="닫기">${icon('close', 24)}</button><h1>글쓰기</h1></header><nav class="talk-write-tabs ${appState.mode === 'rata' ? 'rata' : 'light'}"><button data-talk-route="writePhoto" class="${story ? '' : 'active'}">한 그릇</button><button data-talk-route="writeText" class="${story ? 'active' : ''}">이야기</button></nav><form class="talk-write-form" data-write-kind="${story ? 'story' : 'plate'}">${story ? `<label>태그 (선택)<div class="tag-row"><button type="button">매장 추가</button><button type="button">콜라보 추가</button><button type="button">일정 추가</button><button type="button">질문 추가</button></div></label><label>제목<input name="title" value="${appState.writeDraft.title}" placeholder="제목을 입력해주세요."></label>` : `<label>사진 (선택)<div class="photo-picker"><label class="photo-upload">${icon('photo', 24)}<span>사진 선택</span><input type="file" accept="image/*" hidden></label>${appState.selectedPhoto ? `<img src="${appState.selectedPhoto}" alt="선택한 라멘 사진">` : ''}</div></label><label>매장 (필수)<button type="button" class="store-pick" data-talk-route="writePicker"><span><b>${selectedStore.name}</b><small>${selectedStore.address}</small></span><i>변경</i></button></label><div class="write-stars" role="radiogroup" aria-label="별점">${RatingStars({ score: appState.rating, interactive: true })}<b>${appState.rating.toFixed(1)}</b></div>`}<label>내용<textarea name="body" maxlength="500" placeholder="라멘과 매장에 대한 이야기를 남겨주세요.">${appState.writeDraft.body}</textarea><span class="write-error" role="alert" ${writeValid ? 'hidden' : ''}>${appState.writeDraft.body.trim() ? '별점을 선택해주세요.' : '내용을 입력해주세요.'}</span></label>${Button({label:'글 올리기',type:'submit',disabled:!writeValid})}</form>${name === 'writePicker' ? `<aside class="write-picker"><i></i><h2>어느 매장에 다녀오셨나요?</h2><input type="search" placeholder="매장 이름 검색" aria-label="매장 검색"><div class="write-store-options">${mapPlaces.map((place) => `<button type="button" data-select-store="${place.id}"><b>${place.name}</b><span>${place.address} · ${place.tags[0]} ${place.id === selectedStore.id ? '✓' : ''}</span></button>`).join('')}</div></aside>` : ''}`;
+  liveRatalkSub.innerHTML = `${screenChrome()}<header class="talk-write-head"><button type="button" data-talk-route="ratalk" aria-label="닫기">${icon('close', 24)}</button><h1>글쓰기</h1></header><nav class="talk-write-tabs ${appState.mode === 'rata' ? 'rata' : 'light'}"><button data-talk-route="writePhoto" class="${story ? '' : 'active'}">한 그릇</button><button data-talk-route="writeText" class="${story ? 'active' : ''}">이야기</button></nav><form class="talk-write-form" data-write-kind="${story ? 'story' : 'plate'}">${story ? `<label>태그 (선택)<div class="tag-row"><button type="button">매장 추가</button><button type="button">콜라보 추가</button><button type="button">일정 추가</button><button type="button">질문 추가</button></div></label><label>제목<input name="title" value="${appState.writeDraft.title}" placeholder="제목을 입력해주세요."></label>` : `<label>사진 (선택)<div class="photo-picker"><label class="photo-upload">${icon('photo', 24)}<span>사진 선택</span><input type="file" accept="image/*" hidden></label>${appState.selectedPhoto ? `<img src="${appState.selectedPhoto}" alt="선택한 라멘 사진">` : ''}</div></label><label>매장 (필수)<button type="button" class="store-pick" data-talk-route="writePicker"><span><b>${selectedStore.name}</b><small>${selectedStore.address}</small></span><i>변경</i></button></label><div class="write-stars" role="radiogroup" aria-label="별점">${RatingStars({ score: appState.rating, interactive: true })}<b>${appState.rating.toFixed(1)}</b></div>`}<label>내용<textarea name="body" maxlength="500" placeholder="라멘과 매장에 대한 이야기를 남겨주세요.">${appState.writeDraft.body}</textarea><span class="write-error" role="alert" ${writeValid ? 'hidden' : ''}>${appState.writeDraft.body.trim() ? '별점을 선택해주세요.' : '내용을 입력해주세요.'}</span></label>${Button({label:'글 올리기',type:'submit',disabled:!writeValid})}</form>${name === 'writePicker' ? `<aside class="write-picker"><i></i><h2>어느 매장에 다녀오셨나요?</h2><input type="search" placeholder="매장 이름 검색" aria-label="매장 검색"><div class="write-store-options">${mapPlaces.map((place) => `<button type="button" data-select-store="${place.id}"><b>${place.name}</b><span>${place.address} · ${place.tags[0]} ${place.id === selectedStore.id ? '· 선택됨' : ''}</span></button>`).join('')}</div></aside>` : ''}`;
   updateRatingStars();
 }
 function renderState(name){const action=Button({label:'다시 시도',attributes:{onclick:'location.reload()'}});const body=name==='stateLoading'?Skeleton({rows:5}):name==='stateEmpty'?EmptyState({title:'아직 저장한 내용이 없어요',description:'마음에 드는 일정과 매장을 저장해보세요.'}):name==='stateError'?ErrorState({description:'네트워크 연결을 확인하고 다시 시도해주세요.',action}):name==='stateMaintenance'?ErrorState({title:'잠시 점검 중이에요',description:'더 안정적인 서비스를 위해 준비하고 있어요.'}):ErrorState({title:'업데이트가 필요해요',description:'새 버전으로 업데이트한 뒤 계속 이용해주세요.',action:Button({label:'업데이트하기',attributes:{onclick:'location.reload()'}})});liveStateScreen.innerHTML=`${screenChrome()}<header class="my-pagebar"><h1>RATA</h1></header><main class="state-content">${body}</main>`;}
@@ -1312,6 +1288,12 @@ liveRatalkSub.addEventListener('change', (event) => {
   if (appState.selectedPhoto.startsWith('blob:')) URL.revokeObjectURL(appState.selectedPhoto);
   appState.selectedPhoto = URL.createObjectURL(event.target.files[0]);
   renderRatalkSub('writePhoto');
+});
+liveRatalkSub.addEventListener('click', (event) => {
+  const like = event.target.closest('.talk-like');
+  if (!like) return;
+  if (!ensureLoggedIn()) return;
+  togglePostLike(Number(like.dataset.postId));
 });
 liveRatalkSub.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -1448,7 +1430,6 @@ function closePrototype() {
   requestAnimationFrame(() => syncNavHighlight(bottomNav));
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
   history.replaceState(null, '', `${location.pathname}?home`);
-  startTickerTimer();
 }
 
 prototypeHotspots.addEventListener('click', (event) => {
@@ -1484,12 +1465,6 @@ liveMyScreen.addEventListener('click', (event) => {
   if (event.target.closest('[data-saved-sort]')) {
     savedSort = savedSort === 'near' ? 'far' : 'near';
     renderSavedView();
-    return;
-  }
-  const modeButton = event.target.closest('[data-settings-mode]');
-  if (modeButton) {
-    setAppMode(modeButton.dataset.settingsMode, true);
-    renderMyView('settings');
     return;
   }
   if (event.target.closest('[data-open-taste-editor]')) return openPrototype('mapPrefsNew');
@@ -1745,6 +1720,21 @@ document.querySelectorAll('[data-talk-filter]').forEach((button) => button.addEv
   applyTalkFilters();
   ratalkFeed.scrollTo({ top: 0, behavior: 'smooth' });
 }));
+function togglePostLike(postId) {
+  const post = ratalkPosts.find((item) => item.id === postId);
+  if (!post) return;
+  const liked = !appState.likedPostIds.includes(postId);
+  appState.likedPostIds = liked ? [...appState.likedPostIds, postId] : appState.likedPostIds.filter((id) => id !== postId);
+  post.likes += liked ? 1 : -1;
+  persistState('rata_liked_posts', appState.likedPostIds);
+  document.querySelectorAll(`.talk-like[data-post-id="${postId}"]`).forEach((button) => {
+    button.classList.toggle('liked', liked);
+    button.setAttribute('aria-pressed', String(liked));
+    const count = button.querySelector('span');
+    if (count) count.textContent = String(post.likes);
+  });
+}
+
 ratalkFeed.addEventListener('click', (event) => {
   const post = event.target.closest('.ratalk-post');
   if (!post) return;
@@ -1752,10 +1742,7 @@ ratalkFeed.addEventListener('click', (event) => {
   const like = event.target.closest('.talk-like');
   if (like) {
     if (!ensureLoggedIn()) return;
-    const liked = like.classList.toggle('liked');
-    like.setAttribute('aria-pressed', String(liked));
-    const count = like.querySelector('span');
-    count.textContent = String(Number(count.textContent) + (liked ? 1 : -1));
+    togglePostLike(postId);
     return;
   }
   appState.selectedPostId = postId;
@@ -1894,7 +1881,6 @@ document.querySelectorAll('[data-reveal]').forEach((button) => button.addEventLi
   button.setAttribute('aria-pressed', String(!visible));
 }));
 document.querySelector('.auth-switch').addEventListener('click', () => openPrototype(isJoining() ? 'loginVisual' : 'join'));
-document.querySelector('.auth-back').addEventListener('click', () => openPrototype(isJoining() ? 'loginVisual' : 'myLogout'));
 document.querySelectorAll('.auth-socials [data-provider]').forEach((button) => button.addEventListener('click', () => {
   const joining = isJoining();
   const provider = button.dataset.provider;
@@ -1943,7 +1929,6 @@ const ONBOARDED_KEY = 'rata_onboarded';
 const ONBOARDING_CHOICES_KEY = 'rata_onboarding_choices';
 const SPLASH_SEEN_KEY = 'rata_splash_seen';
 let onboardingStep = 0;
-let tickerTimer;
 let splashFinished = false;
 
 const hideSplash = () => {
@@ -1975,17 +1960,6 @@ const saveOnboarding = () => {
   } catch {}
 };
 
-function startTickerTimer() {
-  const header = document.querySelector('.app-header');
-  const ticker = document.querySelector('.ticker');
-  clearTimeout(tickerTimer);
-  header.classList.remove('ticker-hidden');
-  ticker.classList.remove('dismissed');
-  tickerTimer = window.setTimeout(() => {
-    ticker.classList.add('dismissed');
-    header.classList.add('ticker-hidden');
-  }, 10000);
-}
 
 const setOnboardingStep = (nextStep) => {
   onboardingStep = Math.max(0, Math.min(2, nextStep));
@@ -2014,7 +1988,6 @@ const enterHome = (remember = true) => {
   onboarding.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('onboarding-open');
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
-  startTickerTimer();
 };
 
 const finishSplash = () => {
