@@ -1216,14 +1216,14 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .auth-visual,
 .live-auth-screen.join-view .auth-visual {
   width: 100%;
-  height: 304px;
+  height: 336px;
   padding: 72px var(--space-8) var(--space-6);
-  flex: 0 0 304px;
+  flex: 0 0 336px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   gap: var(--space-6);
-  background-position: center 42%;
+  background-position: center bottom;
 }
 .live-auth-screen.join-view .auth-visual > img,
 .live-auth-screen.join-view .auth-visual h1 { display: block; }
@@ -1234,7 +1234,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .auth-card,
 .live-auth-screen.join-view .auth-card {
   width: 100%;
-  height: 628px;
+  height: 596px;
   min-height: 0;
   padding: var(--space-6) var(--space-8) var(--space-6);
   position: relative;
