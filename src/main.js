@@ -1,6 +1,4 @@
 import './styles.css';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { Button, Dialog, EmptyState, ErrorState, Input, Skeleton, Toast } from './ui.js';
 
 const ramenPhotos = {
@@ -33,20 +31,33 @@ const icon = (name, size = 24) => {
     settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/>',
     bowl: '<path d="M4 10h16c0 5-3 9-8 9s-8-4-8-9Z"/><path d="M7 22h10M8 6c0-2 2-2 2-4M13 7c0-2 2-2 2-4"/>',
     photo: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 15-5-5L5 20"/>',
-    trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6M14 11v6"/>'
+    trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6M14 11v6"/>',
+    close: '<path d="m6 6 12 12M18 6 6 18"/>',
+    back: '<path d="m15 18-6-6 6-6"/>',
+    heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/>',
+    send: '<path d="m12 19V5m-6 6 6-6 6 6"/>'
   };
-  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]}</svg>`;
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]}</svg>`;
+};
+
+const socialIcon = (provider) => {
+  if (provider === '카카오') return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4C6.5 4 2 7.5 2 11.8c0 2.8 1.9 5.2 4.8 6.6l-1 3.6 4.2-2.8c.7.1 1.3.2 2 .2 5.5 0 10-3.4 10-7.6S17.5 4 12 4Z"/></svg>';
+  if (provider === '네이버') return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 4h5.1l4.8 7V4H19v16h-5.1l-4.8-7v7H5V4Z"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.5-.2-2.2H12v4.2h5.4a4.6 4.6 0 0 1-2 3v2.7h3.3c1.9-1.8 2.9-4.4 2.9-7.7Z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.7c-.9.6-2.1 1-3.4 1a5.9 5.9 0 0 1-5.5-4.1H3.1v2.8A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.5 13.8a6 6 0 0 1 0-3.6V7.4H3.1a10 10 0 0 0 0 9.2l3.4-2.8Z"/><path fill="#EA4335" d="M12 6.1c1.5 0 2.8.5 3.9 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-8.9 5.4l3.4 2.8A5.9 5.9 0 0 1 12 6.1Z"/></svg>';
 };
 
 const StatusBar = ({ className = 'home-status' } = {}) => `<div class="${className}"><strong>9:41</strong><span class="status-icons"><span class="status-signal" aria-hidden="true"><i></i><i></i><i></i></span><svg class="status-wifi" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 4.2a10.6 10.6 0 0 1 14 0M3.6 7a6.7 6.7 0 0 1 8.8 0M6.2 9.6a2.7 2.7 0 0 1 3.6 0"/></svg><b aria-hidden="true"></b></span></div>`;
 
+let ratingGradientId = 0;
 const RatingStars = ({ score, interactive = false } = {}) => {
-  const value = Math.floor(Math.max(0, Math.min(5, Number(score) || 0)) * 2) / 2;
+  const value = Math.max(0, Math.min(5, Number(score) || 0));
   const stars = [1, 2, 3, 4, 5].map((star) => {
-    const state = value >= star ? 'full' : value >= star - .5 ? 'half' : 'empty';
+    const fill = Math.max(0, Math.min(1, value - (star - 1)));
+    const gradientId = `rating-fill-${ratingGradientId += 1}`;
+    const starSvg = `<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${gradientId}"><stop class="rating-fill-stop" offset="${fill * 100}%" stop-color="var(--accent)"/><stop class="rating-fill-stop" offset="${fill * 100}%" stop-color="var(--line)"/></linearGradient></defs><path fill="url(#${gradientId})" d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3.1-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9z"/></svg>`;
     return interactive
-      ? `<button type="button" class="rating-star ${state}" data-star="${star}" aria-label="${star - .5}점 또는 ${star}점">★</button>`
-      : `<span class="rating-star ${state}" aria-hidden="true">★</span>`;
+      ? `<button type="button" class="rating-star" data-star="${star}" aria-label="${star - .5}점 또는 ${star}점">${starSvg}</button>`
+      : `<span class="rating-star" aria-hidden="true">${starSvg}</span>`;
   }).join('');
   return `<span class="rating-stars ${interactive ? 'interactive' : 'display'}" role="img" aria-label="별점 ${value.toFixed(1)}점">${stars}</span>`;
 };
@@ -194,6 +205,10 @@ const rankings = [
   ['소바샤', '이태원', '신선한 야채와 가벼운 육수', '950'],
   ['쇼유라멘', '신촌', '진한 간장 육수와 부드러운 면발', '1,300']
 ];
+const rankingMetrics = [
+  { reviews: 624, latest: 6 }, { reviews: 580, latest: 4 }, { reviews: 580, latest: 5 },
+  { reviews: 510, latest: 3 }, { reviews: 430, latest: 2 }, { reviews: 390, latest: 1 }
+];
 
 const talks = [
   ['합정 · 콜라보', '이번주 한정 콜라보 가보신분?'],
@@ -212,11 +227,15 @@ const ratalkPosts = [
   { id: 8, category: 'plate', author: '시오한입', badge: '라타', time: '3일 전', place: '소바샤', score: '4.4', title: '채소 향이 산뜻한 시오', copy: '가벼운 육수에 구운 채소 향이 더해져 늦은 저녁에도 부담이 없었습니다.', image: ramenPhotos.mixed, likes: 15, comments: 4, popularity: 73 }
 ];
 const escapeText = (value = '') => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+const avatarMarkup = (author) => {
+  const variant = [...String(author)].reduce((sum, character) => sum + character.codePointAt(0), 0) % 4;
+  return `<span class="user-avatar avatar-${variant}" aria-hidden="true">${escapeText(String(author).trim().charAt(0) || 'R')}</span>`;
+};
 const ratalkPostMarkup = (post) => `<article class="ratalk-post" data-post-id="${post.id}" data-place="${escapeText(post.place || '')}" data-popularity="${post.popularity}" data-category="${post.category}" tabindex="0" aria-label="${escapeText(post.title || `${post.place} 한 그릇 후기`)} 상세 글 보기">
-  <header><span class="talk-avatar"><img src="/brand/R_logo_RATA.svg" alt=""></span><strong>${escapeText(post.author)}</strong><em>${post.badge}</em><time>${post.time}</time></header>
+  <header>${avatarMarkup(post.author)}<strong>${escapeText(post.author)}</strong><em>${post.badge}</em><time>${post.time}</time></header>
   ${post.image ? `<img class="talk-photo" src="${post.image}" alt="${escapeText(post.place)} 라멘">` : ''}
-  <div class="talk-post-body">${post.place ? `<p class="talk-place">${icon('pin', 15)} <b>${escapeText(post.place)}</b>${post.score ? `${RatingStars({ score: post.score })}<strong>${post.score}</strong>` : ''}</p>` : ''}${post.title ? `<h2>${escapeText(post.title)}</h2>` : ''}<p class="talk-copy">${escapeText(post.copy)}</p></div>
-  <footer><button class="talk-like" aria-pressed="false">♡ <span>${post.likes}</span></button><button class="talk-comment">${icon('chat', 20)} <span>${post.comments}</span></button></footer>
+  <div class="talk-post-body">${post.place ? `<p class="talk-place">${icon('pin', 15)} <b>${escapeText(post.place)}</b>${post.score ? `${RatingStars({ score: post.score })}<strong>${Number(post.score).toFixed(1)}</strong>` : ''}</p>` : ''}${post.title ? `<h2>${escapeText(post.title)}</h2>` : ''}<p class="talk-copy">${escapeText(post.copy)}</p></div>
+  <footer><button class="talk-like" aria-pressed="false" aria-label="좋아요">${icon('heart', 20)}<span>${post.likes}</span></button><button class="talk-comment">${icon('chat', 20)} <span>${post.comments}</span></button></footer>
 </article>`;
 
 const brothChoices = [
@@ -335,8 +354,8 @@ document.querySelector('#app').innerHTML = `
         </div>
       </div>
       <div class="ticker" role="status">
-        <span class="ticker-message ticker-light"><b>라이트 모드</b><span>쉬운 설명과 추천 위주로 홈이 보여요</span><i>♫</i></span>
-        <span class="ticker-message ticker-rata"><b>라타 모드</b><span>육수·타래·면 같은 진한 스토리까지 보여요</span><i>●</i></span>
+        <span class="ticker-message ticker-light"><b>라이트 모드</b><span>쉬운 설명과 추천 위주로 홈이 보여요</span><i>${icon('bowl', 16)}</i></span>
+        <span class="ticker-message ticker-rata"><b>라타 모드</b><span>육수·타래·면 같은 진한 스토리까지 보여요</span><i>${icon('spark', 16)}</i></span>
       </div>
     </header>
 
@@ -349,7 +368,7 @@ document.querySelector('#app').innerHTML = `
 
     <section class="section calendar-section">
       <div class="section-head">
-        <div><p class="overline">WEEKLY PICK</p><h2>이번주 팝업일정 <span>🍜</span></h2><p class="sub">${shortDate(weekDates[0])} — ${shortDate(weekDates[6])} · ${events.length}개 일정</p></div>
+        <div><p class="overline">WEEKLY PICK</p><h2>이번주 팝업일정 <span class="heading-icon">${icon('bowl', 24)}</span></h2><p class="sub">${shortDate(weekDates[0])} — ${shortDate(weekDates[6])} · ${events.length}개 일정</p></div>
         <button class="text-btn" data-home-all>전체보기 ${icon('chevron', 16)}</button>
       </div>
       <div class="date-row" aria-label="날짜 선택">
@@ -401,7 +420,7 @@ document.querySelector('#app').innerHTML = `
       <div class="section-head compact"><div><h2>요즘 가장 많이 찾는 라멘집</h2><p class="sub">처음이라면 라타인증 맛집부터!</p></div></div>
       <div class="tabs" role="tablist"><button class="tab active" data-sort="popular">인기순</button><button class="tab" data-sort="review">리뷰순</button></div>
       <ol class="ranking-list">
-        ${rankings.map((r, i) => `<li data-index="${i}"><strong class="rank">${i + 1}</strong><div class="rank-copy"><small>${r[1]}</small><h3>${r[0]}</h3><p>${r[2]}</p></div><span class="interest">${r[3]}명 관심중</span></li>`).join('')}
+        ${rankings.map((r, i) => `<li data-index="${i}" data-popular="${Number(r[3].replace(',', ''))}" data-reviews="${rankingMetrics[i].reviews}" data-latest="${rankingMetrics[i].latest}"><strong class="rank">${i + 1}</strong><div class="rank-copy"><small>${r[1]}</small><h3>${r[0]}</h3><p>${r[2]}</p></div><span class="interest">${r[3]}명 관심중</span></li>`).join('')}
       </ol>
     </section>
 
@@ -416,9 +435,9 @@ document.querySelector('#app').innerHTML = `
 
     <nav class="bottom-nav" aria-label="하단 메뉴">
       <span class="nav-highlight" aria-hidden="true"></span>
-      ${[['home','메인'],['calendar','일정'],['map','지도'],['ratalk','라톡'],['my','마이']].map(([key,label],i) => `<button class="nav-item ${i===0?'active':''}" data-nav="${label}"><img class="nav-off" src="/figma/nav-items/${key}_off.png" alt=""><img class="nav-on" src="/figma/nav-items/${key}_on.png" alt=""><span class="sr-only">${label}</span></button>`).join('')}
+      ${[['home','메인'],['calendar','일정'],['map','지도'],['chat','라톡'],['user','마이']].map(([key,label],i) => `<button class="nav-item ${i===0?'active':''}" data-nav="${label}">${icon(key,24)}<span class="nav-label">${label}</span></button>`).join('')}
     </nav>
-    <section class="prototype-screen" aria-hidden="true">
+    <section class="prototype-screen" aria-hidden="true" inert>
       <div class="prototype-canvas">
         <img class="prototype-image" alt="">
         <div class="prototype-hotspots"></div>
@@ -446,7 +465,7 @@ document.querySelector('#app').innerHTML = `
           <div class="sheet-scroll">
             <div class="store-title-row">
               <div><h2 class="store-name">반라이</h2><span class="store-match">취향 78% 일치</span></div>
-              <div><button class="sheet-save" aria-label="저장">${icon('bookmark', 23)}</button><button class="sheet-close" aria-label="닫기">×</button></div>
+              <div><button class="sheet-save" aria-label="저장">${icon('bookmark', 23)}</button><button class="sheet-close" aria-label="닫기">${icon('close', 24)}</button></div>
             </div>
             <div class="store-chips"></div>
             <div class="store-scores"><div><span>라이트</span><strong data-store-score="light"></strong></div><div><span>라타</span><strong data-store-score="rata"></strong></div><div><span>내 예상별점</span><strong data-store-score="expected"></strong></div></div>
@@ -466,7 +485,7 @@ document.querySelector('#app').innerHTML = `
         <div class="taste-modal" hidden>
           <button class="taste-backdrop" aria-label="취향 편집 닫기"></button>
           <section class="taste-panel" role="dialog" aria-modal="true" aria-labelledby="taste-title">
-            <header><div><small>지도 추천에 반영돼요</small><h2 id="taste-title">내 취향 편집</h2></div><button class="taste-close" aria-label="닫기">×</button></header>
+            <header><div><small>지도 추천에 반영돼요</small><h2 id="taste-title">내 취향 편집</h2></div><button class="taste-close" aria-label="닫기">${icon('close', 24)}</button></header>
             <div class="taste-editor-groups"></div>
             <button class="taste-save">취향 저장하기</button>
           </section>
@@ -497,7 +516,7 @@ document.querySelector('#app').innerHTML = `
       <section class="live-auth-screen" hidden aria-label="로그인">
         ${StatusBar({ className: 'home-status auth-status' })}
         <div class="auth-visual">
-          <button class="auth-back" type="button" aria-label="이전 화면">‹</button>
+          <button class="auth-back" type="button" aria-label="이전 화면">${icon('back', 24)}</button>
           <img src="/brand/R_logo_RATA.svg" alt="RATA">
           <h1>당신의<br>깊어질<br>취향을</h1>
         </div>
@@ -510,20 +529,20 @@ document.querySelector('#app').innerHTML = `
             ${Button({ label: '로그인하기', type: 'submit', className: 'auth-submit', disabled: true })}
           </form>
           <div class="auth-divider"><span>간편로그인</span></div>
-          <div class="auth-socials"><button type="button" class="kakao" data-provider="카카오" aria-label="카카오로 계속하기"><span></span></button><button type="button" class="naver" data-provider="네이버" aria-label="네이버로 계속하기">N</button><button type="button" data-provider="구글" aria-label="구글로 계속하기">G</button></div>
+          <div class="auth-socials"><button type="button" class="kakao" data-provider="카카오" aria-label="카카오로 계속하기">${socialIcon('카카오')}</button><button type="button" class="naver" data-provider="네이버" aria-label="네이버로 계속하기">${socialIcon('네이버')}</button><button type="button" class="google" data-provider="구글" aria-label="구글로 계속하기">${socialIcon('구글')}</button></div>
           <footer><p class="auth-switch-copy">아직 계정이 없으신가요? <button class="auth-switch" type="button">회원가입</button></p><p class="login-only">계정이나 비밀번호를 잊어버리셨나요? <button type="button" data-auth-help>e-mail/pw찾기</button></p><button class="auth-browse" type="button">먼저 둘러보기</button><p class="auth-mock-notice">수업용 목업 로그인입니다. 실제 계정 서버와 연결되어 있지 않아요.</p></footer>
         </section>
       </section>
       <nav class="prototype-nav" aria-label="피그마 하단 메뉴">
         <span class="nav-highlight" aria-hidden="true"></span>
-        ${[['home','메인'],['calendar','일정'],['map','지도'],['ratalk','라톡'],['my','마이']].map(([key,label], index) => `<button class="nav-item ${index===0?'active':''}" data-prototype-nav="${index}" aria-label="${label}"><img class="nav-off" src="/figma/nav-items/${key}_off.png" alt=""><img class="nav-on" src="/figma/nav-items/${key}_on.png" alt=""></button>`).join('')}
+        ${[['home','메인'],['calendar','일정'],['map','지도'],['chat','라톡'],['user','마이']].map(([key,label], index) => `<button class="nav-item ${index===0?'active':''}" data-prototype-nav="${index}" aria-label="${label}">${icon(key,24)}<span class="nav-label">${label}</span></button>`).join('')}
       </nav>
     </section>
     ${Dialog({ id: 'logout-dialog', title: '로그아웃 할까요?', body: '저장한 일정, 취향, 한 그릇은 그대로 남아있어요. 다시 로그인 하면 이어서 볼 수 있어요.', confirmLabel: '로그아웃' })}
     ${Dialog({ id: 'delete-dialog', title: '정말 탈퇴할까요?', body: '저장한 일정과 취향 기록이 모두 삭제되며 되돌릴 수 없어요.', confirmLabel: '탈퇴하기' })}
     ${Dialog({ id: 'login-required-dialog', title: '로그인이 필요해요', body: '저장과 좋아요는 로그인 후 이용할 수 있어요.', confirmLabel: '로그인' })}
     ${Dialog({ id: 'content-detail-dialog', title: '상세 정보', body: '내용을 불러왔어요.', confirmLabel: '확인', cancelLabel: '닫기' })}
-    <aside class="notification-panel" hidden aria-label="알림 패널"><header><h2>알림</h2><button type="button" data-clear-notifications>모두 지우기</button><button type="button" data-close-notifications aria-label="알림 닫기">×</button></header><div class="notification-list"></div></aside>
+    <aside class="notification-panel" hidden aria-label="알림 패널"><header><h2>알림</h2><button type="button" data-clear-notifications>모두 지우기</button><button type="button" data-close-notifications aria-label="알림 닫기">${icon('close', 24)}</button></header><div class="notification-list"></div></aside>
     ${Toast()}
   </main>
   </div>
@@ -630,6 +649,13 @@ function setAppMode(selectedMode, announce = false) {
     button.classList.toggle('selected', selected);
     button.setAttribute('aria-pressed', String(selected));
   });
+  const modeHelp = selectedMode === 'rata'
+    ? '현재 라타 모드 · 육수, 타래, 면의 전문 정보를 보여줘요.'
+    : '현재 라이트 모드 · 쉬운 설명과 추천을 보여줘요.';
+  document.querySelectorAll('.phone-shell, .prototype-screen, .mode-btn').forEach((element) => {
+    element.title = modeHelp;
+    element.setAttribute('aria-description', modeHelp);
+  });
   if (announce) showToast(selectedMode === 'rata' ? '라타 모드로 전환했어요' : '라이트 모드로 전환했어요');
 }
 document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => setAppMode(btn.dataset.mode, true)));
@@ -692,7 +718,13 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
   const list = document.querySelector('.ranking-list');
-  [...list.children].reverse().forEach(item => list.append(item));
+  const key = tab.dataset.sort === 'review' ? 'reviews' : 'popular';
+  [...list.children]
+    .sort((a, b) => Number(b.dataset[key]) - Number(a.dataset[key]) || Number(b.dataset.reviews) - Number(a.dataset.reviews) || Number(b.dataset.latest) - Number(a.dataset.latest))
+    .forEach((item, index) => {
+      item.querySelector('.rank').textContent = String(index + 1);
+      list.append(item);
+    });
 }));
 
 const bottomNav = document.querySelector('.bottom-nav');
@@ -721,7 +753,6 @@ const tasteModal = document.querySelector('.taste-modal');
 let rataMap;
 let mapMarkers = [];
 let naverMapsPromise;
-let mapProvider = 'naver';
 const authRoutes = new Set(['loginVisual', 'loginForm', 'join', 'joinInput', 'joinValid', 'socialLogin']);
 const myRoutes = new Set(['my', 'myLogout', 'mySaved', 'settings', 'settingsLogout', 'myPlate']);
 const calendarRoutes = new Set(['calendar', 'calendarMonth', 'calendarDetail']);
@@ -773,27 +804,15 @@ async function initMap() {
   if (rataMap) return rataMap;
   const mapElement = document.getElementById('rata-map');
   mapElement.classList.add('loading');
-  const useFallbackMap = (sdkError) => {
-    console.warn(`[RATA map] provider=leaflet reason="${sdkError.message}" container=${mapElement.clientWidth}x${mapElement.clientHeight}`);
-    mapProvider = 'leaflet';
-    mapElement.innerHTML = '';
-    rataMap = L.map(mapElement, { zoomControl: false, attributionControl: false, minZoom: 12 }).setView([37.5556, 126.9238], 15);
-    L.tileLayer('/api/map-tile?z={z}&x={x}&y={y}', { maxZoom: 19 }).addTo(rataMap);
-    mapMarkers = mapPlaces.map((place) => {
-      const selected = place.id === appState.selectedPlaceId;
-      const marker = L.marker([place.lat, place.lng], { title: place.name, icon: L.divIcon({ className: `rata-marker${selected ? ' featured' : ''}${place.match >= 85 ? ' recommended' : ''}`, html: selected ? '<span><b>R</b></span>' : '<span></span>', iconSize: selected ? [52,64] : [28,36], iconAnchor: selected ? [26,60] : [14,34] }) }).addTo(rataMap);
-      marker.on('click', () => selectMapPlace(place.id));
-      return { marker, place, type: place.type, setVisible: (visible) => { if (visible && !rataMap.hasLayer(marker)) marker.addTo(rataMap); if (!visible && rataMap.hasLayer(marker)) marker.removeFrom(rataMap); } };
-    });
-    mapElement.classList.remove('loading');
-    showToast('네이버 지도 연결이 지연되어 기본 지도로 전환했어요.');
-    return rataMap;
-  };
   let maps;
   try {
     maps = await loadNaverMaps();
   } catch (sdkError) {
-    return useFallbackMap(sdkError);
+    mapElement.classList.remove('loading');
+    mapElement.innerHTML = `<div class="map-error" role="alert"><strong>네이버 지도를 불러오지 못했어요.</strong><p>${sdkError.message}</p><button type="button" data-map-retry>다시 시도</button></div>`;
+    mapElement.querySelector('[data-map-retry]')?.addEventListener('click', () => { naverMapsPromise = null; mapElement.innerHTML = ''; initMap().catch(() => {}); });
+    console.error('[RATA map] provider=naver load-failed', sdkError);
+    throw sdkError;
   }
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   console.info(`[RATA map] provider=naver container=${mapElement.clientWidth}x${mapElement.clientHeight}`);
@@ -803,7 +822,6 @@ async function initMap() {
     throw new Error('네이버 지도 컨테이너 높이가 0px입니다.');
   }
   try {
-    mapProvider = 'naver';
     rataMap = new maps.Map(mapElement, { center: new maps.LatLng(37.5556, 126.9238), zoom: 15, minZoom: 12, scaleControl: false, mapDataControl: false, logoControlOptions: { position: maps.Position.BOTTOM_LEFT } });
     mapMarkers = mapPlaces.map((place) => {
       const selected = place.id === appState.selectedPlaceId;
@@ -886,11 +904,7 @@ function renderSelectedStore() {
 function refreshMapMarkerSelection() {
   mapMarkers.forEach(({ marker, place }) => {
     const selected = place.id === appState.selectedPlaceId;
-    if (mapProvider === 'naver') {
-      marker.setIcon({ content: `<button class="naver-ratav-marker${selected ? ' featured' : ''}${place.match >= 85 ? ' recommended' : ''}" type="button" aria-label="${place.name}">${selected ? '<b>R</b>' : ''}</button>`, anchor: new window.naver.maps.Point(selected ? 26 : 14, selected ? 58 : 34) });
-    } else {
-      marker.setIcon(L.divIcon({ className: `rata-marker${selected ? ' featured' : ''}${place.match >= 85 ? ' recommended' : ''}`, html: selected ? '<span><b>R</b></span>' : '<span></span>', iconSize: selected ? [52,64] : [28,36], iconAnchor: selected ? [26,60] : [14,34] }));
-    }
+    marker.setIcon({ content: `<button class="naver-ratav-marker${selected ? ' featured' : ''}${place.match >= 85 ? ' recommended' : ''}" type="button" aria-label="${place.name}">${selected ? '<b>R</b>' : ''}</button>`, anchor: new window.naver.maps.Point(selected ? 26 : 14, selected ? 58 : 34) });
   });
 }
 
@@ -900,8 +914,7 @@ function selectMapPlace(placeId) {
   appState.selectedPlaceId = place.id;
   renderSelectedStore();
   refreshMapMarkerSelection();
-  if (mapProvider === 'naver') rataMap.panTo(new window.naver.maps.LatLng(place.lat, place.lng));
-  else rataMap.panTo([place.lat, place.lng]);
+  rataMap.panTo(new window.naver.maps.LatLng(place.lat, place.lng));
   showStoreSheet();
 }
 
@@ -954,9 +967,9 @@ const savedRows = (items) => items.map((item) => {
   return `<article class="my-saved-row" data-saved-id="${item.id}" data-type="${item.type}"><img src="${item.image}" alt="${item.title}"><div><span><b>${diff >= 0 ? `D-${diff}` : '종료'}</b> ${shortDate(item.date)} · ${item.place}</span><strong>${item.title}</strong></div><button type="button" class="saved-bookmark ${active ? 'active' : ''}" aria-label="${item.title} ${active ? '저장 취소' : '저장'}" aria-pressed="${active}">${icon('bookmark', 20)}</button></article>`;
 }).join('');
 
-const tasteGraph = (values = [90, 80, 70, 60, 35]) => {
-  const center = { x: 105, y: 92 };
-  const radius = 58;
+const tasteGraph = (values = [4.5, 4, 3.5, 3, 1.75]) => {
+  const center = { x: 105, y: 90 };
+  const radius = 56;
   const labels = ['진한 국물', '굵은 면', '감칠맛', '기름기', '매운맛'];
   const directions = labels.map((_, index) => {
     const angle = (-90 + (72 * index)) * (Math.PI / 180);
@@ -967,19 +980,17 @@ const tasteGraph = (values = [90, 80, 70, 60, 35]) => {
     const vertex = point(scale, index);
     return `${vertex.x.toFixed(2)},${vertex.y.toFixed(2)}`;
   }).join(' ');
-  const dataPoints = values.map((value, index) => point(Math.max(0, Math.min(100, value)) / 100, index));
+  const dataPoints = values.map((value, index) => point(Math.max(0, Math.min(5, value)) / 5, index));
   const axes = directions.map((_, index) => {
     const vertex = point(1, index);
     return `<line x1="${center.x}" y1="${center.y}" x2="${vertex.x.toFixed(2)}" y2="${vertex.y.toFixed(2)}"/>`;
   }).join('');
-  const labelPositions = [
-    { x: 105, y: 16, anchor: 'middle' },
-    { x: 204, y: 66, anchor: 'end' },
-    { x: 178, y: 171, anchor: 'end' },
-    { x: 32, y: 171, anchor: 'start' },
-    { x: 6, y: 66, anchor: 'start' }
-  ];
-  return `<svg class="taste-graph" viewBox="0 0 210 180" role="img" aria-label="${labels.map((label, index) => `${label} ${values[index]}`).join(', ')}"><g class="taste-grid"><polygon points="${polygon(.33)}"/><polygon points="${polygon(.66)}"/><polygon points="${polygon(1)}"/>${axes}</g><polygon class="taste-data" points="${dataPoints.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ')}"/><g class="taste-points">${dataPoints.map(({ x, y }) => `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4"/>`).join('')}</g><g class="taste-labels">${labels.map((label, index) => `<text x="${labelPositions[index].x}" y="${labelPositions[index].y}" text-anchor="${labelPositions[index].anchor}">${label}</text>`).join('')}</g></svg>`;
+  const labelPositions = directions.map((direction) => ({
+    x: center.x + (radius + 14) * direction.x,
+    y: center.y + (radius + 14) * direction.y + 4,
+    anchor: direction.x > .25 ? 'start' : direction.x < -.25 ? 'end' : 'middle'
+  }));
+  return `<svg class="taste-graph" viewBox="0 0 210 180" role="img" aria-label="${labels.map((label, index) => `${label} ${values[index].toFixed(1)}`).join(', ')}"><g class="taste-grid"><polygon points="${polygon(1 / 3)}"/><polygon points="${polygon(2 / 3)}"/><polygon points="${polygon(1)}"/>${axes}</g><polygon class="taste-data" points="${dataPoints.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ')}"/><g class="taste-points">${dataPoints.map(({ x, y }) => `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4"/>`).join('')}</g><g class="taste-labels">${labels.map((label, index) => `<text x="${labelPositions[index].x.toFixed(2)}" y="${labelPositions[index].y.toFixed(2)}" text-anchor="${labelPositions[index].anchor}">${label}</text>`).join('')}</g></svg>`;
 };
 
 function renderSavedView() {
@@ -988,9 +999,10 @@ function renderSavedView() {
   const filtered = source.filter((item) => !savedCollabOnly || item.type === 'collab').sort((a, b) => savedSort === 'near' ? a.date - b.date : b.date - a.date);
   const groups = filtered.reduce((result, item) => { const key = `${item.date.getFullYear()}-${item.date.getMonth() + 1}`; (result[key] ||= []).push(item); return result; }, {});
   const list = Object.entries(groups).map(([key, items]) => `<h2>${key.split('-')[1]}월</h2>${savedRows(items)}`).join('') || EmptyState({ title: '조건에 맞는 일정이 없어요', description: '필터를 바꾸면 다른 일정을 볼 수 있어요.' });
-  const upcomingCount = saved.filter((item) => item.date >= today).length;
-  const pastCount = saved.filter((item) => item.date < today).length;
-  liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>저장</h1></header><nav class="my-tabs"><button class="${savedView === 'upcoming' ? 'active' : ''}" data-saved-view="upcoming">다가오는 일정 ${upcomingCount}</button><button class="${savedView === 'past' ? 'active' : ''}" data-saved-view="past">지난 일정 ${pastCount}</button></nav><div class="my-filterbar"><button data-saved-sort>${savedSort === 'near' ? '날짜 가까운 순' : '날짜 먼 순'} ${icon('chevron', 16)}</button><button class="${savedCollabOnly ? 'active' : ''}" data-collab-filter aria-pressed="${savedCollabOnly}">콜라보만</button></div><section class="my-saved-list">${list}</section>`;
+  const countable = saved.filter((item) => !savedCollabOnly || item.type === 'collab');
+  const upcomingCount = countable.filter((item) => item.date >= today).length;
+  const pastCount = countable.filter((item) => item.date < today).length;
+  liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>저장</h1></header><nav class="my-tabs"><button class="${savedView === 'upcoming' ? 'active' : ''}" data-saved-view="upcoming">다가오는 일정 ${upcomingCount}</button><button class="${savedView === 'past' ? 'active' : ''}" data-saved-view="past">지난 일정 ${pastCount}</button></nav><div class="my-filterbar"><button data-saved-sort>${savedSort === 'near' ? '날짜 가까운 순' : '날짜 먼 순'} ${icon('chevron', 16)}</button><button class="${savedCollabOnly ? 'active' : ''}" data-collab-filter aria-pressed="${savedCollabOnly}">콜라보만</button></div><section class="my-saved-list">${list}</section>`;
 }
 
 function renderMyView(name) {
@@ -1000,18 +1012,18 @@ function renderMyView(name) {
     const savedCount = upcomingSaved.length;
     liveMyScreen.innerHTML = `${myStatus}<header class="my-topbar"><h1>마이</h1><button type="button" data-my-route="settings" aria-label="설정">${icon('settings', 24)}</button></header>
       ${loggedOut ? `<section class="my-login-prompt"><img src="/brand/R_logo_RATA.svg" alt=""><h2>로그인하고 내 취향을<br>저장해보세요</h2><div>${Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } })}${Button({ label: '회원가입', variant: 'secondary', attributes: { 'data-my-route': 'join' } })}</div></section>` : `<section class="my-profile"><span><img src="/brand/R_logo_RATA.svg" alt=""></span><div><h2>${appState.userName} <em>${appState.mode === 'rata' ? '라타' : '라이트'}</em></h2><p>한 그릇의 기록이, 취향이 된다.</p></div></section>`}
-      <section class="my-taste ${loggedOut ? 'locked' : ''}"><div><small>내 취향</small><h2>${loggedOut ? '로그인하면 내 취향이 보여요' : '진한 국물에<br>굵은 면, 츠케멘을<br>좋아해요'}</h2>${loggedOut ? '' : '<p>진한 국물 90 · 굵은 면 80 · 감칠맛 70<br>기름기 60 · 매운맛 35</p>'}</div>${tasteGraph()}</section>
-      ${loggedOut ? '' : `<section class="my-block"><header><b>저장됨 ${savedCount}</b><button type="button" data-my-route="mySaved">전체보기 ›</button></header>${savedRows(upcomingSaved.slice(0, 2))}</section>`}
-      <section class="my-block my-plates"><header><b>내 한 그릇 ${loggedOut ? '' : '24'}</b><button type="button" data-my-route="myPlate">전체보기 ›</button></header><div>${[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy].map((src,index)=>`<button type="button" data-my-route="myPlate" aria-label="기록한 라멘 ${index + 1} 보기"><img src="${src}" alt=""></button>`).join('')}</div></section>`;
+      <section class="my-taste ${loggedOut ? 'locked' : ''}"><div><small>내 취향</small><h2>${loggedOut ? '로그인하면 내 취향이 보여요' : '진한 국물에<br>굵은 면, 츠케멘을<br>좋아해요'}</h2>${loggedOut ? '' : '<p>진한 국물 4.5 · 굵은 면 4.0 · 감칠맛 3.5<br>기름기 3.0 · 매운맛 1.8</p>'}</div>${tasteGraph()}</section>
+      ${loggedOut ? '' : `<section class="my-block"><header><b>저장됨 ${savedCount}</b><button type="button" data-my-route="mySaved">전체보기 ${icon('chevron', 18)}</button></header>${savedRows(upcomingSaved.slice(0, 2))}</section>`}
+      <section class="my-block my-plates"><header><b>내 한 그릇 ${loggedOut ? '' : '24'}</b><button type="button" data-my-route="myPlate">전체보기 ${icon('chevron', 18)}</button></header><div>${[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy].map((src,index)=>`<button type="button" data-my-route="myPlate" aria-label="기록한 라멘 ${index + 1} 보기"><img src="${src}" alt=""></button>`).join('')}</div></section>`;
   } else if (name === 'mySaved') {
     if (!appState.loggedIn) {
-      liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>저장</h1></header>${EmptyState({ title: '로그인이 필요해요', description: '로그인하면 저장한 일정과 매장을 볼 수 있어요.', action: Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } }) })}`;
+      liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>저장</h1></header>${EmptyState({ title: '로그인이 필요해요', description: '로그인하면 저장한 일정과 매장을 볼 수 있어요.', action: Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } }) })}`;
     } else renderSavedView();
   } else if (name === 'myPlate') {
     const photos=[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy,ramenPhotos.newsMiso,ramenPhotos.mixed,ramenPhotos.newsShoyu,ramenPhotos.hero,ramenPhotos.street,ramenPhotos.dipping,ramenPhotos.clear];
-    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${photos.map((src,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${src}" alt="라멘 기록 ${i+1}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">＋</button>`;
+    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${photos.map((src,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${src}" alt="라멘 기록 ${i+1}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">${icon('edit', 24)}</button>`;
   } else {
-    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">‹</button><h1>설정</h1></header><section class="settings-list"><small>모드</small><div class="settings-mode" role="group" aria-label="모드 선택"><button type="button" data-settings-mode="light" class="${appState.mode === 'light' ? 'active' : ''}">라이트</button><button type="button" data-settings-mode="rata" class="${appState.mode === 'rata' ? 'active' : ''}">라타</button></div><button type="button" data-open-taste-editor>${icon('spark', 18)} 내 취향 편집 <b>›</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>›</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>›</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>›</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>›</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
+    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>설정</h1></header><section class="settings-list"><small>모드</small><div class="settings-mode" role="group" aria-label="모드 선택"><button type="button" data-settings-mode="light" class="${appState.mode === 'light' ? 'active' : ''}">라이트</button><button type="button" data-settings-mode="rata" class="${appState.mode === 'rata' ? 'active' : ''}">라타</button></div><button type="button" data-open-taste-editor>${icon('spark', 18)} 내 취향 편집 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
     if (name === 'settingsLogout') requestAnimationFrame(() => openDialog('logout-dialog'));
   }
   liveMyScreen.scrollTop = 0;
@@ -1048,9 +1060,9 @@ function renderCalendarView(name) {
     liveCalendarScreen.innerHTML = `${myStatus}<header class="calendar-title"><h1>콜라보 · 일정</h1><button type="button" data-calendar-route="calendarMonth">지난 일정 보기</button></header><section class="calendar-section"><h2><i></i> 지금 진행중 <b>2</b></h2><div class="calendar-heroes"><button type="button" data-calendar-route="calendarDetail" style="--cal:url('${ramenPhotos.newsShoyu}')"><span>콜라보</span><strong>요아케 × 비밀이야 청탕전</strong><small>${shortDate(today)} — ${shortDate(addDays(today, 4))} | 서울 · 신당</small></button><button type="button" data-calendar-route="calendarDetail" style="--cal:url('${ramenPhotos.mixed}')"><span>시즌메뉴</span><strong>멘야하나비 가을 마제소바</strong><small>${shortDate(today)} — ${shortDate(addDays(today, 6))} | 서울 · 잠실</small></button></div><h2 class="soon"><i></i> 곧 시작 <b>4</b></h2>${calendarRows()}</section>`;
   } else if (name === 'calendarMonth') {
     const past = savedItems.filter((item) => item.date < today);
-    liveCalendarScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-calendar-route="calendar" aria-label="뒤로">‹</button><h1>지난일정</h1></header><nav class="month-chips"><button>${today.getFullYear()} ${icon('chevron', 16)}</button><button class="active">${today.getMonth()}월</button></nav><header class="month-title"><h2>${today.getMonth()}월</h2><span>${past.length}개 일정</span></header><section class="past-list">${past.map((item)=>`<article><img src="${item.image}" alt="${item.title}"><button type="button" data-calendar-route="calendarDetail"><span><b>${item.type === 'collab' ? '콜라보' : '한정메뉴'}</b> 종료</span><strong>${item.title}</strong><small>${shortDate(item.date)} | 서울 · ${item.place}</small></button><button type="button" class="calendar-save" aria-label="저장" aria-pressed="false">${icon('bookmark',20)}</button></article>`).join('')}</section>`;
+    liveCalendarScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-calendar-route="calendar" aria-label="뒤로">${icon('back', 24)}</button><h1>지난일정</h1></header><nav class="month-chips"><button>${today.getFullYear()} ${icon('chevron', 16)}</button><button class="active">${today.getMonth()}월</button></nav><header class="month-title"><h2>${today.getMonth()}월</h2><span>${past.length}개 일정</span></header><section class="past-list">${past.map((item)=>`<article><img src="${item.image}" alt="${item.title}"><button type="button" data-calendar-route="calendarDetail"><span><b>${item.type === 'collab' ? '콜라보' : '한정메뉴'}</b> 종료</span><strong>${item.title}</strong><small>${shortDate(item.date)} | 서울 · ${item.place}</small></button><button type="button" class="calendar-save" aria-label="저장" aria-pressed="false">${icon('bookmark',20)}</button></article>`).join('')}</section>`;
   } else {
-    liveCalendarScreen.innerHTML = `<article class="calendar-detail" data-calendar-id="seongsu-clear"><header style="--detail:url('${ramenPhotos.newsMiso}')">${myStatus}<button type="button" data-calendar-route="calendar" aria-label="뒤로">‹</button><button type="button" class="calendar-save" aria-label="저장" aria-pressed="false">${icon('bookmark',24)}</button></header><section><span class="pill dark">콜라보</span><h1>멘야준 × 유즈시오 맑은육수전</h1><h2>${shortDate(addDays(today, 7))} — ${shortDate(addDays(today, 10))}</h2><p>서울 성동구 연무장길 41</p><h3>콜라보 메뉴</h3><dl><div><dt>유자 특선 쇼유</dt><dd>16,000 원</dd></div><div><dt>맑은 닭육수 시오</dt><dd>15,000 원</dd></div></dl><div class="calendar-detail-actions">${Button({label:'콜라보 가게 살펴보기',variant:'secondary',attributes:{'data-calendar-route':'map'}})}${Button({label:'일정 저장하기',attributes:{'data-save-detail':true}})}</div></section></article>`;
+    liveCalendarScreen.innerHTML = `<article class="calendar-detail" data-calendar-id="seongsu-clear"><header style="--detail:url('${ramenPhotos.newsMiso}')">${myStatus}<button type="button" data-calendar-route="calendar" aria-label="뒤로">${icon('back', 24)}</button><button type="button" class="calendar-save" aria-label="저장" aria-pressed="false">${icon('bookmark',24)}</button></header><section><span class="pill dark">콜라보</span><h1>멘야준 × 유즈시오 맑은육수전</h1><h2>${shortDate(addDays(today, 7))} — ${shortDate(addDays(today, 10))}</h2><p>서울 성동구 연무장길 41</p><h3>콜라보 메뉴</h3><dl><div><dt>유자 특선 쇼유</dt><dd>16,000 원</dd></div><div><dt>맑은 닭육수 시오</dt><dd>15,000 원</dd></div></dl><div class="calendar-detail-actions">${Button({label:'콜라보 가게 살펴보기',variant:'secondary',attributes:{'data-calendar-route':'map'}})}${Button({label:'일정 저장하기',attributes:{'data-save-detail':true}})}</div></section></article>`;
   }
 }
 
@@ -1078,20 +1090,22 @@ function renderRatalkSub(name) {
   if (name === 'ratalkDetail') {
     const post = ratalkPosts.find((item) => item.id === appState.selectedPostId) || ratalkPosts[0];
     const comments = appState.comments[post.id] || initialComments();
-    liveRatalkSub.innerHTML = `${myStatus}<header class="my-pagebar"><button data-talk-route="ratalk" aria-label="뒤로">‹</button><h1>${post.category === 'plate' ? '한 그릇' : '이야기'}</h1></header><article class="talk-detail" data-detail-post="${post.id}"><div class="talk-author"><img src="/brand/R_logo_RATA.svg" alt=""><b>${post.author}</b><span>${post.badge}</span><time>${post.time}</time></div>${post.image ? `<img class="talk-detail-photo" src="${post.image}" alt="${post.place} 라멘">` : ''}${post.place ? `<button class="talk-store" type="button" data-open-map-store="${post.place}"><span><b>${post.place}</b><small>${mapPlaces.find((place) => place.name === post.place)?.address || '서울 라멘 매장'}</small></span><i aria-hidden="true">›</i></button>` : ''}${post.score ? `<p class="talk-rating">${RatingStars({ score: post.score })}<b>${post.score}</b></p>` : ''}${post.title ? `<h2>${post.title}</h2>` : ''}<p>${post.copy}</p><div class="talk-actions">♥ ${post.likes}　▢ <span class="detail-comment-count">${comments.length}</span></div><section class="talk-comments"><h2>댓글 ${comments.length}</h2><div class="talk-comment-list">${comments.map((comment) => `<p><b>${comment.author}</b><br>${comment.copy}</p>`).join('')}</div></section></article><form class="talk-comment-form"><input aria-label="댓글" placeholder="댓글을 남겨보세요"><button type="submit" aria-label="댓글 전송">↑</button></form>`;
+    liveRatalkSub.innerHTML = `${myStatus}<header class="my-pagebar"><button data-talk-route="ratalk" aria-label="뒤로">${icon('back', 24)}</button><h1>${post.category === 'plate' ? '한 그릇' : '이야기'}</h1></header><article class="talk-detail" data-detail-post="${post.id}"><div class="talk-author">${avatarMarkup(post.author)}<b>${post.author}</b><span>${post.badge}</span><time>${post.time}</time></div>${post.image ? `<img class="talk-detail-photo" src="${post.image}" alt="${post.place} 라멘">` : ''}${post.place ? `<button class="talk-store" type="button" data-open-map-store="${post.place}"><span><b>${post.place}</b><small>${mapPlaces.find((place) => place.name === post.place)?.address || '서울 라멘 매장'}</small></span>${icon('chevron', 24)}</button>` : ''}${post.score ? `<p class="talk-rating">${RatingStars({ score: post.score })}<b>${Number(post.score).toFixed(1)}</b></p>` : ''}${post.title ? `<h2>${post.title}</h2>` : ''}<p>${post.copy}</p><div class="talk-actions">${icon('heart', 20)} ${post.likes}　${icon('chat', 20)} <span class="detail-comment-count">${comments.length}</span></div><section class="talk-comments"><h2>댓글 ${comments.length}</h2><div class="talk-comment-list">${comments.map((comment) => `<article class="talk-comment-item">${avatarMarkup(comment.author)}<p><b>${comment.author}</b><br>${comment.copy}</p></article>`).join('')}</div></section></article><form class="talk-comment-form"><input aria-label="댓글" placeholder="댓글을 남겨보세요"><button type="submit" aria-label="댓글 전송">${icon('send', 22)}</button></form>`;
     return;
   }
   const story = name === 'writeText';
   const selectedStore = mapPlaces.find((place) => place.id === appState.selectedWriteStore) || mapPlaces[0];
-  liveRatalkSub.innerHTML = `${myStatus}<header class="talk-write-head"><button type="button" data-talk-route="ratalk">×</button><h1>글쓰기</h1></header><nav class="talk-write-tabs ${appState.mode === 'rata' ? 'rata' : 'light'}"><button data-talk-route="writePhoto" class="${story ? '' : 'active'}">한 그릇</button><button data-talk-route="writeText" class="${story ? 'active' : ''}">이야기</button></nav><form class="talk-write-form" data-write-kind="${story ? 'story' : 'plate'}">${story ? `<label>태그 · 선택<div class="tag-row"><button type="button">매장 ＋</button><button type="button">콜라보 ＋</button><button type="button">일정 ＋</button><button type="button">질문 ＋</button></div></label><label>제목<input name="title" value="${appState.writeDraft.title}" placeholder="제목을 입력해주세요."></label>` : `<label>사진 · 선택<div class="photo-picker"><label class="photo-upload">${icon('photo', 24)}<span>사진 선택</span><input type="file" accept="image/*" hidden></label>${appState.selectedPhoto ? `<img src="${appState.selectedPhoto}" alt="선택한 라멘 사진">` : ''}</div></label><label>매장 · 필수<button type="button" class="store-pick" data-talk-route="writePicker"><span><b>${selectedStore.name}</b><small>${selectedStore.address}</small></span><i>변경</i></button></label><div class="write-stars" role="radiogroup" aria-label="별점">${RatingStars({ score: appState.rating, interactive: true })}<b>${appState.rating.toFixed(1)}</b></div>`}<label>내용<textarea name="body" maxlength="500" placeholder="라멘과 매장에 대한 이야기를 남겨주세요.">${appState.writeDraft.body}</textarea></label><p class="write-error" role="alert" hidden>내용을 입력해주세요.</p>${Button({label:'글 올리기',type:'submit'})}</form>${name === 'writePicker' ? `<aside class="write-picker"><i></i><h2>어느 매장에 다녀오셨나요?</h2><input type="search" placeholder="매장 이름 검색" aria-label="매장 검색"><div class="write-store-options">${mapPlaces.map((place) => `<button type="button" data-select-store="${place.id}"><b>${place.name}</b><span>${place.address} · ${place.tags[0]} ${place.id === selectedStore.id ? '✓' : ''}</span></button>`).join('')}</div></aside>` : ''}`;
+  liveRatalkSub.innerHTML = `${myStatus}<header class="talk-write-head"><button type="button" data-talk-route="ratalk" aria-label="닫기">${icon('close', 24)}</button><h1>글쓰기</h1></header><nav class="talk-write-tabs ${appState.mode === 'rata' ? 'rata' : 'light'}"><button data-talk-route="writePhoto" class="${story ? '' : 'active'}">한 그릇</button><button data-talk-route="writeText" class="${story ? 'active' : ''}">이야기</button></nav><form class="talk-write-form" data-write-kind="${story ? 'story' : 'plate'}">${story ? `<label>태그 · 선택<div class="tag-row"><button type="button">매장 추가</button><button type="button">콜라보 추가</button><button type="button">일정 추가</button><button type="button">질문 추가</button></div></label><label>제목<input name="title" value="${appState.writeDraft.title}" placeholder="제목을 입력해주세요."></label>` : `<label>사진 · 선택<div class="photo-picker"><label class="photo-upload">${icon('photo', 24)}<span>사진 선택</span><input type="file" accept="image/*" hidden></label>${appState.selectedPhoto ? `<img src="${appState.selectedPhoto}" alt="선택한 라멘 사진">` : ''}</div></label><label>매장 · 필수<button type="button" class="store-pick" data-talk-route="writePicker"><span><b>${selectedStore.name}</b><small>${selectedStore.address}</small></span><i>변경</i></button></label><div class="write-stars" role="radiogroup" aria-label="별점">${RatingStars({ score: appState.rating, interactive: true })}<b>${appState.rating.toFixed(1)}</b></div>`}<label>내용<textarea name="body" maxlength="500" placeholder="라멘과 매장에 대한 이야기를 남겨주세요.">${appState.writeDraft.body}</textarea></label><p class="write-error" role="alert" hidden>내용을 입력해주세요.</p>${Button({label:'글 올리기',type:'submit'})}</form>${name === 'writePicker' ? `<aside class="write-picker"><i></i><h2>어느 매장에 다녀오셨나요?</h2><input type="search" placeholder="매장 이름 검색" aria-label="매장 검색"><div class="write-store-options">${mapPlaces.map((place) => `<button type="button" data-select-store="${place.id}"><b>${place.name}</b><span>${place.address} · ${place.tags[0]} ${place.id === selectedStore.id ? '✓' : ''}</span></button>`).join('')}</div></aside>` : ''}`;
   updateRatingStars();
 }
 function renderState(name){const action=Button({label:'다시 시도',attributes:{onclick:'location.reload()'}});const body=name==='stateLoading'?Skeleton({rows:5}):name==='stateEmpty'?EmptyState({title:'아직 저장한 내용이 없어요',description:'마음에 드는 일정과 매장을 저장해보세요.'}):name==='stateError'?ErrorState({description:'네트워크 연결을 확인하고 다시 시도해주세요.',action}):name==='stateMaintenance'?ErrorState({title:'잠시 점검 중이에요',description:'더 안정적인 서비스를 위해 준비하고 있어요.'}):ErrorState({title:'업데이트가 필요해요',description:'새 버전으로 업데이트한 뒤 계속 이용해주세요.',action:Button({label:'업데이트하기',attributes:{onclick:'location.reload()'}})});liveStateScreen.innerHTML=`${myStatus}<header class="my-pagebar"><h1>RATA</h1></header><main class="state-content">${body}</main>`;}
 function updateRatingStars() {
   document.querySelectorAll('.write-stars .rating-star').forEach((button) => {
     const star = Number(button.dataset.star);
-    button.classList.toggle('full', appState.rating >= star);
-    button.classList.toggle('half', appState.rating === star - .5);
+    const fill = Math.max(0, Math.min(1, appState.rating - (star - 1))) * 100;
+    button.classList.toggle('half', fill === 50);
+    button.classList.toggle('filled', fill === 100);
+    button.querySelectorAll('.rating-fill-stop').forEach((stop) => stop.setAttribute('offset', `${fill}%`));
   });
   const value = document.querySelector('.write-stars b');
   if (value) value.textContent = appState.rating.toFixed(1);
@@ -1182,6 +1196,7 @@ function openPrototype(name) {
   if (!screen) return;
   prototypeScreen.dataset.screen = name;
   prototypeScreen.setAttribute('aria-hidden', 'false');
+  prototypeScreen.inert = false;
   document.body.classList.add('prototype-open');
   document.querySelectorAll('.app-header, .hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
     element.setAttribute('aria-hidden', 'true');
@@ -1203,6 +1218,7 @@ function openPrototype(name) {
   liveCalendarScreen.hidden = !isLiveCalendar;
   liveMyScreen.hidden = !isLiveMy;
   liveAuthScreen.hidden = !isLiveAuth;
+  [liveMapScreen, liveRatalkScreen, liveRatalkSub, liveStateScreen, liveCalendarScreen, liveMyScreen, liveAuthScreen, prototypeCanvas].forEach((view) => { view.inert = view.hidden; });
   [liveMapScreen, liveRatalkScreen, liveRatalkSub, liveCalendarScreen, liveMyScreen, liveAuthScreen].forEach((view) => view.classList.remove('route-enter'));
   const liveView = isLiveMap ? liveMapScreen : isLiveTalk ? liveRatalkScreen : isLiveTalkSub ? liveRatalkSub : isLiveCalendar ? liveCalendarScreen : isLiveMy ? liveMyScreen : isLiveAuth ? liveAuthScreen : null;
   if (liveView) {
@@ -1218,13 +1234,12 @@ function openPrototype(name) {
   prototypeNav.hidden = !screen.nav;
   if (isLiveMap) {
     prototypeHotspots.innerHTML = '';
+    if (name.startsWith('mapPrefs')) { setSheetVisible(false); openTasteEditor(); }
+    else if (name === 'map') { setSheetVisible(false); closeTasteEditor(); }
+    else if (name === 'mapSheet') showStoreSheet();
+    else setSheetVisible(true, true);
     initMap().then(() => requestAnimationFrame(() => {
-      if (mapProvider === 'naver') window.naver.maps.Event.trigger(rataMap, 'resize');
-      else rataMap.invalidateSize();
-      if (name.startsWith('mapPrefs')) { setSheetVisible(false); openTasteEditor(); }
-      else if (name === 'map') { setSheetVisible(false); closeTasteEditor(); }
-      else if (name === 'mapSheet') showStoreSheet();
-      else setSheetVisible(true, true);
+      window.naver.maps.Event.trigger(rataMap, 'resize');
     })).catch(() => {});
   } else if (isLiveTalk) {
     document.querySelector('.ratalk-feed').scrollTo({ top: 0 });
@@ -1253,6 +1268,7 @@ function openPrototype(name) {
 
 function closePrototype() {
   prototypeScreen.setAttribute('aria-hidden', 'true');
+  prototypeScreen.inert = true;
   document.body.classList.remove('prototype-open');
   document.querySelectorAll('.app-header, .hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
     element.removeAttribute('aria-hidden');
@@ -1266,6 +1282,8 @@ function closePrototype() {
   liveMyScreen.hidden = true;
   liveAuthScreen.hidden = true;
   prototypeCanvas.hidden = false;
+  [liveMapScreen, liveRatalkScreen, liveRatalkSub, liveStateScreen, liveCalendarScreen, liveMyScreen, liveAuthScreen].forEach((view) => { view.inert = true; });
+  prototypeCanvas.inert = false;
   bottomNav.style.setProperty('--nav-index', 0);
   document.querySelectorAll('.bottom-nav .nav-item').forEach((item, index) => item.classList.toggle('active', index === 0));
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
@@ -1329,7 +1347,7 @@ liveMyScreen.addEventListener('click', (event) => {
     return;
   }
   if (event.target.closest('[data-legal]')) {
-    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="settings" aria-label="뒤로">‹</button><h1>약관 · 개인정보</h1></header><article class="legal-copy"><h2>이용약관</h2><p>RATA는 수업용 프로토타입이며 제공된 목업 정보는 서비스 기능 확인을 위해 사용됩니다.</p><h2>개인정보 처리방침</h2><p>입력한 목업 계정 정보는 서버로 전송하지 않고 현재 브라우저 안에서만 처리합니다.</p></article>`;
+    liveMyScreen.innerHTML = `${myStatus}<header class="my-pagebar"><button type="button" data-my-route="settings" aria-label="뒤로">${icon('back', 24)}</button><h1>약관 · 개인정보</h1></header><article class="legal-copy"><h2>이용약관</h2><p>RATA는 수업용 프로토타입이며 제공된 목업 정보는 서비스 기능 확인을 위해 사용됩니다.</p><h2>개인정보 처리방침</h2><p>입력한 목업 계정 정보는 서버로 전송하지 않고 현재 브라우저 안에서만 처리합니다.</p></article>`;
     return;
   }
   const dialogId = event.target.closest('[data-open-dialog]')?.dataset.openDialog;
@@ -1450,7 +1468,7 @@ document.querySelector('.sheet-handle').addEventListener('click', () => {
 });
 
 const sheetTopByState = { full: 24, half: 352, peek: 612, hidden: 932 };
-const sheetDrag = { pointerId: null, startY: 0, startTop: 0, lastY: 0, lastTime: 0, velocity: 0, initialState: 'peek', didMove: false };
+const sheetDrag = { pointerId: null, startY: 0, startTop: 0, lastY: 0, lastTime: 0, velocity: 0, scale: 1, initialState: 'peek', didMove: false };
 const sheetHandle = document.querySelector('.sheet-handle');
 
 function nearestSheetState(top, states = ['full', 'half', 'peek', 'hidden']) {
@@ -1459,8 +1477,10 @@ function nearestSheetState(top, states = ['full', 'half', 'peek', 'hidden']) {
 
 function finishSheetDrag(cancelled = false) {
   if (sheetDrag.pointerId === null) return;
-  const currentTop = storeSheet.getBoundingClientRect().top;
-  const delta = sheetDrag.lastY - sheetDrag.startY;
+  const screenRect = document.querySelector('.phone-screen').getBoundingClientRect();
+  const scale = screenRect.height / 932;
+  const currentTop = (storeSheet.getBoundingClientRect().top - screenRect.top) / scale;
+  const delta = (sheetDrag.lastY - sheetDrag.startY) / scale;
   let target;
   if (cancelled) {
     target = nearestSheetState(currentTop);
@@ -1488,7 +1508,9 @@ sheetHandle.addEventListener('pointerdown', (event) => {
   sheetDrag.lastTime = event.timeStamp;
   sheetDrag.velocity = 0;
   sheetDrag.initialState = storeSheet.dataset.state || 'peek';
-  sheetDrag.startTop = storeSheet.getBoundingClientRect().top;
+  const screenRect = document.querySelector('.phone-screen').getBoundingClientRect();
+  sheetDrag.scale = screenRect.height / 932;
+  sheetDrag.startTop = (storeSheet.getBoundingClientRect().top - screenRect.top) / sheetDrag.scale;
   sheetDrag.didMove = false;
   sheetHandle.setPointerCapture(event.pointerId);
   storeSheet.classList.add('dragging');
@@ -1496,10 +1518,11 @@ sheetHandle.addEventListener('pointerdown', (event) => {
 sheetHandle.addEventListener('pointermove', (event) => {
   if (event.pointerId !== sheetDrag.pointerId) return;
   const elapsed = Math.max(1, event.timeStamp - sheetDrag.lastTime);
-  sheetDrag.velocity = (event.clientY - sheetDrag.lastY) / elapsed;
+  sheetDrag.velocity = (event.clientY - sheetDrag.lastY) / elapsed / sheetDrag.scale;
   sheetDrag.lastY = event.clientY;
   sheetDrag.lastTime = event.timeStamp;
-  const top = Math.max(sheetTopByState.full, Math.min(sheetTopByState.hidden, sheetDrag.startTop + event.clientY - sheetDrag.startY));
+  const pointerDelta = (event.clientY - sheetDrag.startY) / sheetDrag.scale;
+  const top = Math.max(sheetTopByState.full, Math.min(sheetTopByState.hidden, sheetDrag.startTop + pointerDelta));
   sheetDrag.didMove ||= Math.abs(event.clientY - sheetDrag.startY) > 4;
   storeSheet.style.height = `${932 - top}px`;
   storeSheet.style.bottom = '0px';
@@ -1567,7 +1590,6 @@ ratalkFeed.addEventListener('click', (event) => {
     like.setAttribute('aria-pressed', String(liked));
     const count = like.querySelector('span');
     count.textContent = String(Number(count.textContent) + (liked ? 1 : -1));
-    like.firstChild.textContent = liked ? '♥ ' : '♡ ';
     return;
   }
   appState.selectedPostId = postId;
