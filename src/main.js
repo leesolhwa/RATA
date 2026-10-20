@@ -284,17 +284,17 @@ document.querySelector('#app').innerHTML = `
         <span class="phone-side-button phone-side-button-three" aria-hidden="true"></span>
         <span class="phone-side-button phone-side-button-four" aria-hidden="true"></span>
         <div class="phone-screen">
+          ${StatusBar({ className: 'frame-status' })}
+          <span class="frame-home-indicator" aria-hidden="true"></span>
   <div class="experience-shell">
   <section class="splash-screen" aria-label="RATA 시작 화면">
     <video class="splash-video" autoplay muted playsinline preload="auto" aria-label="라멘 온보딩 영상">
       <source src="/video/onboding.mp4" type="video/mp4">
     </video>
-    ${StatusBar({ className: 'fake-status light' })}
     <button class="splash-skip" type="button">건너뛰기</button>
   </section>
 
   <section class="onboarding" aria-label="취향 온보딩" aria-hidden="true">
-    ${StatusBar({ className: 'fake-status' })}
     <div class="onboarding-meta"><span class="step-count">1 / 3</span><button class="later-btn">나중에</button></div>
     <div class="onboarding-progress" aria-hidden="true"><i class="active"></i><i></i><i></i></div>
     <div class="onboarding-window">
@@ -337,7 +337,6 @@ document.querySelector('#app').innerHTML = `
 
   <main class="phone-shell">
     <header class="app-header">
-      ${StatusBar()}
       <div class="header-top">
         <a href="#top" class="logo" aria-label="RATA 홈"><img src="/brand/txt_logo_RATA.svg" alt="RATA"></a>
         <div class="header-actions">
@@ -435,8 +434,7 @@ document.querySelector('#app').innerHTML = `
       </div>
       <section class="live-map-screen" hidden aria-label="라멘 지도">
         <header class="map-header">
-          ${StatusBar()}
-          <div class="header-top">
+              <div class="header-top">
             <button class="logo map-home" aria-label="홈으로"><img src="/brand/txt_logo_RATA.svg" alt="RATA"></button>
             <div class="header-actions">
               <div class="mode-switch" aria-label="모드 선택"><button class="mode-btn active" data-mode="light">라이트</button><button class="mode-btn" data-mode="rata">라타</button></div>
@@ -484,7 +482,6 @@ document.querySelector('#app').innerHTML = `
       </section>
       <section class="live-ratalk-screen" hidden aria-label="라톡">
         <header class="ratalk-header">
-          ${StatusBar({ className: 'home-status dark-status' })}
           <div class="ratalk-titlebar"><h1>라톡</h1><div><button data-notifications aria-label="알림">${icon('bell', 23)}</button><button class="talk-search-toggle" aria-label="검색">${icon('search', 23)}</button></div></div>
         </header>
         <form class="ratalk-search" hidden><input type="search" aria-label="라톡 검색" placeholder="글, 작성자, 매장 검색"><button type="button" class="talk-search-close">취소</button></form>
@@ -505,7 +502,6 @@ document.querySelector('#app').innerHTML = `
       <section class="live-calendar-screen" hidden aria-label="일정"></section>
       <section class="live-my-screen" hidden aria-label="마이"></section>
       <section class="live-auth-screen" hidden aria-label="로그인">
-        ${StatusBar({ className: 'home-status auth-status' })}
         <div class="auth-visual">
           <img src="/brand/R_logo_RATA.svg" alt="RATA">
           <h1>당신의<br>깊어질<br>취향을</h1>
@@ -560,6 +556,71 @@ const frameCompose = document.querySelector('.ratalk-compose');
 const frameToast = document.querySelector('.toast');
 [frameBottomNav, framePrototypeNav, frameCompose, frameToast].forEach((element) => phoneScreen.append(element));
 frameCompose.hidden = true;
+const frameStatus = phoneScreen.querySelector('.frame-status');
+let currentRoute = 'splash';
+let activeScrollContainer = null;
+let scrollPosition = 0;
+let scrollDistance = 0;
+let scrollFrame = 0;
+
+const autoHideRoutes = new Set(['home', 'calendar', 'calendarMonth', 'calendarDetail', 'ratalk', 'ratalkDetail', 'my', 'myLogout', 'mySaved', 'myPlate', 'settings', 'settingsLogout', 'storeGuest', 'storeSaved', 'storeLight', 'storeRata']);
+const routeScrollContainer = (route) => {
+  if (route === 'home') return document.querySelector('.experience-shell');
+  if (['calendar', 'calendarMonth', 'calendarDetail'].includes(route)) return document.querySelector('.live-calendar-screen');
+  if (['storeGuest', 'storeSaved', 'storeLight', 'storeRata'].includes(route)) return document.querySelector('.sheet-scroll');
+  if (route === 'ratalk') return document.querySelector('.live-ratalk-screen');
+  if (route === 'ratalkDetail') return document.querySelector('.live-ratalk-sub');
+  if (['my', 'myLogout', 'mySaved', 'myPlate', 'settings', 'settingsLogout'].includes(route)) return document.querySelector('.live-my-screen');
+  return null;
+};
+const showFrameChrome = () => phoneScreen.classList.remove('chrome-hidden');
+const setFrameStatusSurface = (route = currentRoute) => {
+  const darkRoute = route === 'home' || route === 'splash' || route === 'calendarDetail' || ['map','mapSheet','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew'].includes(route) || ['loginVisual','loginForm','join','joinInput','joinValid','socialLogin'].includes(route);
+  const modeHeader = route === 'ratalk' || route === 'ratalkDetail' || ['my','myLogout','mySaved','myPlate','settings','settingsLogout'].includes(route);
+  const dark = darkRoute || (modeHeader && appState.mode === 'rata');
+  phoneScreen.classList.toggle('status-on-dark', dark);
+  phoneScreen.classList.toggle('status-on-light', !dark);
+  if (route === 'home' || ['map','mapSheet','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew'].includes(route) || (modeHeader && appState.mode === 'rata')) {
+    frameStatus.style.backgroundColor = appState.mode === 'rata' ? 'var(--accent)' : 'var(--ink)';
+  } else if (dark) frameStatus.style.backgroundColor = 'var(--ink)';
+  else frameStatus.style.backgroundColor = '#fff';
+};
+const resetFrameChrome = (route, container = routeScrollContainer(route)) => {
+  currentRoute = route;
+  phoneScreen.dataset.route = route;
+  activeScrollContainer = autoHideRoutes.has(route) ? container : null;
+  scrollPosition = activeScrollContainer?.scrollTop || 0;
+  scrollDistance = 0;
+  showFrameChrome();
+  setFrameStatusSurface(route);
+};
+const handleChromeScroll = (container) => {
+  if (container !== activeScrollContainer || !autoHideRoutes.has(currentRoute)) return;
+  cancelAnimationFrame(scrollFrame);
+  scrollFrame = requestAnimationFrame(() => {
+    const next = container.scrollTop;
+    if (next <= 8) {
+      showFrameChrome();
+      scrollDistance = 0;
+      scrollPosition = next;
+      return;
+    }
+    const delta = next - scrollPosition;
+    if ((delta > 0 && scrollDistance < 0) || (delta < 0 && scrollDistance > 0)) scrollDistance = 0;
+    scrollDistance += delta;
+    if (scrollDistance >= 8) {
+      phoneScreen.classList.add('chrome-hidden');
+      scrollDistance = 0;
+    } else if (scrollDistance <= -8) {
+      showFrameChrome();
+      scrollDistance = 0;
+    }
+    scrollPosition = next;
+  });
+};
+const chromeScrollContainers = ['.experience-shell', '.live-calendar-screen', '.live-ratalk-screen', '.live-ratalk-sub', '.live-my-screen', '.sheet-scroll'].map((selector) => document.querySelector(selector));
+chromeScrollContainers.forEach((container) => container.addEventListener('scroll', () => handleChromeScroll(container), { passive: true }));
+resetFrameChrome('splash', null);
 
 const heroTrack = document.querySelector('.hero-track');
 const heroDots = document.querySelector('.hero-dots');
@@ -729,6 +790,7 @@ function setAppMode(selectedMode, announce = false) {
   appState.mode = selectedMode;
   persistState('rata_mode', selectedMode);
   document.body.classList.toggle('rata-mode', selectedMode === 'rata');
+  if (typeof setFrameStatusSurface === 'function') setFrameStatusSurface();
   document.querySelectorAll('.mode-btn').forEach((button) => button.classList.toggle('active', button.dataset.mode === selectedMode));
   renderTasteEditorMode();
   applySheetModeContent();
@@ -1049,8 +1111,7 @@ function closeTasteEditor(saved = false) {
   if (saved) showToast('취향을 지도 추천에 반영했어요');
 }
 
-const myStatus = StatusBar({ className: 'home-status dark-status' });
-const screenChrome = () => myStatus;
+const screenChrome = () => '';
 const savedItems = eventCatalog;
 const legacySavedDefaults = ['yuzu-koharu', 'jun-limited', 'akari-miso'];
 if (!readStored('rata_saved_data_v2', false) && appState.savedEventIds.length === legacySavedDefaults.length && legacySavedDefaults.every((id) => appState.savedEventIds.includes(id))) {
@@ -1403,6 +1464,7 @@ function openPrototype(name) {
   }
   document.querySelector('.experience-shell').scrollTo({ top: 0 });
   prototypeScreen.scrollTo({ top: 0 });
+  resetFrameChrome(name);
   history.replaceState(null, '', `${location.pathname}?screen=${name}`);
 }
 
@@ -1429,6 +1491,7 @@ function closePrototype() {
   document.querySelectorAll('.bottom-nav .nav-item').forEach((item, index) => item.classList.toggle('active', index === 0));
   requestAnimationFrame(() => syncNavHighlight(bottomNav));
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
+  resetFrameChrome('home');
   history.replaceState(null, '', `${location.pathname}?home`);
 }
 
@@ -1978,6 +2041,7 @@ function openOnboarding(force = false) {
   onboarding.classList.add('visible');
   onboarding.setAttribute('aria-hidden', 'false');
   document.body.classList.add('onboarding-open');
+  resetFrameChrome('onboarding', null);
   setOnboardingStep(0);
 }
 
@@ -1988,6 +2052,7 @@ const enterHome = (remember = true) => {
   onboarding.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('onboarding-open');
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
+  resetFrameChrome('home');
 };
 
 const finishSplash = () => {

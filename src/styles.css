@@ -1144,5 +1144,105 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .auth-card footer { padding-bottom: var(--space-4); }
 .ui-field__reveal svg { width: 20px; height: 20px; stroke-width: 1.5; }
 
-.rata-mode .live-my-screen > .home-status,
-.rata-mode .live-ratalk-sub > .home-status { color: #fff; background: var(--accent); }
+/* Frame level system chrome stays outside every scroll container. */
+.frame-status {
+  height: 48px;
+  padding: 0 var(--space-6);
+  position: absolute;
+  z-index: 190;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--ink);
+  background: #fff;
+  font: 400 var(--font-meta)/1 Arial, sans-serif;
+  pointer-events: none;
+  transition: color .2s, background-color .2s;
+}
+.status-on-dark .frame-status { color: #fff; }
+.status-on-light .frame-status { color: var(--ink); }
+.frame-home-indicator {
+  width: 144px;
+  height: 5px;
+  position: absolute;
+  z-index: 191;
+  left: 50%;
+  bottom: 4px;
+  border-radius: 99px;
+  background: #000;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.bottom-nav::after,
+.prototype-nav::after { display: none; }
+
+/* Every page reserves the 48px system status area in its own header. */
+.app-header,
+.map-header,
+.ratalk-header,
+.my-topbar,
+.my-pagebar,
+.calendar-title,
+.talk-write-head,
+.live-state-screen > .my-pagebar {
+  padding-top: 48px;
+}
+.app-header,
+.map-header { height: 105px; }
+.ratalk-header { min-height: 104px; height: 104px; flex-basis: 104px; }
+.my-topbar,
+.my-pagebar { height: 104px; }
+.calendar-title { height: 120px; padding-right: var(--space-6); padding-bottom: 0; padding-left: var(--space-6); }
+.talk-write-head { height: 104px; }
+.onboarding { padding-top: 48px; }
+
+/* Scrollable page headers stay at the frame top and move only by transform. */
+.app-header,
+.live-calendar-screen > .calendar-title,
+.live-calendar-screen > .my-pagebar,
+.live-ratalk-screen > .ratalk-header,
+.live-ratalk-sub > .my-pagebar,
+.live-my-screen > .my-topbar,
+.live-my-screen > .my-pagebar {
+  position: sticky;
+  z-index: 80;
+  top: 0;
+  flex-shrink: 0;
+  background: #fff;
+  transition: transform .25s ease-out, color .2s, background-color .2s;
+  will-change: transform;
+}
+.app-header { color: #fff; background: var(--ink); }
+.rata-mode .app-header,
+.rata-mode .live-ratalk-screen > .ratalk-header,
+.rata-mode .live-ratalk-sub > .my-pagebar,
+.rata-mode .live-my-screen > .my-topbar,
+.rata-mode .live-my-screen > .my-pagebar { color: #fff; background: var(--accent); }
+
+.phone-screen.chrome-hidden .app-header,
+.phone-screen.chrome-hidden .live-calendar-screen:not([hidden]) > .calendar-title,
+.phone-screen.chrome-hidden .live-calendar-screen:not([hidden]) > .my-pagebar,
+.phone-screen.chrome-hidden .live-ratalk-screen:not([hidden]) > .ratalk-header,
+.phone-screen.chrome-hidden .live-ratalk-sub:not([hidden]) > .my-pagebar,
+.phone-screen.chrome-hidden .live-my-screen:not([hidden]) > .my-topbar,
+.phone-screen.chrome-hidden .live-my-screen:not([hidden]) > .my-pagebar {
+  transform: translateY(-100%);
+}
+.phone-screen > .bottom-nav,
+.phone-screen > .prototype-nav {
+  transition: transform .25s ease-out;
+  will-change: transform;
+}
+.phone-screen.chrome-hidden > .bottom-nav:not([hidden]),
+.phone-screen.chrome-hidden > .prototype-nav:not([hidden]) { transform: translateY(100%); }
+
+/* Ratalk uses one vertical scroller so its header participates in the same behavior. */
+.live-ratalk-screen { display: block; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
+.live-ratalk-screen::-webkit-scrollbar { display: none; }
+.ratalk-feed { min-height: 0; overflow: visible; }
+.phone-shell { overflow: visible; }
+
+.phone-screen.chrome-hidden[data-route^="store"] .map-header { transform: translateY(-100%); transition: transform .25s ease-out; }
