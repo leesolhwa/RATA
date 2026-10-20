@@ -128,7 +128,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .rata-mode .app-header { background-color: var(--accent); }
 .home-status { height: 48px; padding: 0 var(--space-6); display: flex; align-items: center; justify-content: space-between; color: var(--ink); font: 400 var(--font-meta) Arial, sans-serif; }
 .home-status .status-icons { color: currentColor; }
-.app-header .home-status, .map-header .home-status, .auth-status, .calendar-detail .home-status { color: #fff; }
+.app-header .home-status, .auth-status, .calendar-detail .home-status { color: #fff; }
 .header-top { height: 57px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); }
 .logo { width: 92px; height: 32px; display: flex; align-items: center; text-decoration: none; }
 .logo img { width: 92px; height: auto; filter: invert(1); }
@@ -272,10 +272,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 
 .live-map-screen { position: relative; width: 430px; height: 932px; overflow: hidden; background: #f5f5f5; }
 .live-map-screen[hidden] { display: none; }
-.map-header { position: absolute; z-index: 70; top: 0; left: 0; width: 430px; height: 105px; color: #fff; background: var(--ink); }
-.rata-mode .map-header { background-color: var(--accent); }
-.map-header .header-top { height: 57px; }
-.map-header .logo { padding: 0; background: transparent; }
 .rata-map { position: absolute !important; z-index: 1; inset: 105px 0 100px 0 !important; width: 430px; height: calc(100% - 205px) !important; min-height: 1px; background: #e5e5e5; }
 .rata-map.loading::after { content: '네이버 지도를 불러오는 중…'; position:absolute; inset:0; display:grid; place-items:center; color:#777; background:#f5f5f5; font-size:var(--font-caption); }
 .map-error { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
@@ -343,13 +339,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 
 .live-ratalk-screen { width: 430px; height: 932px; padding-bottom: var(--bottom-nav-clearance); display: flex; flex-direction: column; overflow: hidden; background: #fff; }
 .live-ratalk-screen[hidden] { display: none; }
-.ratalk-header { flex: 0 0 104px; background: #fff; }
 .dark-status { height: 48px; color: var(--ink); }
 .dark-status .status-icons { color: var(--ink); }
-.ratalk-titlebar { height: 56px; padding: 0 var(--space-6); display: flex; align-items: center; justify-content: space-between; }
-.ratalk-titlebar h1 { margin: 0; font-size: var(--font-screen-title); }
-.ratalk-titlebar div { display: flex; gap: var(--space-4); }
-.ratalk-titlebar button { padding: 0; display: grid; place-items: center; background: transparent; }
 .ratalk-categories { flex: 0 0 48px; padding: 0 var(--space-6); display: flex; align-items: end; gap: var(--space-8); overflow-x: auto; border-bottom: 1px solid #e5e5e5; scrollbar-width: none; scroll-snap-type: x proximity; touch-action: pan-x; }
 .ratalk-categories::-webkit-scrollbar { display: none; }
 .ratalk-categories button { height: 48px; padding: 0 var(--space-1); flex: 0 0 auto; position: relative; color: #7a7a7a; background: transparent; font-size: var(--font-meta); font-weight: 700; scroll-snap-align: start; }
@@ -439,10 +430,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .live-my-screen { width: 430px; height: 932px; padding-bottom: var(--bottom-nav-clearance); overflow-x: hidden; overflow-y: auto; background: #fff; scrollbar-width: none; }
 .live-my-screen[hidden] { display: none; }
 .live-my-screen::-webkit-scrollbar { display: none; }
-.my-topbar, .my-pagebar { height: 56px; padding: 0 var(--space-6); display: flex; align-items: center; position: relative; }
-.my-topbar { justify-content: space-between; }
-.my-topbar h1, .my-pagebar h1 { margin: 0; font-size: var(--font-section-title); }
-.my-topbar > button { width: 40px; height: 40px; padding: 0; background: transparent; font-size: var(--font-screen-title); }
+.my-pagebar { height: 56px; padding: 0 var(--space-6); display: flex; align-items: center; position: relative; }
+.my-pagebar h1 { margin: 0; font-size: var(--font-section-title); }
 .my-pagebar { justify-content: center; }
 .my-pagebar > button { width: 44px; height: 44px; padding: 0; position: absolute; left: 10px; background: transparent; font: 300 var(--font-display-xl)/1 Arial,sans-serif; }
 .my-profile { padding: var(--space-4) var(--space-6) var(--space-6); display: flex; align-items: center; gap: var(--space-3); }
@@ -515,7 +504,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .settings-actions > button:last-child { margin-top: var(--space-4); padding: var(--space-2); color: #7a7a7a; background: transparent; font-size: var(--font-caption); text-decoration: underline; }
 .live-calendar-screen { width: 430px; height: 932px; padding-bottom: var(--bottom-nav-clearance); overflow-y: auto; background:#fff; scrollbar-width:none; }
 .live-calendar-screen[hidden]{display:none}.live-calendar-screen::-webkit-scrollbar{display:none}
-.calendar-title{height:96px;padding:var(--space-8) var(--space-6) 0;display:flex;align-items:center;justify-content:space-between}.calendar-title h1{font-size:var(--font-screen-title)}.calendar-title button{padding:var(--space-2) 0;color:#777;background:transparent;font-size:var(--font-caption)}
 .calendar-section{padding:var(--section-gap) var(--page-gutter)}.calendar-section h2{margin:0 0 var(--space-3);font-size:var(--font-body)}.calendar-section h2 i{width:7px;height:7px;margin-right:var(--space-2);display:inline-block;border-radius:50%;background:var(--accent)}.calendar-section h2 b{color:var(--accent)}
 .calendar-heroes{margin-right:calc(-1 * var(--space-6));display:flex;gap:var(--card-gap);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.calendar-heroes button{min-width:316px;height:250px;padding:var(--card-padding);display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;overflow:hidden;border-radius:16px;color:#fff;text-align:left;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.75)),var(--cal) center/cover;scroll-snap-align:start}.calendar-heroes span{padding:var(--space-1) var(--space-3);border-radius:5px;background:var(--ink);font-size:var(--font-caption)}.calendar-heroes strong{margin-top:var(--space-3);font-size:var(--font-section-title)}.calendar-heroes small{margin-top:var(--space-3)}.calendar-section .soon{margin-top:var(--section-gap)}.calendar-section .soon i{background:#ffe9e9}
 .calendar-row{min-height:86px;display:grid;grid-template-columns:50px 1fr 28px;align-items:center;gap:var(--space-4);border-bottom:1px solid #f7d4d4}.calendar-row time{height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;background:#ffe9e9;font-weight:700}.calendar-row time small{font-size:var(--font-caption)}.calendar-row>button:nth-child(2){display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2);background:transparent}.calendar-row strong{font-size:var(--font-body)}.calendar-row span{font-size:var(--font-meta)}.calendar-save{padding:0;color:#999;background:transparent}.calendar-save.active{color:var(--accent)}.calendar-save.active svg{fill:currentColor}
@@ -658,7 +646,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .plate-summary,
 .settings-list > small,
 .settings-actions > button:last-child,
-.calendar-title button,
 .month-title span,
 .past-list span,
 .auth-divider,
@@ -717,12 +704,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .auth-card footer button,
 .live-ratalk-sub button,
 .month-chips button { min-width: 44px; min-height: 44px; }
-.calendar-title button,
-.map-home,
 .map-error button,
-.ratalk-titlebar button,
 .ratalk-categories button,
-.my-topbar > button,
 .my-block > header button,
 .settings-actions > button:last-child,
 .auth-socials button,
@@ -1094,24 +1077,14 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .naver-ratav-marker::after,
 .naver-ratav-marker:not(.featured)::after { display: none; }
 .naver-ratav-marker img { width: 24px; height: 24px; display: block; transform: rotate(45deg); }
-.naver-ratav-marker.recommended { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(214,40,41,.2), 0 3px 10px rgba(36,34,34,.22); }
-.naver-ratav-marker.featured { width: 52px; height: 52px; min-width: 52px; min-height: 52px; border-color: #fff; background: var(--accent); }
-.naver-ratav-marker.featured img { width: 28px; height: 28px; filter: brightness(0) invert(1); }
+.naver-ratav-marker.featured { border-color: #fff; background: var(--accent); }
+.naver-ratav-marker.featured img { filter: brightness(0) invert(1); }
 
 .map-filters { top: 121px; }
 .map-filters .taste-edit-btn { min-width: 104px; }
 
 /* One header palette across all app sections. */
-.ratalk-header, .my-topbar, .my-pagebar { transition: color .2s, background-color .2s; }
-.rata-mode .ratalk-header,
-.rata-mode .my-topbar,
-.rata-mode .my-pagebar { color: #fff; background: var(--accent); }
-.rata-mode .ratalk-header button,
-.rata-mode .my-topbar button,
-.rata-mode .my-pagebar button { color: #fff; }
-.rata-mode .ratalk-header .home-status,
-.rata-mode .my-topbar + *,
-.rata-mode .my-pagebar + * { border-color: var(--line); }
+.my-pagebar { transition: color .2s, background-color .2s; }
 
 /* Likes and comments share the same visual state in feed and detail. */
 .talk-like { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; gap: var(--space-2); color: var(--muted); background: transparent; }
@@ -1179,58 +1152,25 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .bottom-nav::after,
 .prototype-nav::after { display: none; }
 
-/* Every page reserves the 48px system status area in its own header. */
-.app-header,
-.map-header,
-.ratalk-header,
-.my-topbar,
-.my-pagebar,
-.calendar-title,
-.talk-write-head,
-.live-state-screen > .my-pagebar {
-  padding-top: 48px;
-}
-.app-header,
-.map-header { height: 105px; }
-.ratalk-header { min-height: 104px; height: 104px; flex-basis: 104px; }
-.my-topbar,
-.my-pagebar { height: 104px; }
-.calendar-title { height: 120px; padding-right: var(--space-6); padding-bottom: 0; padding-left: var(--space-6); }
-.talk-write-head { height: 104px; }
 .onboarding { padding-top: 48px; }
-
-/* Scrollable page headers stay at the frame top and move only by transform. */
-.app-header,
-.live-calendar-screen > .calendar-title,
-.live-calendar-screen > .my-pagebar,
-.live-ratalk-screen > .ratalk-header,
-.live-ratalk-sub > .my-pagebar,
-.live-my-screen > .my-topbar,
-.live-my-screen > .my-pagebar {
-  position: sticky;
-  z-index: 80;
+.talk-write-head,
+.my-pagebar,
+.live-state-screen > .my-pagebar { min-height: 56px; }
+.phone-screen > .app-header {
+  width: 100%;
+  height: 105px;
+  padding-top: 48px;
+  position: absolute;
+  z-index: 100;
   top: 0;
-  flex-shrink: 0;
-  background: #fff;
-  transition: transform .25s ease-out, color .2s, background-color .2s;
+  left: 0;
+  right: 0;
+  color: var(--header-color);
+  background: var(--header-bg);
+  transition: transform .25s ease-out, background-color .2s;
   will-change: transform;
 }
-.app-header { color: #fff; background: var(--ink); }
-.rata-mode .app-header,
-.rata-mode .live-ratalk-screen > .ratalk-header,
-.rata-mode .live-ratalk-sub > .my-pagebar,
-.rata-mode .live-my-screen > .my-topbar,
-.rata-mode .live-my-screen > .my-pagebar { color: #fff; background: var(--accent); }
-
-.phone-screen.chrome-hidden .app-header,
-.phone-screen.chrome-hidden .live-calendar-screen:not([hidden]) > .calendar-title,
-.phone-screen.chrome-hidden .live-calendar-screen:not([hidden]) > .my-pagebar,
-.phone-screen.chrome-hidden .live-ratalk-screen:not([hidden]) > .ratalk-header,
-.phone-screen.chrome-hidden .live-ratalk-sub:not([hidden]) > .my-pagebar,
-.phone-screen.chrome-hidden .live-my-screen:not([hidden]) > .my-topbar,
-.phone-screen.chrome-hidden .live-my-screen:not([hidden]) > .my-pagebar {
-  transform: translateY(-100%);
-}
+.phone-screen.chrome-hidden > .app-header { transform: translateY(-100%); }
 .phone-screen > .bottom-nav,
 .phone-screen > .prototype-nav {
   transition: transform .25s ease-out;
@@ -1245,14 +1185,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .ratalk-feed { min-height: 0; overflow: visible; }
 .phone-shell { overflow: visible; }
 
-.phone-screen.chrome-hidden[data-route^="store"] .map-header { transform: translateY(-100%); transition: transform .25s ease-out; }
-
 /* Unified authentication canvas and frame level status surface. */
 .phone-screen {
-  --statusbar-bg: #fff;
-  --statusbar-color: var(--ink);
+  --header-bg: var(--ink);
+  --header-color: #fff;
 }
-.prototype-open .phone-shell > .app-header[aria-hidden="true"] { visibility: hidden; }
 .phone-screen[data-route="splash"] .app-header,
 .phone-screen[data-route="loginVisual"] .app-header,
 .phone-screen[data-route="loginForm"] .app-header,
@@ -1260,12 +1197,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .phone-screen[data-route="joinInput"] .app-header,
 .phone-screen[data-route="joinValid"] .app-header,
 .phone-screen[data-route="socialLogin"] .app-header { visibility: hidden; }
+.onboarding-open .phone-screen > .app-header { visibility: hidden; }
 .frame-status {
-  color: var(--statusbar-color);
-  background: var(--statusbar-bg);
+  color: var(--header-color);
+  background: var(--header-bg);
 }
 .status-on-dark .frame-status,
-.status-on-light .frame-status { color: var(--statusbar-color); }
+.status-on-light .frame-status { color: var(--header-color); }
 
 .live-auth-screen,
 .live-auth-screen.join-view {
@@ -1278,9 +1216,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .auth-visual,
 .live-auth-screen.join-view .auth-visual {
   width: 100%;
-  height: 264px;
+  height: 304px;
   padding: 72px var(--space-8) var(--space-6);
-  flex: 0 0 264px;
+  flex: 0 0 304px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -1296,7 +1234,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .auth-card,
 .live-auth-screen.join-view .auth-card {
   width: 100%;
-  height: 668px;
+  height: 628px;
   min-height: 0;
   padding: var(--space-6) var(--space-8) var(--space-6);
   position: relative;
@@ -1338,49 +1276,56 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
   line-height: inherit;
 }
 
-/* Main screens share one clickable mode header. */
-.section-app-header {
-  height: 105px;
-  min-height: 105px;
-  padding: 48px var(--space-6) 0;
+/* Every live route starts below the one frame level app header. */
+.phone-shell { padding-top: 105px; }
+.prototype-screen { top: 0; }
+.live-calendar-screen,
+.live-ratalk-screen,
+.live-ratalk-sub,
+.live-my-screen,
+.live-state-screen { padding-top: 105px; }
+.live-auth-screen { padding-top: 0; }
+
+.screen-title-row {
+  min-height: 72px;
+  padding: var(--space-4) var(--space-6);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #fff;
-  background: var(--ink);
+  gap: var(--space-4);
+  background: #fff;
 }
-.rata-mode .section-app-header { background: var(--accent); }
-body:not(.rata-mode) .live-calendar-screen > .section-app-header,
-body:not(.rata-mode) .live-ratalk-screen > .section-app-header,
-body:not(.rata-mode) .live-my-screen > .section-app-header {
-  color: #fff;
-  background: var(--ink);
+.screen-title-row h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--font-section-title);
+  font-weight: 700;
 }
-.section-header-title { min-width: 0; display: flex; align-items: center; gap: var(--space-1); }
-.section-header-title h1 { margin: 0; color: inherit; font-size: var(--font-section-title); white-space: nowrap; }
-.section-header-title > button { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; color: inherit; background: transparent; }
-.section-app-header .header-actions { gap: var(--space-2); }
-.section-app-header .icon-btn { color: inherit; }
-.section-app-header .mode-btn { min-width: 46px; padding: var(--space-2) var(--space-3); }
-.calendar-title.section-app-header,
-.my-topbar.section-app-header,
-.ratalk-header.section-app-header {
-  height: 105px;
-  min-height: 105px;
-  padding: 48px var(--space-6) 0;
-  position: sticky;
-  z-index: 90;
-  top: 0;
-}
-.calendar-past-link {
+.screen-title-action,
+.screen-title-text {
+  min-width: 44px;
   min-height: 44px;
-  margin: 0 0 var(--space-3) auto;
   padding: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
+  justify-content: center;
   color: var(--muted);
   background: transparent;
+}
+.screen-title-text { gap: var(--space-1); font-size: var(--font-meta); }
+
+.phone-screen > .app-header .mode-btn:not(.active) {
+  color: rgba(255,255,255,.84);
+}
+.phone-screen > .app-header .header-actions,
+.phone-screen > .app-header .header-top,
+.phone-screen > .app-header .logo { flex-shrink: 0; }
+.phone-screen > .app-header .header-top { width: 100%; }
+
+/* The global header owns all header coordinates. */
+.phone-screen > .app-header .header-actions { gap: var(--space-4); }
+.phone-screen > .app-header .mode-btn {
+  min-height: 44px;
   font-size: var(--font-meta);
 }
 

@@ -61,10 +61,7 @@ const ModeControls = ({ extra = '' } = {}) => `<div class="header-actions">
   ${extra}
 </div>`;
 
-const SectionHeader = ({ title, className, backRoute = '', routeType = 'my', extra = '' }) => `<header class="${className} section-app-header">
-  <div class="section-header-title">${backRoute ? `<button type="button" data-${routeType}-route="${backRoute}" aria-label="뒤로">${icon('back', 24)}</button>` : ''}<h1>${title}</h1></div>
-  ${ModeControls({ extra })}
-</header>`;
+const ScreenTitleRow = ({ title, action = '' }) => `<div class="screen-title-row"><h1>${title}</h1>${action}</div>`;
 
 let ratingGradientId = 0;
 const RatingStars = ({ score, interactive = false } = {}) => {
@@ -441,12 +438,6 @@ document.querySelector('#app').innerHTML = `
         <div class="prototype-hotspots"></div>
       </div>
       <section class="live-map-screen" hidden aria-label="라멘 지도">
-        <header class="map-header">
-          <div class="header-top">
-            <button class="logo map-home" aria-label="홈으로"><img src="/brand/txt_logo_RATA.svg" alt="RATA"></button>
-            ${ModeControls()}
-          </div>
-        </header>
         <div id="rata-map" class="rata-map" aria-label="홍대 주변 라멘집 지도"></div>
         <div class="map-filters" aria-label="지도 필터">
           <button class="active" data-map-filter="all">전체</button>
@@ -486,7 +477,7 @@ document.querySelector('#app').innerHTML = `
         </div>
       </section>
       <section class="live-ratalk-screen" hidden aria-label="라톡">
-        ${SectionHeader({ title: '라톡', className: 'ratalk-header', extra: `<button class="icon-btn talk-search-toggle" type="button" aria-label="검색">${icon('search', 23)}</button>` })}
+        ${ScreenTitleRow({ title: '라톡', action: `<button class="screen-title-action talk-search-toggle" type="button" aria-label="검색">${icon('search', 23)}</button>` })}
         <form class="ratalk-search" hidden><input type="search" aria-label="라톡 검색" placeholder="글, 작성자, 매장 검색"><button type="button" class="talk-search-close">취소</button></form>
         <nav class="ratalk-categories" aria-label="라톡 분류">
           <button class="active" data-talk-filter="all">전체</button><button data-talk-filter="plate">한 그릇</button><button data-talk-filter="story">이야기</button>
@@ -554,6 +545,8 @@ document.querySelector('#app').innerHTML = `
 `;
 
 const phoneScreen = document.querySelector('.phone-screen');
+const globalAppHeader = document.querySelector('.app-header');
+phoneScreen.insertBefore(globalAppHeader, phoneScreen.querySelector('.experience-shell'));
 const frameBottomNav = document.querySelector('.bottom-nav');
 const framePrototypeNav = document.querySelector('.prototype-nav');
 const frameCompose = document.querySelector('.ratalk-compose');
@@ -581,14 +574,11 @@ const showFrameChrome = () => phoneScreen.classList.remove('chrome-hidden');
 const setFrameStatusSurface = (route = currentRoute) => {
   const authRoute = ['loginVisual','loginForm','join','joinInput','joinValid','socialLogin'].includes(route);
   const transparentRoute = route === 'splash' || authRoute;
-  const primaryRoute = ['home','calendar','map','mapSheet','ratalk','my','myLogout','settings','settingsLogout'].includes(route);
-  const imageRoute = route === 'calendarDetail';
-  const background = transparentRoute ? 'transparent' : primaryRoute ? (appState.mode === 'rata' ? 'var(--accent)' : 'var(--ink)') : imageRoute ? 'transparent' : '#fff';
-  const lightText = transparentRoute || primaryRoute || imageRoute;
-  phoneScreen.style.setProperty('--statusbar-bg', background);
-  phoneScreen.style.setProperty('--statusbar-color', lightText ? '#fff' : 'var(--ink)');
-  phoneScreen.classList.toggle('status-on-dark', lightText);
-  phoneScreen.classList.toggle('status-on-light', !lightText);
+  const background = transparentRoute ? 'transparent' : (appState.mode === 'rata' ? 'var(--accent)' : 'var(--ink)');
+  phoneScreen.style.setProperty('--header-bg', background);
+  phoneScreen.style.setProperty('--header-color', '#fff');
+  phoneScreen.classList.toggle('status-on-dark', true);
+  phoneScreen.classList.toggle('status-on-light', false);
 };
 const resetFrameChrome = (route, container = routeScrollContainer(route)) => {
   currentRoute = route;
@@ -958,7 +948,7 @@ const mapPlaces = [
   { id: 'yuzushio', name: '유즈시오', lat: 37.5551, lng: 126.9284, type: 'clear', address: '서울 마포구 동교로38길 27', tags: ['유자 시오', '산뜻하고 맑은'], match: 91, image: ramenPhotos.newsShoyu },
   { id: 'kuro', name: '쿠로라멘', lat: 37.5517, lng: 126.9265, type: 'rich', address: '서울 마포구 양화로6길 9', tags: ['카라미소', '얼큰하고 진한'], match: 75, image: ramenPhotos.mixed }
 ];
-const mapMarkerMarkup = (place, selected = false) => `<button class="naver-ratav-marker${selected ? ' featured' : ''}${place.match >= 85 ? ' recommended' : ''}" type="button" aria-label="${place.name}"><img src="/brand/R_logo_RATA.svg" alt=""></button>`;
+const mapMarkerMarkup = (place, selected = false) => `<button class="naver-ratav-marker${selected ? ' featured' : ''}" type="button" aria-label="${place.name}"><img src="/brand/R_logo_RATA.svg" alt=""></button>`;
 
 if (appState.tasteEdit?.matches) {
   mapPlaces.forEach((place) => { if (appState.tasteEdit.matches[place.id]) place.match = appState.tasteEdit.matches[place.id]; });
@@ -1008,7 +998,7 @@ async function initMap() {
       const selected = place.id === appState.selectedPlaceId;
       const marker = new maps.Marker({
         position: new maps.LatLng(place.lat, place.lng), map: rataMap, title: place.name,
-        icon: { content: mapMarkerMarkup(place, selected), anchor: new maps.Point(selected ? 26 : 22, selected ? 52 : 44) }
+        icon: { content: mapMarkerMarkup(place, selected), anchor: new maps.Point(22, 44) }
       });
       maps.Event.addListener(marker, 'click', () => selectMapPlace(place.id));
       return { marker, place, type: place.type, setVisible: (visible) => marker.setMap(visible ? rataMap : null) };
@@ -1085,7 +1075,7 @@ function renderSelectedStore() {
 function refreshMapMarkerSelection() {
   mapMarkers.forEach(({ marker, place }) => {
     const selected = place.id === appState.selectedPlaceId;
-    marker.setIcon({ content: mapMarkerMarkup(place, selected), anchor: new window.naver.maps.Point(selected ? 26 : 22, selected ? 52 : 44) });
+    marker.setIcon({ content: mapMarkerMarkup(place, selected), anchor: new window.naver.maps.Point(22, 44) });
   });
 }
 
@@ -1187,7 +1177,7 @@ function renderMyView(name) {
     const tasteTitle = appState.mode === 'rata' ? '고농도 돈백탕에<br>극태 저가수면을<br>좋아해요' : '진한 국물에<br>굵은 면, 츠케멘을<br>좋아해요';
     const tasteSummary = '<span>진한 국물 4.5 · 굵은 면 4.0</span><span>감칠맛 3.5 · 기름기 3.0</span><span>매운맛 1.8</span>';
     const platePhotos = [ramenPhotos.banrai, ramenPhotos.koreanShoyu, ramenPhotos.koreanClear, ramenPhotos.koreanSpicy];
-    liveMyScreen.innerHTML = `${screenChrome()}${SectionHeader({ title: '마이', className: 'my-topbar', extra: `<button class="icon-btn" type="button" data-my-route="settings" aria-label="설정">${icon('settings', 24)}</button>` })}
+    liveMyScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '마이', action: `<button class="screen-title-action" type="button" data-my-route="settings" aria-label="설정">${icon('settings', 24)}</button>` })}
       ${loggedOut ? `<section class="my-login-prompt"><img src="/brand/R_logo_RATA.svg" alt=""><h2>로그인하고 내 취향을<br>저장해보세요</h2><div>${Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } })}${Button({ label: '회원가입', variant: 'secondary', attributes: { 'data-my-route': 'join' } })}</div></section>` : `<section class="my-profile"><span><img src="/brand/R_logo_RATA.svg" alt=""></span><div><h2>${appState.userName} <em>${appState.mode === 'rata' ? '라타' : '라이트'}</em></h2><p>한 그릇의 기록이, 취향이 된다.</p></div></section>`}
       <section class="my-taste ${loggedOut ? 'locked' : ''}"><div><small>내 취향</small><h2>${loggedOut ? '로그인하면 내 취향이 보여요' : tasteTitle}</h2>${loggedOut ? '' : `<p>${tasteSummary}</p>`}</div>${tasteGraph()}</section>
       ${loggedOut ? '' : `<section class="my-block"><header><b>저장됨 ${savedCount}</b><button type="button" data-my-route="mySaved">전체보기 ${icon('chevron', 18)}</button></header>${savedRows(upcomingSaved)}</section>`}
@@ -1200,7 +1190,7 @@ function renderMyView(name) {
     const photos=[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy,ramenPhotos.newsMiso,ramenPhotos.mixed,ramenPhotos.newsShoyu,ramenPhotos.hero,ramenPhotos.street,ramenPhotos.dipping,ramenPhotos.clear];
     liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${photos.map((src,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${src}" alt="라멘 기록 ${i+1}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">${icon('edit', 24)}</button>`;
   } else {
-    liveMyScreen.innerHTML = `${screenChrome()}${SectionHeader({ title: '설정', className: 'my-topbar', backRoute: 'my' })}<section class="settings-list"><small>모드</small><div class="settings-current-mode"><span>현재 모드</span><strong>${appState.mode === 'rata' ? '라타' : '라이트'}</strong></div><button type="button" data-open-taste-editor>내 취향 편집 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
+    liveMyScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '설정', action: `<button class="screen-title-action" type="button" data-my-route="my" aria-label="마이로 돌아가기">${icon('back', 24)}</button>` })}<section class="settings-list"><small>모드</small><div class="settings-current-mode"><span>현재 모드</span><strong>${appState.mode === 'rata' ? '라타' : '라이트'}</strong></div><button type="button" data-open-taste-editor>내 취향 편집 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
     if (name === 'settingsLogout') requestAnimationFrame(() => openDialog('logout-dialog'));
   }
   liveMyScreen.scrollTop = 0;
@@ -1233,7 +1223,7 @@ const calendarRows = () => calendarUpcoming.map((item) => {
 }).join('');
 function renderCalendarView(name) {
   if (name === 'calendar') {
-    liveCalendarScreen.innerHTML = `${screenChrome()}${SectionHeader({ title: '일정', className: 'calendar-title' })}<section class="calendar-section"><button class="calendar-past-link" type="button" data-calendar-route="calendarMonth">지난 일정 보기 ${icon('chevron', 16)}</button><h2><i></i> 지금 진행중 <b>${calendarCurrent.length}</b></h2><div class="calendar-heroes">${calendarCurrent.map((item,index)=>`<button type="button" data-calendar-route="calendarDetail" data-calendar-id="${item.id}" aria-label="${index+1} / 2" style="--cal:url('${item.image}')"><span>${item.shop}</span><strong>${item.title}</strong><small>${shortDate(item.date)} · 서울 ${item.place}</small></button>`).join('')}</div><h2 class="soon"><i></i> 곧 시작 <b>${calendarUpcoming.length}</b></h2>${calendarRows()}</section>`;
+    liveCalendarScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '일정', action: `<button class="screen-title-text" type="button" data-calendar-route="calendarMonth">지난 일정 보기 ${icon('chevron', 16)}</button>` })}<section class="calendar-section"><h2><i></i> 지금 진행중 <b>${calendarCurrent.length}</b></h2><div class="calendar-heroes">${calendarCurrent.map((item,index)=>`<button type="button" data-calendar-route="calendarDetail" data-calendar-id="${item.id}" aria-label="${index+1} / 2" style="--cal:url('${item.image}')"><span>${item.shop}</span><strong>${item.title}</strong><small>${shortDate(item.date)} · 서울 ${item.place}</small></button>`).join('')}</div><h2 class="soon"><i></i> 곧 시작 <b>${calendarUpcoming.length}</b></h2>${calendarRows()}</section>`;
   } else if (name === 'calendarMonth') {
     const past = savedItems.filter((item) => item.date < today).sort((a, b) => b.date - a.date);
     const groups = past.reduce((result, item) => { const key = `${item.date.getFullYear()}-${item.date.getMonth() + 1}`; (result[key] ||= []).push(item); return result; }, {});
@@ -1411,7 +1401,7 @@ function openPrototype(name) {
   prototypeScreen.setAttribute('aria-hidden', 'false');
   prototypeScreen.inert = false;
   document.body.classList.add('prototype-open');
-  document.querySelectorAll('.app-header, .hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
+  document.querySelectorAll('.hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
     element.setAttribute('aria-hidden', 'true');
     element.inert = true;
   });
@@ -1486,7 +1476,7 @@ function closePrototype() {
   prototypeScreen.setAttribute('aria-hidden', 'true');
   prototypeScreen.inert = true;
   document.body.classList.remove('prototype-open');
-  document.querySelectorAll('.app-header, .hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
+  document.querySelectorAll('.hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
     element.removeAttribute('aria-hidden');
     element.inert = false;
   });
@@ -1627,7 +1617,10 @@ document.querySelector('[data-clear-notifications]').addEventListener('click', (
   renderNotifications();
 });
 
-document.querySelector('.map-home').addEventListener('click', closePrototype);
+document.querySelector('.app-header .logo').addEventListener('click', (event) => {
+  event.preventDefault();
+  closePrototype();
+});
 document.querySelector('.taste-edit-btn').addEventListener('click', openTasteEditor);
 document.querySelector('.taste-close').addEventListener('click', () => closeTasteEditor());
 document.querySelector('.taste-backdrop').addEventListener('click', () => closeTasteEditor());
