@@ -949,3 +949,146 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+/* Interaction and frame fixes: overlays are direct children of .phone-screen. */
+.phone-screen > .bottom-nav,
+.phone-screen > .prototype-nav {
+  position: absolute;
+  z-index: 95;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: var(--space-4) var(--space-4) var(--space-8);
+  transform: none;
+}
+.phone-screen > .ratalk-compose { position: absolute; z-index: 96; right: 20px; left: auto; bottom: 130px; }
+.phone-screen > .toast { position: absolute; z-index: 120; left: 50%; bottom: 104px; }
+.phone-screen > .ratalk-compose[hidden],
+.phone-screen > .prototype-nav[hidden] { display: none; }
+.bottom-nav .nav-item,
+.prototype-nav .nav-item { width: 100%; min-width: 0; position: relative; z-index: 2; }
+.logo { min-height: 44px; }
+.bottom-nav .nav-highlight,
+.prototype-nav .nav-highlight {
+  width: var(--nav-width, 0px);
+  left: var(--nav-left, 0px);
+  transform: none;
+  transition: left .25s cubic-bezier(.22,.75,.24,1), width .25s cubic-bezier(.22,.75,.24,1);
+}
+
+/* Shared drag and snap carousel. */
+.drag-carousel {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+.drag-carousel::-webkit-scrollbar { display: none; }
+.drag-carousel.is-dragging { cursor: grabbing; scroll-behavior: auto; }
+.drag-carousel > [aria-label] { scroll-snap-align: start; }
+.hero-track { overflow-x: auto; transition: none; }
+.hero-slide { scroll-snap-align: start; }
+.carousel-dots { min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 0; }
+.carousel-dots button { width: 44px; height: 44px; padding: 0; position: relative; background: transparent; }
+.carousel-dots button::after { content: ''; width: 6px; height: 6px; position: absolute; left: 50%; top: 50%; border-radius: 50%; background: var(--line); transform: translate(-50%, -50%); }
+.carousel-dots button.active::after { background: var(--ink); }
+.calendar-heroes { margin-right: calc(-1 * var(--space-6)); scroll-padding-left: var(--space-6); }
+.calendar-heroes button { flex: 0 0 calc(100% - 36px); min-width: 0; }
+.calendar-heroes + .carousel-dots { margin-right: calc(-1 * var(--space-6)); }
+.store-gallery { display: flex; grid-template-columns: none; overflow-x: auto; }
+.store-gallery img { flex: 0 0 72%; scroll-snap-align: start; }
+.store-gallery + .carousel-dots { margin-top: 0; }
+.my-plates > div { display: flex; grid-template-columns: none; overflow-x: auto; }
+.my-plates > div button { flex: 0 0 42%; scroll-snap-align: start; }
+
+/* Mode context is shared by every primary screen. */
+.mode-context { min-height: 28px; margin: 0; padding: var(--space-1) var(--page-gutter); display: flex; align-items: center; color: var(--muted); background: #fff; font-size: var(--font-caption); line-height: 20px; }
+.live-map-screen > .mode-context { position: absolute; z-index: 73; top: 105px; left: 0; right: 0; }
+.live-map-screen > .mode-context + .map-filters { top: 145px; }
+
+/* Auth content scrolls as one screen, so helper and browse actions remain reachable. */
+.live-auth-screen { overflow-x: hidden; overflow-y: auto; }
+.auth-visual { height: 300px; position: relative; flex: 0 0 300px; }
+.auth-visual > img { position: absolute; top: 88px; left: 50%; transform: translateX(-50%); }
+.auth-visual h1 { top: 144px; }
+.auth-card {
+  height: auto;
+  min-height: 632px;
+  padding: var(--space-6) var(--space-8);
+  position: relative;
+  overflow: visible;
+}
+.auth-submit { position: static; }
+.auth-socials { gap: var(--space-4); }
+.auth-socials button,
+.live-auth-screen.join-view .auth-socials button { width: 44px; height: 44px; }
+.ui-field__reveal .eye-open,
+.ui-field__reveal[aria-pressed="true"] .eye-closed { display: block; }
+.ui-field__reveal .eye-closed,
+.ui-field__reveal[aria-pressed="true"] .eye-open { display: none; }
+.live-auth-screen.join-view .auth-visual { height: 180px; flex-basis: 180px; }
+.live-auth-screen.join-view .auth-card { height: auto; min-height: 752px; border-radius: 48px 48px 0 0; }
+.live-auth-screen.join-view .auth-card-logo { margin-bottom: var(--space-4); }
+.auth-mock-notice { word-break: normal; overflow-wrap: anywhere; }
+
+/* Ratalk form, feed and detail spacing. */
+.ratalk-feed { padding-bottom: 160px; }
+.write-stars,
+.talk-rating { color: var(--ink); }
+.talk-write-form .ui-button:disabled { color: var(--muted); background: var(--line); cursor: not-allowed; }
+.write-error { color: var(--accent); }
+.talk-detail { padding-bottom: 84px; }
+.talk-author > span:not(.user-avatar) { padding: var(--space-1) var(--space-2); border-radius: 999px; background: var(--line); }
+.talk-author .user-avatar { padding: 0; }
+.talk-author .avatar-0 { color: #fff; background: var(--accent); }
+.talk-author .avatar-1 { color: #fff; background: var(--ink); }
+.talk-author .avatar-2 { color: #fff; background: var(--muted); }
+.talk-author .avatar-3 { color: var(--ink); background: var(--line); }
+.talk-comment-item { align-items: center; }
+
+/* Calendar detail, My summaries, and home alignment. */
+.event-card { padding-right: 0; padding-left: 0; }
+.calendar-detail > header button { width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.3); }
+.calendar-detail dl > div { min-height: 48px; padding: var(--space-3) 0; align-items: center; border-bottom: 1px solid var(--line); line-height: 24px; }
+.calendar-detail-actions [data-save-detail][aria-pressed="true"] svg { fill: currentColor; }
+.my-taste { grid-template-columns: minmax(0, 1fr) 190px; }
+.my-taste p span { display: block; white-space: nowrap; }
+
+/* Splash can always be dismissed and leaves no video layer behind. */
+.splash-skip { width: 44px; height: 44px; position: absolute; z-index: 4; top: 48px; right: 16px; color: #fff; background: transparent; font-size: var(--font-caption); }
+.splash-screen.hidden video { visibility: hidden; }
+
+/* Map markers keep a 44px target and the full sheet stops below the status bar. */
+.naver-ratav-marker:not(.featured) { width: 44px; height: 44px; min-width: 44px; min-height: 44px; border: 0; background: transparent; box-shadow: none; transform: none; }
+.naver-ratav-marker:not(.featured)::after { display: none; }
+.naver-ratav-marker:not(.featured) > i { width: 40px; height: 40px; position: absolute; left: 2px; top: 2px; border: 4px solid #fff; border-radius: 50% 50% 50% 0; background: var(--accent); box-shadow: 0 3px 10px rgba(36,34,34,.28); transform: rotate(-45deg); }
+.naver-ratav-marker:not(.featured) > i::after { content: ''; width: 6px; height: 6px; position: absolute; left: 13px; top: 13px; border-radius: 50%; background: #fff; }
+.store-sheet.expanded { height: calc(100% - 144px); bottom: 100px; }
+.prototype-nav.map-nav.sheet-expanded { transform: none; }
+.term-help { width: 44px; height: 44px; margin: -12px; display: inline-grid; place-items: center; color: var(--muted); background: transparent; }
+
+@media (max-width: 767px) {
+  html, body, #app, .desktop-stage, .phone-frame-slot, .phone-frame, .phone-screen { width: 100%; height: 100%; }
+  html, body { overflow: hidden; }
+  .phone-frame-slot { height: 100dvh; }
+  .phone-frame { position: relative; top: 0; left: 0; transform: none; }
+  .phone-screen,
+  .experience-shell,
+  .phone-shell,
+  .prototype-screen,
+  .live-ratalk-screen,
+  .live-ratalk-sub,
+  .live-map-screen,
+  .live-auth-screen,
+  .live-my-screen,
+  .live-calendar-screen,
+  .live-state-screen,
+  .splash-screen,
+  .onboarding { width: 100%; height: 100%; min-width: 0; min-height: 0; }
+}

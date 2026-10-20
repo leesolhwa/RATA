@@ -17,7 +17,7 @@ export const Input = ({ name, label, type = 'text', placeholder = '', autocomple
     <span class="ui-field__label">${label}</span>
     <span class="ui-field__control">
       <input name="${name}" type="${type}" placeholder="${escapeHtml(placeholder)}" ${autocomplete ? `autocomplete="${autocomplete}"` : ''} ${required ? 'required' : ''} aria-describedby="${name}-message" ${attrs(attributes)}>
-      ${type === 'password' ? `<button class="ui-field__reveal" type="button" data-reveal="${name}" aria-label="비밀번호 보기"><span aria-hidden="true">◉</span></button>` : ''}
+      ${type === 'password' ? `<button class="ui-field__reveal" type="button" data-reveal="${name}" aria-label="비밀번호 보기" aria-pressed="false"><svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg><svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18M10.6 6.2A10.6 10.6 0 0 1 12 6c6 0 9.5 6 9.5 6a18 18 0 0 1-2.1 2.8M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6 9.5 6a9 9 0 0 0 3.2-.6"/></svg></button>` : ''}
     </span>
     <small class="ui-field__message" id="${name}-message">${hint}</small>
   </label>`;
