@@ -1053,29 +1053,35 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 /* 2026-10-20 visual consistency pass */
 .app-header { height: 105px; }
 
-/* Use the supplied RATA logo asset for both marker states. */
-.naver-ratav-marker,
-.naver-ratav-marker:not(.featured),
-.naver-ratav-marker.featured {
+/* Map marker artwork exported from the supplied icon.fig. */
+.naver-ratav-marker {
   width: 44px;
   height: 44px;
   min-width: 44px;
   min-height: 44px;
-  padding: 7px;
-  display: grid;
-  place-items: center;
-  border: 3px solid #fff;
-  border-radius: 50% 50% 50% 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
   color: var(--ink);
-  background: #fff;
-  box-shadow: 0 3px 10px rgba(36,34,34,.22);
-  transform: rotate(-45deg);
+  background: transparent;
 }
-.naver-ratav-marker::after,
-.naver-ratav-marker:not(.featured)::after { display: none; }
-.naver-ratav-marker img { width: 24px; height: 24px; display: block; transform: rotate(45deg); }
-.naver-ratav-marker.featured { border-color: #fff; background: var(--accent); }
-.naver-ratav-marker.featured img { filter: brightness(0) invert(1); }
+.naver-ratav-marker img { width: 25px; height: 29px; margin-top: 7px; display: block; object-fit: contain; }
+.naver-ratav-marker.featured { width: 84px; height: 104px; min-width: 84px; min-height: 104px; }
+.naver-ratav-marker.featured img { width: 64px; height: 77px; margin-top: 0; }
+.naver-ratav-marker.featured span {
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: var(--font-body);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  white-space: nowrap;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 3px #fff;
+}
 
 .map-filters { top: 121px; }
 .map-filters .taste-edit-btn { min-width: 104px; }

@@ -933,7 +933,11 @@ const mapPlaces = [
   { id: 'yuzushio', name: '유즈시오', lat: 37.5551, lng: 126.9284, type: 'clear', address: '서울 마포구 동교로38길 27', tags: ['유자 시오', '산뜻하고 맑은'], match: 91, image: ramenPhotos.newsShoyu },
   { id: 'kuro', name: '쿠로라멘', lat: 37.5517, lng: 126.9265, type: 'rich', address: '서울 마포구 양화로6길 9', tags: ['카라미소', '얼큰하고 진한'], match: 75, image: ramenPhotos.mixed }
 ];
-const mapMarkerMarkup = (place, selected = false) => `<button class="naver-ratav-marker${selected ? ' featured' : ''}" type="button" aria-label="${place.name}"><img src="/brand/R_logo_RATA.svg" alt=""></button>`;
+const mapMarkerMarkup = (place, selected = false) => `<button class="naver-ratav-marker${selected ? ' featured' : ''}" type="button" aria-label="${place.name}"><img src="/map-markers/marker-${selected ? 'selected' : 'default'}.png" alt="">${selected ? `<span>${place.name.replace(/^마포\s+/, '')}</span>` : ''}</button>`;
+const mapMarkerIcon = (maps, place, selected = false) => ({
+  content: mapMarkerMarkup(place, selected),
+  anchor: new maps.Point(selected ? 42 : 22, selected ? 77 : 36)
+});
 
 if (appState.tasteEdit?.matches) {
   mapPlaces.forEach((place) => { if (appState.tasteEdit.matches[place.id]) place.match = appState.tasteEdit.matches[place.id]; });
@@ -983,7 +987,7 @@ async function initMap() {
       const selected = place.id === appState.selectedPlaceId;
       const marker = new maps.Marker({
         position: new maps.LatLng(place.lat, place.lng), map: rataMap, title: place.name,
-        icon: { content: mapMarkerMarkup(place, selected), anchor: new maps.Point(22, 44) }
+        icon: mapMarkerIcon(maps, place, selected)
       });
       maps.Event.addListener(marker, 'click', () => selectMapPlace(place.id));
       return { marker, place, type: place.type, setVisible: (visible) => marker.setMap(visible ? rataMap : null) };
@@ -1060,7 +1064,7 @@ function renderSelectedStore() {
 function refreshMapMarkerSelection() {
   mapMarkers.forEach(({ marker, place }) => {
     const selected = place.id === appState.selectedPlaceId;
-    marker.setIcon({ content: mapMarkerMarkup(place, selected), anchor: new window.naver.maps.Point(22, 44) });
+    marker.setIcon(mapMarkerIcon(window.naver.maps, place, selected));
   });
 }
 
