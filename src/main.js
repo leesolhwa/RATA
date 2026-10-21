@@ -98,35 +98,7 @@ const modeContent = {
   }
 };
 
-const heroSlides = [
-  {
-    id: 'jun-today',
-    eyebrow: '이번 주, 주목할 한 그릇',
-    title: '두 가게의 취향이<br>한 그릇으로 만나는 순간.',
-    meta: '멘야 쇼유 × 코하루  |  10.3–10.5',
-    image: ramenPhotos.hero
-  },
-  {
-    id: 'akari-today',
-    eyebrow: '라타 에디터의 선택',
-    title: '가을밤을 채우는<br>진한 미소 라멘.',
-    meta: '라멘 소라  |  성수 · 서울',
-    image: ramenPhotos.rich
-  },
-  {
-    id: 'yuzu-koharu',
-    eyebrow: '새롭게 문을 열었어요',
-    title: '맑은 국물에 담은<br>서울의 새로운 맛.',
-    meta: '유즈시오  |  연남 · 서울',
-    image: ramenPhotos.clear
-  },
-  {
-    eyebrow: '지금 가장 뜨거운 한 그릇',
-    title: '익숙한 라멘에 더한<br>새로운 계절의 취향.',
-    meta: '라멘 아카리  |  망원 · 서울',
-    image: ramenPhotos.newsMiso
-  }
-];
+let heroSlides = [];
 
 const padNumber = (value) => String(value).padStart(2, '0');
 const dateKey = (date) => `${date.getFullYear()}-${padNumber(date.getMonth() + 1)}-${padNumber(date.getDate())}`;
@@ -190,17 +162,30 @@ const eventCatalog = [
   { id: 'past-clear', date: addDays(today, -12), shop: '한정 메뉴', title: '하쿠텐 가을 이에케 위크', place: '홍대', type: 'limited', time: '11:30', detail: '가을 한정 이에케 라멘', image: ramenPhotos.koreanShoyu },
   { id: 'past-salt', date: addDays(today, -24), shop: '팝업', title: '시오한입 제철채소 팝업', place: '신촌', type: 'popup', time: '12:00', detail: '제철채소를 더한 시오 팝업', image: ramenPhotos.koreanClear }
 ];
+const activeEventCatalog = eventCatalog
+  .filter((item) => item.date >= today)
+  .sort((a, b) => a.date - b.date);
+const heroEyebrows = ['오늘 만나는 한 그릇', '이번 주, 주목할 한 그릇', '곧 시작하는 콜라보', '미리 보는 다음 팝업'];
+heroSlides = activeEventCatalog.slice(0, 4).map((item, index) => ({
+  id: item.id,
+  eyebrow: heroEyebrows[index],
+  title: `${item.title}<br>${index === 0 ? '오늘 놓치지 마세요.' : '새로운 취향을 만나보세요.'}`,
+  meta: `${item.shop}  |  ${shortDate(item.date)} ${item.time} · ${item.place}`,
+  image: item.image
+}));
 const dDayLabel = (date) => { const diff = Math.round((date - today) / 86400000); return diff === 0 ? 'TODAY' : `D-${diff}`; };
 const events = eventCatalog.filter((item) => item.date >= weekDates[0] && item.date <= weekDates[6]).map((item, order) => ({
   ...item, date: dateKey(item.date), order, dday: dDayLabel(item.date),
   time: `${shortDate(item.date)} ${item.time} · 서울 ${item.place}`
 }));
 
-const news = [
-  { tag: 'NEW', place: '이에케 · 신촌', title: '멘야 이치도', copy: '오사카의 직수제자가 선보이는 원조 이에케 라멘', image: ramenPhotos.koreanShoyu },
-  { tag: 'HOT', place: '츠케멘 · 망원', title: '츠케야 엔', copy: '최근 라타 언급량 150% 상승', image: ramenPhotos.newsMiso },
-  { tag: 'HOT', place: '니보시 · 합정', title: '니보시팩토리', copy: '이게 시멘트야… 라멘이야…', image: ramenPhotos.newsShoyu }
-];
+const news = activeEventCatalog.slice(0, 3).map((item, index) => ({
+  tag: index === 0 ? 'NOW' : 'SOON',
+  place: `${item.shop} · ${item.place}`,
+  title: item.title,
+  copy: `${shortDate(item.date)} ${item.time} · ${item.detail}`,
+  image: item.image
+}));
 
 const rankings = [
   ['라멘바 시코우', '성수', '깔끔하고 담백한 · 깊고 시원한 맛', '1,798'],
@@ -570,7 +555,7 @@ const routeScrollContainer = (route) => {
   if (['my', 'myLogout', 'mySaved', 'myPlate', 'settings', 'settingsLogout'].includes(route)) return document.querySelector('.live-my-screen');
   return null;
 };
-const showFrameChrome = () => phoneScreen.classList.remove('chrome-hidden');
+const showFrameHeader = () => phoneScreen.classList.remove('header-hidden');
 const setFrameStatusSurface = (route = currentRoute) => {
   const authRoute = ['loginVisual','loginForm','join','joinInput','joinValid','socialLogin'].includes(route);
   const transparentRoute = route === 'splash' || authRoute;
@@ -586,7 +571,7 @@ const resetFrameChrome = (route, container = routeScrollContainer(route)) => {
   activeScrollContainer = autoHideRoutes.has(route) ? container : null;
   scrollPosition = activeScrollContainer?.scrollTop || 0;
   scrollDistance = 0;
-  showFrameChrome();
+  showFrameHeader();
   setFrameStatusSurface(route);
 };
 const handleChromeScroll = (container) => {
@@ -595,7 +580,7 @@ const handleChromeScroll = (container) => {
   scrollFrame = requestAnimationFrame(() => {
     const next = container.scrollTop;
     if (next <= 8) {
-      showFrameChrome();
+      showFrameHeader();
       scrollDistance = 0;
       scrollPosition = next;
       return;
@@ -604,10 +589,10 @@ const handleChromeScroll = (container) => {
     if ((delta > 0 && scrollDistance < 0) || (delta < 0 && scrollDistance > 0)) scrollDistance = 0;
     scrollDistance += delta;
     if (scrollDistance >= 8) {
-      phoneScreen.classList.add('chrome-hidden');
+      phoneScreen.classList.add('header-hidden');
       scrollDistance = 0;
     } else if (scrollDistance <= -8) {
-      showFrameChrome();
+      showFrameHeader();
       scrollDistance = 0;
     }
     scrollPosition = next;
@@ -1176,12 +1161,17 @@ function renderMyView(name) {
     const savedCount = upcomingSaved.length;
     const tasteTitle = appState.mode === 'rata' ? '고농도 돈백탕에<br>극태 저가수면을<br>좋아해요' : '진한 국물에<br>굵은 면, 츠케멘을<br>좋아해요';
     const tasteSummary = '<span>진한 국물 4.5 · 굵은 면 4.0</span><span>감칠맛 3.5 · 기름기 3.0</span><span>매운맛 1.8</span>';
-    const platePhotos = [ramenPhotos.banrai, ramenPhotos.koreanShoyu, ramenPhotos.koreanClear, ramenPhotos.koreanSpicy];
+    const platePhotos = [
+      { src: ramenPhotos.banrai, alt: '마포 반라이 츠케멘' },
+      { src: ramenPhotos.koreanShoyu, alt: '맑은 쇼유 라멘' },
+      { src: ramenPhotos.koreanClear, alt: '닭 청탕 라멘' },
+      { src: ramenPhotos.koreanSpicy, alt: '매운 미소 라멘' }
+    ];
     liveMyScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '마이', action: `<button class="screen-title-action" type="button" data-my-route="settings" aria-label="설정">${icon('settings', 24)}</button>` })}
       ${loggedOut ? `<section class="my-login-prompt"><img src="/brand/R_logo_RATA.svg" alt=""><h2>로그인하고 내 취향을<br>저장해보세요</h2><div>${Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } })}${Button({ label: '회원가입', variant: 'secondary', attributes: { 'data-my-route': 'join' } })}</div></section>` : `<section class="my-profile"><span><img src="/brand/R_logo_RATA.svg" alt=""></span><div><h2>${appState.userName} <em>${appState.mode === 'rata' ? '라타' : '라이트'}</em></h2><p>한 그릇의 기록이, 취향이 된다.</p></div></section>`}
       <section class="my-taste ${loggedOut ? 'locked' : ''}"><div><small>내 취향</small><h2>${loggedOut ? '로그인하면 내 취향이 보여요' : tasteTitle}</h2>${loggedOut ? '' : `<p>${tasteSummary}</p>`}</div>${tasteGraph()}</section>
       ${loggedOut ? '' : `<section class="my-block"><header><b>저장됨 ${savedCount}</b><button type="button" data-my-route="mySaved">전체보기 ${icon('chevron', 18)}</button></header>${savedRows(upcomingSaved)}</section>`}
-      <section class="my-block my-plates"><header><b>내 한 그릇 ${loggedOut ? '' : platePhotos.length}</b><button type="button" data-my-route="myPlate">전체보기 ${icon('chevron', 18)}</button></header><div>${platePhotos.map((src,index)=>`<button type="button" data-my-route="myPlate" aria-label="기록한 라멘 ${index + 1} 보기"><img src="${src}" alt=""></button>`).join('')}</div></section>`;
+      <section class="my-block my-plates"><header><b>내 한 그릇 ${loggedOut ? '' : platePhotos.length}</b><button type="button" data-my-route="myPlate">전체보기 ${icon('chevron', 18)}</button></header><div>${platePhotos.map((photo,index)=>`<button type="button" data-my-route="myPlate" aria-label="기록한 라멘 ${index + 1} 보기"><img src="${photo.src}" alt="${photo.alt}"></button>`).join('')}</div></section>`;
   } else if (name === 'mySaved') {
     if (!appState.loggedIn) {
       liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>저장</h1></header>${EmptyState({ title: '로그인이 필요해요', description: '로그인하면 저장한 일정과 매장을 볼 수 있어요.', action: Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } }) })}`;

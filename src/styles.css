@@ -267,8 +267,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(214,40,41,.3); o
 .prototype-nav[hidden] { display: none; }
 .prototype-nav button { background: transparent; }
 .prototype-nav.map-nav, .prototype-nav.talk-nav { box-shadow: 0 -1px 0 rgba(36,34,34,.06); }
-.prototype-nav { transition: transform .36s cubic-bezier(.22,.75,.24,1); }
-.prototype-nav.map-nav.sheet-expanded { transform: translateY(100%); pointer-events: none; }
 
 .live-map-screen { position: relative; width: 430px; height: 932px; overflow: hidden; background: #f5f5f5; }
 .live-map-screen[hidden] { display: none; }
@@ -1030,7 +1028,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 
 /* Map markers keep a 44px target and the full sheet stops below the status bar. */
 .store-sheet.expanded { height: calc(100% - 144px); bottom: 100px; }
-.prototype-nav.map-nav.sheet-expanded { transform: none; }
 .term-help { width: 44px; height: 44px; margin: -12px; display: inline-grid; place-items: center; color: var(--muted); background: transparent; }
 
 @media (max-width: 767px) {
@@ -1098,12 +1095,17 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
 .talk-comments > p { border-bottom: 0; }
 
 /* Saved and plate previews expose exactly the rendered items. */
-.my-plates { overflow: visible; }
+.my-plates { padding-bottom: var(--space-4); overflow: visible; }
 .my-plates > div { padding-bottom: 0; background: transparent; scrollbar-width: none; }
 .my-plates > div::-webkit-scrollbar { display: none; }
 .my-plates > div > button { height: 104px; border-radius: 8px; background: transparent; }
 .my-plates > .carousel-dots,
-.my-plates + .carousel-dots { margin-top: var(--space-3); }
+.my-plates + .carousel-dots {
+  min-height: 28px;
+  margin-top: var(--space-2);
+}
+.my-plates > .carousel-dots button,
+.my-plates + .carousel-dots button { height: 44px; margin: -8px 0; }
 .settings-current-mode { min-height: 56px; padding: 0 var(--space-4); display: flex; align-items: center; justify-content: space-between; border-radius: 12px; background: var(--line); font-size: var(--font-body); }
 .settings-current-mode span { color: var(--muted); }
 .settings-current-mode strong { color: var(--ink); }
@@ -1170,14 +1172,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
   transition: transform .25s ease-out, background-color .2s;
   will-change: transform;
 }
-.phone-screen.chrome-hidden > .app-header { transform: translateY(-100%); }
-.phone-screen > .bottom-nav,
-.phone-screen > .prototype-nav {
-  transition: transform .25s ease-out;
-  will-change: transform;
-}
-.phone-screen.chrome-hidden > .bottom-nav:not([hidden]),
-.phone-screen.chrome-hidden > .prototype-nav:not([hidden]) { transform: translateY(100%); }
+.phone-screen.header-hidden > .app-header { transform: translateY(-100%); }
 
 /* Ratalk uses one vertical scroller so its header participates in the same behavior. */
 .live-ratalk-screen { display: block; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
@@ -1313,6 +1308,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
   background: transparent;
 }
 .screen-title-text { gap: var(--space-1); font-size: var(--font-meta); }
+.live-calendar-screen > .screen-title-row + .calendar-section { padding-top: var(--space-4); }
 
 .phone-screen > .app-header .mode-btn:not(.active) {
   color: rgba(255,255,255,.84);
