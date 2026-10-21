@@ -446,7 +446,7 @@ document.querySelector('#app').innerHTML = `
             </div>
             <button class="sheet-more">매장 상세정보 보기 ${icon('chevron', 18)}</button>
             <div class="store-expanded-content">
-              <section><h3>내 취향과 잘 맞는 이유</h3><p class="mode-taste-copy">진한 육수와 꾸덕한 소스를 좋아하는 취향에 잘 맞아요.</p></section>
+              <section><h3>내 취향과 잘 맞는 이유</h3><p class="mode-taste-copy">진한 육수와 꾸덕한 소스를 좋아하는 취향에 잘 맞아요.</p><div class="store-taste-chart"></div></section>
               <section><h3>매장정보</h3><dl><div><dt>주소</dt><dd class="store-address">서울 마포구 동교로 212</dd></div><div><dt>영업시간</dt><dd>11:30–21:00</dd></div><div><dt>휴무</dt><dd>매주 월요일</dd></div></dl></section>
               <section><h3>라타들의 한줄평</h3><p>“면이 단단하고 소스가 끝까지 진해서 좋아요.”</p><p>“스프를 부어 먹는 마지막 한입까지 만족스러워요.”</p></section>
             </div>
@@ -545,7 +545,7 @@ let scrollPosition = 0;
 let scrollDistance = 0;
 let scrollFrame = 0;
 
-const autoHideRoutes = new Set(['home', 'calendar', 'calendarMonth', 'calendarDetail', 'ratalk', 'ratalkDetail', 'my', 'myLogout', 'mySaved', 'myPlate', 'settings', 'settingsLogout', 'storeGuest', 'storeSaved', 'storeLight', 'storeRata']);
+const autoHideRoutes = new Set(['home', 'calendar', 'calendarMonth', 'calendarDetail', 'ratalk', 'ratalkDetail', 'my', 'myLogout', 'mySaved', 'myPlate', 'settings', 'settingsLogout']);
 const routeScrollContainer = (route) => {
   if (route === 'home') return document.querySelector('.experience-shell');
   if (['calendar', 'calendarMonth', 'calendarDetail'].includes(route)) return document.querySelector('.live-calendar-screen');
@@ -718,7 +718,7 @@ const renderEvents = (selectedDate) => {
   const selectedEvents = events.filter((event) => event.date === selectedDate);
   eventsTrack.innerHTML = selectedEvents.map((event) => `<article class="event-card" data-event-id="${event.id}" tabindex="0">
     <img src="${event.image}" alt="${event.title} 라멘 사진">
-    <div class="event-copy"><div><span class="pill dark">${event.shop}</span><span class="dday">${event.dday}</span></div><h3>${event.title}</h3><p class="event-time">${event.time}</p><p class="event-detail">${event.detail}</p></div>
+    <div class="event-copy"><div><span class="pill dark">${event.shop}</span><span class="dday schedule-dday">${event.dday}</span></div><h3>${event.title}</h3><p class="event-time schedule-date">${event.time}</p><p class="event-detail">${event.detail}</p></div>
     <button class="bookmark ${appState.savedEventIds.includes(event.id) ? 'saved' : ''}" aria-label="${event.title} 북마크" aria-pressed="${appState.savedEventIds.includes(event.id)}">${icon('bookmark', 21)}</button>
   </article>`).join('');
   const isEmpty = selectedEvents.length === 0;
@@ -925,13 +925,13 @@ Object.entries(prototypeScreens).forEach(([name, screen]) => {
 });
 
 const mapPlaces = [
-  { id: 'banrai', name: '마포 반라이', lat: 37.5563, lng: 126.9236, type: 'rich', address: '서울 마포구 동교로 212', tags: ['츠케멘', '진하고 꾸덕한'], match: 78, image: ramenPhotos.banrai },
-  { id: 'menyajun', name: '멘야준', lat: 37.5589, lng: 126.9211, type: 'clear', address: '서울 마포구 연희로1길 36', tags: ['쇼유', '깔끔하고 담백한'], match: 84, image: ramenPhotos.hero },
-  { id: 'hakuten', name: '하쿠텐', lat: 37.5536, lng: 126.9190, type: 'rich', address: '서울 마포구 와우산로29길 14', tags: ['이에케', '짭짤하고 진한'], match: 72, image: ramenPhotos.spicy },
-  { id: 'ramen-truck', name: '라멘트럭', lat: 37.5504, lng: 126.9228, type: 'clear', address: '서울 마포구 독막로6길 15', tags: ['시오', '깊고 시원한'], match: 81, image: ramenPhotos.clear },
-  { id: 'kyo', name: '쿄라멘', lat: 37.5598, lng: 126.9272, type: 'rich', address: '서울 마포구 성미산로 161', tags: ['돈코츠', '고소하고 묵직한'], match: 69, image: ramenPhotos.newsMiso },
-  { id: 'yuzushio', name: '유즈시오', lat: 37.5551, lng: 126.9284, type: 'clear', address: '서울 마포구 동교로38길 27', tags: ['유자 시오', '산뜻하고 맑은'], match: 91, image: ramenPhotos.newsShoyu },
-  { id: 'kuro', name: '쿠로라멘', lat: 37.5517, lng: 126.9265, type: 'rich', address: '서울 마포구 양화로6길 9', tags: ['카라미소', '얼큰하고 진한'], match: 75, image: ramenPhotos.mixed }
+  { id: 'banrai', name: '마포 반라이', lat: 37.5563, lng: 126.9236, type: 'rich', address: '서울 마포구 동교로 212', tags: ['츠케멘', '진하고 꾸덕한'], match: 78, taste: [4.8, 4.6, 4.2, 3.8, 1.2], image: ramenPhotos.banrai },
+  { id: 'menyajun', name: '멘야준', lat: 37.5589, lng: 126.9211, type: 'clear', address: '서울 마포구 연희로1길 36', tags: ['쇼유', '깔끔하고 담백한'], match: 84, taste: [2.7, 2.8, 4.3, 1.8, 0.8], image: ramenPhotos.hero },
+  { id: 'hakuten', name: '하쿠텐', lat: 37.5536, lng: 126.9190, type: 'rich', address: '서울 마포구 와우산로29길 14', tags: ['이에케', '짭짤하고 진한'], match: 72, taste: [4.4, 3.6, 4.1, 4.0, 1.4], image: ramenPhotos.spicy },
+  { id: 'ramen-truck', name: '라멘트럭', lat: 37.5504, lng: 126.9228, type: 'clear', address: '서울 마포구 독막로6길 15', tags: ['시오', '깊고 시원한'], match: 81, taste: [2.5, 3.4, 4.5, 1.6, 0.6], image: ramenPhotos.clear },
+  { id: 'kyo', name: '쿄라멘', lat: 37.5598, lng: 126.9272, type: 'rich', address: '서울 마포구 성미산로 161', tags: ['돈코츠', '고소하고 묵직한'], match: 69, taste: [4.7, 3.2, 3.9, 4.4, 1.0], image: ramenPhotos.newsMiso },
+  { id: 'yuzushio', name: '유즈시오', lat: 37.5551, lng: 126.9284, type: 'clear', address: '서울 마포구 동교로38길 27', tags: ['유자 시오', '산뜻하고 맑은'], match: 91, taste: [2.2, 2.6, 4.7, 1.3, 0.5], image: ramenPhotos.newsShoyu },
+  { id: 'kuro', name: '쿠로라멘', lat: 37.5517, lng: 126.9265, type: 'rich', address: '서울 마포구 양화로6길 9', tags: ['카라미소', '얼큰하고 진한'], match: 75, taste: [4.1, 3.8, 4.0, 3.6, 4.5], image: ramenPhotos.mixed }
 ];
 const mapMarkerMarkup = (place, selected = false) => `<button class="naver-ratav-marker${selected ? ' featured' : ''}" type="button" aria-label="${place.name}"><img src="/map-markers/marker-${selected ? 'selected' : 'default'}.png" alt="">${selected ? `<span>${place.name.replace(/^마포\s+/, '')}</span>` : ''}</button>`;
 const mapMarkerIcon = (maps, place, selected = false) => ({
@@ -1049,6 +1049,7 @@ function renderSelectedStore() {
   document.querySelector('.store-name').textContent = place.name;
   document.querySelector('.store-match').dataset.baseMatch = place.match;
   document.querySelector('.store-address').textContent = place.address;
+  document.querySelector('.store-taste-chart').innerHTML = `${tasteGraph([4.5, 4, 3.5, 3, 1.75], place.taste)}<div class="taste-chart-legend"><span class="mine">내 취향</span><span class="store">${place.name}</span></div>`;
   applySheetModeContent(place.match);
   document.querySelectorAll('.store-gallery img').forEach((image, index) => {
     image.src = [place.image, ramenPhotos.clear, ramenPhotos.mixed][index];
@@ -1117,10 +1118,10 @@ let savedSort = 'near';
 const savedRows = (items) => items.map((item) => {
   const diff = Math.ceil((item.date - today) / 86400000);
   const active = appState.savedEventIds.includes(item.id);
-  return `<article class="my-saved-row" data-saved-id="${item.id}" data-type="${item.type}"><img src="${item.image}" alt="${item.title}"><div><span><b>${diff >= 0 ? `D-${diff}` : '종료'}</b> ${shortDate(item.date)} · ${item.place}</span><strong>${item.title}</strong></div><button type="button" class="saved-bookmark ${active ? 'active' : ''}" aria-label="${item.title} ${active ? '저장 취소' : '저장'}" aria-pressed="${active}">${icon('bookmark', 20)}</button></article>`;
+  return `<article class="my-saved-row" data-saved-id="${item.id}" data-type="${item.type}"><img src="${item.image}" alt="${item.title}"><div><span><b class="schedule-dday">${diff >= 0 ? `D-${diff}` : '종료'}</b> <time class="schedule-date">${shortDate(item.date)}</time> · ${item.place}</span><strong>${item.title}</strong></div><button type="button" class="saved-bookmark ${active ? 'active' : ''}" aria-label="${item.title} ${active ? '저장 취소' : '저장'}" aria-pressed="${active}">${icon('bookmark', 20)}</button></article>`;
 }).join('');
 
-const tasteGraph = (values = [4.5, 4, 3.5, 3, 1.75]) => {
+const tasteGraph = (values = [4.5, 4, 3.5, 3, 1.75], comparisonValues = null) => {
   const center = { x: 105, y: 90 };
   const radius = 48;
   const labels = ['진한 국물', '굵은 면', '감칠맛', '기름기', '매운맛'];
@@ -1134,6 +1135,7 @@ const tasteGraph = (values = [4.5, 4, 3.5, 3, 1.75]) => {
     return `${vertex.x.toFixed(2)},${vertex.y.toFixed(2)}`;
   }).join(' ');
   const dataPoints = values.map((value, index) => point(Math.max(0, Math.min(5, value)) / 5, index));
+  const comparisonPoints = comparisonValues?.map((value, index) => point(Math.max(0, Math.min(5, value)) / 5, index));
   const axes = directions.map((_, index) => {
     const vertex = point(1, index);
     return `<line x1="${center.x}" y1="${center.y}" x2="${vertex.x.toFixed(2)}" y2="${vertex.y.toFixed(2)}"/>`;
@@ -1143,7 +1145,8 @@ const tasteGraph = (values = [4.5, 4, 3.5, 3, 1.75]) => {
     y: center.y + (radius + 12) * direction.y + 4,
     anchor: direction.x > .25 ? 'start' : direction.x < -.25 ? 'end' : 'middle'
   }));
-  return `<svg class="taste-graph" viewBox="0 0 210 180" role="img" aria-label="${labels.map((label, index) => `${label} ${values[index].toFixed(1)}`).join(', ')}"><g class="taste-grid"><polygon points="${polygon(1 / 3)}"/><polygon points="${polygon(2 / 3)}"/><polygon points="${polygon(1)}"/>${axes}</g><polygon class="taste-data" points="${dataPoints.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ')}"/><g class="taste-points">${dataPoints.map(({ x, y }) => `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4"/>`).join('')}</g><g class="taste-labels">${labels.map((label, index) => `<text x="${labelPositions[index].x.toFixed(2)}" y="${labelPositions[index].y.toFixed(2)}" text-anchor="${labelPositions[index].anchor}">${label}</text>`).join('')}</g></svg>`;
+  const comparisonLabel = comparisonValues ? `, 가게 ${labels.map((label, index) => `${label} ${comparisonValues[index].toFixed(1)}`).join(', ')}` : '';
+  return `<svg class="taste-graph" viewBox="0 0 210 180" role="img" aria-label="내 취향 ${labels.map((label, index) => `${label} ${values[index].toFixed(1)}`).join(', ')}${comparisonLabel}"><g class="taste-grid"><polygon points="${polygon(1 / 3)}"/><polygon points="${polygon(2 / 3)}"/><polygon points="${polygon(1)}"/>${axes}</g><polygon class="taste-data" points="${dataPoints.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ')}"/>${comparisonPoints ? `<polygon class="taste-store-data" points="${comparisonPoints.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ')}"/>` : ''}<g class="taste-points">${dataPoints.map(({ x, y }) => `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4"/>`).join('')}</g>${comparisonPoints ? `<g class="taste-store-points">${comparisonPoints.map(({ x, y }) => `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3"/>`).join('')}</g>` : ''}<g class="taste-labels">${labels.map((label, index) => `<text x="${labelPositions[index].x.toFixed(2)}" y="${labelPositions[index].y.toFixed(2)}" text-anchor="${labelPositions[index].anchor}">${label}</text>`).join('')}</g></svg>`;
 };
 
 function renderSavedView() {
@@ -1213,7 +1216,7 @@ const calendarUpcoming = calendarItems.filter((item) => item.date > today);
 const calendarRows = () => calendarUpcoming.map((item) => {
   const diff = Math.ceil((item.date - today) / 86400000);
   const active = appState.savedEventIds.includes(item.id);
-  return `<article class="calendar-row" data-calendar-id="${item.id}"><time>D-${diff}<small>${shortDate(item.date)}</small></time><button type="button" data-calendar-route="calendarDetail"><strong>${item.title}</strong><span>${item.shop} | 서울 · ${item.place}</span></button><button type="button" class="calendar-save ${active ? 'active' : ''}" aria-label="${item.title} 저장" aria-pressed="${active}">${icon('bookmark',20)}</button></article>`;
+  return `<article class="calendar-row" data-calendar-id="${item.id}"><time><strong class="schedule-dday">D-${diff}</strong><small class="schedule-date">${shortDate(item.date)}</small></time><button type="button" data-calendar-route="calendarDetail"><strong>${item.title}</strong><span>${item.shop} | 서울 · ${item.place}</span></button><button type="button" class="calendar-save ${active ? 'active' : ''}" aria-label="${item.title} 저장" aria-pressed="${active}">${icon('bookmark',20)}</button></article>`;
 }).join('');
 function renderCalendarView(name) {
   if (name === 'calendar') {
@@ -1672,7 +1675,7 @@ const sheetHandle = document.querySelector('.sheet-handle');
 
 function sheetTopByState() {
   const height = document.querySelector('.phone-screen').clientHeight;
-  return { full: 44, half: Math.max(44, height - 580), peek: Math.max(44, height - 320), hidden: height - 100 };
+  return { full: 105, half: Math.max(105, height - 580), peek: Math.max(105, height - 320), hidden: height - 100 };
 }
 
 function nearestSheetState(top, states = ['full', 'half', 'peek', 'hidden']) {
