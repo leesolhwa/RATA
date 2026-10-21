@@ -17,6 +17,19 @@ const ramenPhotos = {
   koreanSpicy: '/images/photos/figma/spicy-ramen.jpg'
 };
 
+const myPlatePhotos = [
+  { src: ramenPhotos.banrai, alt: '마포 반라이 츠케멘' },
+  { src: ramenPhotos.koreanClear, alt: '맑은 닭 청탕 라멘' },
+  { src: ramenPhotos.koreanSpicy, alt: '매운 미소 라멘' },
+  { src: ramenPhotos.rich, alt: '진한 돈코츠 라멘' },
+  { src: ramenPhotos.clear, alt: '담백한 시오 라멘' },
+  { src: ramenPhotos.spicy, alt: '얼큰한 탄탄멘' },
+  { src: ramenPhotos.newsMiso, alt: '구수한 미소 라멘' },
+  { src: ramenPhotos.newsShoyu, alt: '파를 올린 쇼유 라멘' },
+  { src: ramenPhotos.mixed, alt: '고명을 올린 마제소바' },
+  { src: ramenPhotos.hero, alt: '차슈와 김을 올린 쇼유 라멘' }
+];
+
 const icon = (name, size = 24) => {
   const paths = {
     bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>',
@@ -434,7 +447,7 @@ document.querySelector('#app').innerHTML = `
           <button class="sheet-handle" aria-label="매장 정보 펼치기"><i></i></button>
           <div class="sheet-scroll">
             <div class="store-title-row">
-              <div><h2 class="store-name">마포 반라이</h2><span class="store-match">취향 78% 일치</span></div>
+              <div><h2 class="store-name">마포 반라이</h2><span class="store-match">취향 87% 일치</span></div>
               <div><button class="sheet-save" aria-label="저장">${icon('bookmark', 23)}</button><button class="sheet-close" aria-label="닫기">${icon('close', 24)}</button></div>
             </div>
             <div class="store-chips"></div>
@@ -876,14 +889,6 @@ const syncNavHighlight = (nav) => {
   nav.style.setProperty('--nav-left', `${(activeRect.left - navRect.left) / scale}px`);
   nav.style.setProperty('--nav-width', `${activeRect.width / scale}px`);
 };
-document.querySelectorAll('.nav-item').forEach((btn, index) => btn.addEventListener('click', () => {
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  bottomNav.style.setProperty('--nav-index', index);
-  syncNavHighlight(bottomNav);
-  if (index === 0) closePrototype();
-  else openPrototype(['', 'calendar', 'map', 'ratalk', 'my'][index]);
-}));
 requestAnimationFrame(() => syncNavHighlight(bottomNav));
 window.addEventListener('resize', () => {
   syncNavHighlight(bottomNav);
@@ -913,6 +918,32 @@ const calendarRoutes = new Set(['calendar', 'calendarMonth', 'calendarDetail']);
 const mapRoutes = new Set(['map','mapSheet','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew']);
 const ratalkSubRoutes = new Set(['ratalkDetail','writeText','writePhoto','writePicker']);
 const stateRoutes=new Set(['stateLoading','stateEmpty','stateError','stateMaintenance','stateUpdate']);
+const navRoutes = ['home', 'calendar', 'map', 'ratalk', 'my'];
+const navIndexForRoute = (route) => {
+  if (calendarRoutes.has(route)) return 1;
+  if (mapRoutes.has(route)) return 2;
+  if (route === 'ratalk' || ratalkSubRoutes.has(route)) return 3;
+  if (myRoutes.has(route)) return 4;
+  return 0;
+};
+const syncRouteNavigation = (route) => {
+  const navIndex = navIndexForRoute(route);
+  [bottomNav, prototypeNav].forEach((nav) => {
+    nav.style.setProperty('--nav-index', navIndex);
+    nav.querySelectorAll('.nav-item').forEach((item, index) => {
+      const active = index === navIndex;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-current', active ? 'page' : 'false');
+    });
+    requestAnimationFrame(() => syncNavHighlight(nav));
+  });
+};
+const navigateToNavIndex = (index) => {
+  if (index === 0) closePrototype();
+  else openPrototype(navRoutes[index]);
+};
+bottomNav.querySelectorAll('.nav-item').forEach((button, index) => button.addEventListener('click', () => navigateToNavIndex(index)));
+prototypeNav.querySelectorAll('.nav-item').forEach((button, index) => button.addEventListener('click', () => navigateToNavIndex(index)));
 
 const prototypeImageCache = new Map();
 Object.entries(prototypeScreens).forEach(([name, screen]) => {
@@ -925,13 +956,13 @@ Object.entries(prototypeScreens).forEach(([name, screen]) => {
 });
 
 const mapPlaces = [
-  { id: 'banrai', name: '마포 반라이', lat: 37.5563, lng: 126.9236, type: 'rich', address: '서울 마포구 동교로 212', tags: ['츠케멘', '진하고 꾸덕한'], match: 78, taste: [4.8, 4.6, 4.2, 3.8, 1.2], image: ramenPhotos.banrai },
-  { id: 'menyajun', name: '멘야준', lat: 37.5589, lng: 126.9211, type: 'clear', address: '서울 마포구 연희로1길 36', tags: ['쇼유', '깔끔하고 담백한'], match: 84, taste: [2.7, 2.8, 4.3, 1.8, 0.8], image: ramenPhotos.hero },
-  { id: 'hakuten', name: '하쿠텐', lat: 37.5536, lng: 126.9190, type: 'rich', address: '서울 마포구 와우산로29길 14', tags: ['이에케', '짭짤하고 진한'], match: 72, taste: [4.4, 3.6, 4.1, 4.0, 1.4], image: ramenPhotos.spicy },
-  { id: 'ramen-truck', name: '라멘트럭', lat: 37.5504, lng: 126.9228, type: 'clear', address: '서울 마포구 독막로6길 15', tags: ['시오', '깊고 시원한'], match: 81, taste: [2.5, 3.4, 4.5, 1.6, 0.6], image: ramenPhotos.clear },
-  { id: 'kyo', name: '쿄라멘', lat: 37.5598, lng: 126.9272, type: 'rich', address: '서울 마포구 성미산로 161', tags: ['돈코츠', '고소하고 묵직한'], match: 69, taste: [4.7, 3.2, 3.9, 4.4, 1.0], image: ramenPhotos.newsMiso },
-  { id: 'yuzushio', name: '유즈시오', lat: 37.5551, lng: 126.9284, type: 'clear', address: '서울 마포구 동교로38길 27', tags: ['유자 시오', '산뜻하고 맑은'], match: 91, taste: [2.2, 2.6, 4.7, 1.3, 0.5], image: ramenPhotos.newsShoyu },
-  { id: 'kuro', name: '쿠로라멘', lat: 37.5517, lng: 126.9265, type: 'rich', address: '서울 마포구 양화로6길 9', tags: ['카라미소', '얼큰하고 진한'], match: 75, taste: [4.1, 3.8, 4.0, 3.6, 4.5], image: ramenPhotos.mixed }
+  { id: 'banrai', name: '마포 반라이', lat: 37.5563, lng: 126.9236, type: 'rich', address: '서울 마포구 동교로 212', tags: ['츠케멘', '진하고 꾸덕한'], match: 87, taste: [4.8, 4.6, 2.6, 4.0, 3.0], image: ramenPhotos.banrai },
+  { id: 'menyajun', name: '멘야준', lat: 37.5589, lng: 126.9211, type: 'clear', address: '서울 마포구 연희로1길 36', tags: ['쇼유', '깔끔하고 담백한'], match: 84, taste: [2.6, 2.5, 4.6, 1.4, 0.5], image: ramenPhotos.hero },
+  { id: 'hakuten', name: '하쿠텐', lat: 37.5536, lng: 126.9190, type: 'rich', address: '서울 마포구 와우산로29길 14', tags: ['이에케', '짭짤하고 진한'], match: 72, taste: [4.7, 3.2, 4.1, 4.5, 1.0], image: ramenPhotos.spicy },
+  { id: 'ramen-truck', name: '라멘트럭', lat: 37.5504, lng: 126.9228, type: 'clear', address: '서울 마포구 독막로6길 15', tags: ['시오', '깊고 시원한'], match: 81, taste: [2.1, 3.5, 4.8, 1.2, 0.3], image: ramenPhotos.clear },
+  { id: 'kyo', name: '쿄라멘', lat: 37.5598, lng: 126.9272, type: 'rich', address: '서울 마포구 성미산로 161', tags: ['돈코츠', '고소하고 묵직한'], match: 69, taste: [4.9, 2.9, 3.4, 4.7, 1.5], image: ramenPhotos.newsMiso },
+  { id: 'yuzushio', name: '유즈시오', lat: 37.5551, lng: 126.9284, type: 'clear', address: '서울 마포구 동교로38길 27', tags: ['유자 시오', '산뜻하고 맑은'], match: 91, taste: [1.8, 2.2, 4.9, 0.8, 0.2], image: ramenPhotos.newsShoyu },
+  { id: 'kuro', name: '쿠로라멘', lat: 37.5517, lng: 126.9265, type: 'rich', address: '서울 마포구 양화로6길 9', tags: ['카라미소', '얼큰하고 진한'], match: 75, taste: [4.2, 3.7, 3.3, 3.8, 4.8], image: ramenPhotos.mixed }
 ];
 const mapMarkerMarkup = (place, selected = false) => `<button class="naver-ratav-marker${selected ? ' featured' : ''}" type="button" aria-label="${place.name}"><img src="/map-markers/marker-${selected ? 'selected' : 'default'}.png" alt="">${selected ? `<span>${place.name.replace(/^마포\s+/, '')}</span>` : ''}</button>`;
 const mapMarkerIcon = (maps, place, selected = false) => ({
@@ -1049,7 +1080,7 @@ function renderSelectedStore() {
   document.querySelector('.store-name').textContent = place.name;
   document.querySelector('.store-match').dataset.baseMatch = place.match;
   document.querySelector('.store-address').textContent = place.address;
-  document.querySelector('.store-taste-chart').innerHTML = `${tasteGraph([4.5, 4, 3.5, 3, 1.75], place.taste)}<div class="taste-chart-legend"><span class="mine">내 취향</span><span class="store">${place.name}</span></div>`;
+  document.querySelector('.store-taste-chart').innerHTML = `${tasteGraph([4.5, 4, 3.5, 3, 1.8], place.taste)}<div class="taste-chart-legend"><span class="mine">내 취향</span><span class="store">${place.name}</span></div>`;
   applySheetModeContent(place.match);
   document.querySelectorAll('.store-gallery img').forEach((image, index) => {
     image.src = [place.image, ramenPhotos.clear, ramenPhotos.mixed][index];
@@ -1121,7 +1152,7 @@ const savedRows = (items) => items.map((item) => {
   return `<article class="my-saved-row" data-saved-id="${item.id}" data-type="${item.type}"><img src="${item.image}" alt="${item.title}"><div><span><b class="schedule-dday">${diff >= 0 ? `D-${diff}` : '종료'}</b> <time class="schedule-date">${shortDate(item.date)}</time> · ${item.place}</span><strong>${item.title}</strong></div><button type="button" class="saved-bookmark ${active ? 'active' : ''}" aria-label="${item.title} ${active ? '저장 취소' : '저장'}" aria-pressed="${active}">${icon('bookmark', 20)}</button></article>`;
 }).join('');
 
-const tasteGraph = (values = [4.5, 4, 3.5, 3, 1.75], comparisonValues = null) => {
+const tasteGraph = (values = [4.5, 4, 3.5, 3, 1.8], comparisonValues = null) => {
   const center = { x: 105, y: 90 };
   const radius = 48;
   const labels = ['진한 국물', '굵은 면', '감칠맛', '기름기', '매운맛'];
@@ -1168,12 +1199,7 @@ function renderMyView(name) {
     const savedCount = upcomingSaved.length;
     const tasteTitle = appState.mode === 'rata' ? '고농도 돈백탕에<br>극태 저가수면을<br>좋아해요' : '진한 국물에<br>굵은 면, 츠케멘을<br>좋아해요';
     const tasteSummary = '<span>진한 국물 4.5 · 굵은 면 4.0</span><span>감칠맛 3.5 · 기름기 3.0</span><span>매운맛 1.8</span>';
-    const platePhotos = [
-      { src: ramenPhotos.banrai, alt: '마포 반라이 츠케멘' },
-      { src: ramenPhotos.koreanShoyu, alt: '맑은 쇼유 라멘' },
-      { src: ramenPhotos.koreanClear, alt: '닭 청탕 라멘' },
-      { src: ramenPhotos.koreanSpicy, alt: '매운 미소 라멘' }
-    ];
+    const platePhotos = myPlatePhotos.slice(0, 4);
     liveMyScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '마이', action: `<button class="screen-title-action" type="button" data-my-route="settings" aria-label="설정">${icon('settings', 24)}</button>` })}
       ${loggedOut ? `<section class="my-login-prompt"><img src="/brand/R_logo_RATA.svg" alt=""><h2>로그인하고 내 취향을<br>저장해보세요</h2><div>${Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } })}${Button({ label: '회원가입', variant: 'secondary', attributes: { 'data-my-route': 'join' } })}</div></section>` : `<section class="my-profile"><span><img src="/brand/R_logo_RATA.svg" alt=""></span><div><h2>${appState.userName} <em>${appState.mode === 'rata' ? '라타' : '라이트'}</em></h2><p>한 그릇의 기록이, 취향이 된다.</p></div></section>`}
       <section class="my-taste ${loggedOut ? 'locked' : ''}"><div><small>내 취향</small><h2>${loggedOut ? '로그인하면 내 취향이 보여요' : tasteTitle}</h2>${loggedOut ? '' : `<p>${tasteSummary}</p>`}</div>${tasteGraph()}</section>
@@ -1184,8 +1210,7 @@ function renderMyView(name) {
       liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>저장</h1></header>${EmptyState({ title: '로그인이 필요해요', description: '로그인하면 저장한 일정과 매장을 볼 수 있어요.', action: Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } }) })}`;
     } else renderSavedView();
   } else if (name === 'myPlate') {
-    const photos=[ramenPhotos.rich,ramenPhotos.clear,ramenPhotos.spicy,ramenPhotos.newsMiso,ramenPhotos.mixed,ramenPhotos.newsShoyu,ramenPhotos.hero,ramenPhotos.street,ramenPhotos.dipping,ramenPhotos.clear];
-    liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${photos.map((src,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${src}" alt="라멘 기록 ${i+1}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">${icon('edit', 24)}</button>`;
+    liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${myPlatePhotos.map((photo,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${photo.src}" alt="${photo.alt}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">${icon('edit', 24)}</button>`;
   } else {
     liveMyScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '설정', action: `<button class="screen-title-action" type="button" data-my-route="my" aria-label="마이로 돌아가기">${icon('back', 24)}</button>` })}<section class="settings-list"><small>모드</small><div class="settings-current-mode"><span>현재 모드</span><strong>${appState.mode === 'rata' ? '라타' : '라이트'}</strong></div><button type="button" data-open-taste-editor>내 취향 편집 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
     if (name === 'settingsLogout') requestAnimationFrame(() => openDialog('logout-dialog'));
@@ -1428,12 +1453,9 @@ function openPrototype(name) {
   prototypeScreen.classList.toggle('map-open', isLiveMap);
   prototypeNav.classList.toggle('map-nav', isLiveMap);
   prototypeNav.classList.toggle('talk-nav', isLiveTalk);
-  const navIndex = isLiveCalendar ? 1 : isLiveMap ? 2 : isLiveTalk ? 3 : isLiveMy ? 4 : 0;
-  prototypeNav.style.setProperty('--nav-index', navIndex);
-  prototypeNav.querySelectorAll('.nav-item').forEach((item, index) => item.classList.toggle('active', index === navIndex));
   prototypeNav.hidden = !screen.nav;
   frameCompose.hidden = !isLiveTalk;
-  requestAnimationFrame(() => syncNavHighlight(prototypeNav));
+  syncRouteNavigation(name);
   if (isLiveMap) {
     prototypeHotspots.innerHTML = '';
     if (name.startsWith('mapPrefs')) { setSheetVisible(false); openTasteEditor(); }
@@ -1488,9 +1510,7 @@ function closePrototype() {
   frameCompose.hidden = true;
   [liveMapScreen, liveRatalkScreen, liveRatalkSub, liveStateScreen, liveCalendarScreen, liveMyScreen, liveAuthScreen].forEach((view) => { view.inert = true; });
   prototypeCanvas.inert = false;
-  bottomNav.style.setProperty('--nav-index', 0);
-  document.querySelectorAll('.bottom-nav .nav-item').forEach((item, index) => item.classList.toggle('active', index === 0));
-  requestAnimationFrame(() => syncNavHighlight(bottomNav));
+  syncRouteNavigation('home');
   document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
   resetFrameChrome('home');
   history.replaceState(null, '', `${location.pathname}?home`);
@@ -1500,12 +1520,6 @@ prototypeHotspots.addEventListener('click', (event) => {
   const hotspot = event.target.closest('[data-target]');
   if (hotspot) openPrototype(hotspot.dataset.target);
 });
-
-document.querySelectorAll('[data-prototype-nav]').forEach((button) => button.addEventListener('click', () => {
-  const index = Number(button.dataset.prototypeNav);
-  if (index === 0) closePrototype();
-  else openPrototype(['', 'calendar', 'map', 'ratalk', 'my'][index]);
-}));
 
 liveMyScreen.addEventListener('click', (event) => {
   if (event.target.closest('[data-restart-onboarding]')) {
