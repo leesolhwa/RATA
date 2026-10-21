@@ -52,6 +52,7 @@ const icon = (name, size = 24) => {
     back: '<path d="m15 18-6-6 6-6"/>',
     heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/>',
     send: '<path d="m12 19V5m-6 6 6-6 6 6"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'
   };
   return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]}</svg>`;
@@ -60,6 +61,7 @@ const icon = (name, size = 24) => {
 const socialIcon = (provider) => {
   if (provider === '카카오') return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4C6.5 4 2 7.5 2 11.8c0 2.8 1.9 5.2 4.8 6.6l-1 3.6 4.2-2.8c.7.1 1.3.2 2 .2 5.5 0 10-3.4 10-7.6S17.5 4 12 4Z"/></svg>';
   if (provider === '네이버') return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 4h5.1l4.8 7V4H19v16h-5.1l-4.8-7v7H5V4Z"/></svg>';
+  if (provider === '애플') return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.8 12.7c0-2.5 2.1-3.7 2.2-3.8-1.2-1.7-3-1.9-3.6-1.9-1.5-.2-3 .9-3.8.9-.8 0-2-1-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.8 1.3 10.3.9 1.3 1.9 2.7 3.3 2.6 1.3-.1 1.8-.8 3.4-.8s2.1.8 3.5.8c1.5 0 2.4-1.3 3.2-2.6 1-1.5 1.4-3 1.4-3.1-.1 0-3.4-1.3-3.4-4Zm-2.4-7.3c.7-.9 1.2-2.1 1.1-3.4-1.1 0-2.4.7-3.2 1.6-.7.8-1.3 2-1.1 3.2 1.2.1 2.4-.6 3.2-1.4Z"/></svg>';
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.5-.2-2.2H12v4.2h5.4a4.6 4.6 0 0 1-2 3v2.7h3.3c1.9-1.8 2.9-4.4 2.9-7.7Z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.7c-.9.6-2.1 1-3.4 1a5.9 5.9 0 0 1-5.5-4.1H3.1v2.8A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.5 13.8a6 6 0 0 1 0-3.6V7.4H3.1a10 10 0 0 0 0 9.2l3.4-2.8Z"/><path fill="#EA4335" d="M12 6.1c1.5 0 2.8.5 3.9 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-8.9 5.4l3.4 2.8A5.9 5.9 0 0 1 12 6.1Z"/></svg>';
 };
 
@@ -495,22 +497,29 @@ document.querySelector('#app').innerHTML = `
       <section class="live-my-screen" hidden aria-label="마이"></section>
       <section class="live-auth-screen" hidden aria-label="로그인">
         <div class="auth-visual">
+          <button class="auth-hero-back" type="button" aria-label="이전 화면">${icon('back', 24)}</button>
           <img src="/brand/R_logo_RATA.svg" alt="RATA">
           <h1>당신의<br>깊어질<br>취향을</h1>
         </div>
+        <section class="auth-social-entry" aria-label="로그인 방법 선택">
+          <div class="auth-provider-list">
+            <button type="button" class="auth-provider kakao" data-provider="카카오">${socialIcon('카카오')}<span>카카오로 계속하기</span></button>
+            <button type="button" class="auth-provider naver" data-provider="네이버">${socialIcon('네이버')}<span>네이버로 계속하기</span></button>
+            <button type="button" class="auth-provider google" data-provider="구글">${socialIcon('구글')}<span>Google로 계속하기</span></button>
+            <button type="button" class="auth-provider apple" data-provider="애플">${socialIcon('애플')}<span>Apple로 계속하기</span></button>
+          </div>
+          <button type="button" class="auth-email-entry">${icon('mail', 20)}<span>이메일로 로그인</span></button>
+          <p>아직 계정이 없나요? <button class="auth-social-join" type="button">회원가입</button></p>
+          <button class="auth-social-browse" type="button">먼저 둘러보기</button>
+        </section>
         <section class="auth-card">
-          <button class="auth-login-back" type="button" aria-label="로그인으로 돌아가기">${icon('back', 24)}</button>
-          <header><img class="auth-card-logo" src="/brand/R_logo_RATA.svg" alt=""><h2 class="auth-title">로그인하고 취향을 이어가요</h2><p class="auth-subtitle">저장 · 댓글 · 글쓰기는 로그인 후 이용가능합니다.</p></header>
           <form class="auth-form" novalidate>
-            <div class="auth-nickname" hidden>${Input({ name: 'nickname', label: '닉네임', type: 'text', placeholder: '라톡에서 사용할 닉네임', autocomplete: 'nickname', required: true })}</div>
             ${Input({ name: 'email', label: '이메일 주소', type: 'email', placeholder: '이메일 주소', autocomplete: 'email', required: true })}
             ${Input({ name: 'password', label: '비밀번호', type: 'password', placeholder: '비밀번호', autocomplete: 'current-password', required: true, hint: '영문, 숫자 포함 8자 이상' })}
             <p class="auth-terms">가입하면 <button type="button">이용약관</button>과 <button type="button">개인정보 처리방침</button>에 동의해요.</p>
             ${Button({ label: '로그인하기', type: 'submit', className: 'auth-submit', disabled: true })}
           </form>
-          <div class="auth-divider"><span>간편로그인</span></div>
-          <div class="auth-socials"><button type="button" class="kakao" data-provider="카카오" aria-label="카카오로 계속하기">${socialIcon('카카오')}</button><button type="button" class="naver" data-provider="네이버" aria-label="네이버로 계속하기">${socialIcon('네이버')}</button><button type="button" class="google" data-provider="구글" aria-label="구글로 계속하기">${socialIcon('구글')}</button></div>
-          <footer><p class="auth-switch-copy">아직 계정이 없으신가요? <button class="auth-switch" type="button">회원가입</button></p><p class="login-only">계정이나 비밀번호를 잊어버리셨나요? <button type="button" data-auth-help>e-mail/pw찾기</button></p><button class="auth-browse" type="button">먼저 둘러보기</button></footer>
+          <footer><p class="login-only"><button type="button" data-auth-help>비밀번호 찾기</button></p><p class="auth-switch-copy">아직 계정이 없나요? <button class="auth-switch" type="button">회원가입</button></p></footer>
         </section>
       </section>
       <nav class="prototype-nav" aria-label="피그마 하단 메뉴">
@@ -1879,12 +1888,12 @@ function renderAuthView(name) {
   const previousView = currentAuthView;
   currentAuthView = name;
   const joining = ['join', 'joinInput', 'joinValid'].includes(name);
+  const socialEntry = ['loginVisual', 'socialLogin'].includes(name);
   liveAuthScreen.classList.toggle('join-view', joining);
-  document.querySelector('.auth-nickname').hidden = !joining;
-  document.querySelector('.auth-title').innerHTML = joining ? '당신의 깊어질 취향을' : '로그인하고 취향을 이어가요';
-  document.querySelector('.auth-subtitle').textContent = joining ? '닉네임, 이메일과 비밀번호를 입력하면 바로 시작할 수 있어요.' : '저장 · 댓글 · 글쓰기는 로그인하면 이용할 수 있습니다.';
+  liveAuthScreen.classList.toggle('social-view', socialEntry);
+  liveAuthScreen.classList.toggle('email-login-view', !joining && !socialEntry);
   document.querySelector('.auth-submit').textContent = joining ? '회원가입하기' : '로그인하기';
-  document.querySelector('.auth-switch-copy').firstChild.textContent = joining ? '이미 계정이 있나요? ' : '아직 계정이 없으신가요? ';
+  document.querySelector('.auth-switch-copy').firstChild.textContent = joining ? '이미 계정이 있나요? ' : '아직 계정이 없나요? ';
   document.querySelector('.auth-switch').textContent = joining ? '로그인' : '회원가입';
   const password = document.querySelector('.auth-form input[name="password"]');
   password.autocomplete = joining ? 'new-password' : 'current-password';
@@ -1911,7 +1920,7 @@ const authError = (name) => {
   return '';
 };
 function updateAuthFormState(showErrors = false) {
-  const requiredNames = isJoining() ? ['nickname', 'email', 'password'] : ['email', 'password'];
+  const requiredNames = ['email', 'password'];
   requiredNames.forEach((name) => {
     const input = authInputs[name];
     const field = input.closest('.ui-field');
@@ -1945,8 +1954,6 @@ authForm.addEventListener('submit', (event) => {
     appState.loggedIn = true;
     persistState('rata_logged_in', true);
     if (joining) {
-      appState.userName = authInputs.nickname.value.trim();
-      persistState('rata_user_name', appState.userName);
       openPrototype('my');
       showToast(`${appState.userName}님, 반가워요 · 이름은 마이에서 바꿀 수 있어요`);
     } else {
@@ -1963,8 +1970,10 @@ document.querySelectorAll('[data-reveal]').forEach((button) => button.addEventLi
   button.setAttribute('aria-pressed', String(!visible));
 }));
 document.querySelector('.auth-switch').addEventListener('click', () => openPrototype(isJoining() ? 'loginVisual' : 'join'));
-document.querySelector('.auth-login-back').addEventListener('click', () => openPrototype('loginVisual'));
-document.querySelectorAll('.auth-socials [data-provider]').forEach((button) => button.addEventListener('click', () => {
+document.querySelector('.auth-hero-back').addEventListener('click', () => openPrototype('loginVisual'));
+document.querySelector('.auth-email-entry').addEventListener('click', () => openPrototype('loginForm'));
+document.querySelector('.auth-social-join').addEventListener('click', () => openPrototype('join'));
+document.querySelectorAll('.auth-social-entry [data-provider]').forEach((button) => button.addEventListener('click', () => {
   const joining = isJoining();
   const provider = button.dataset.provider;
   appState.loggedIn = true;
@@ -1976,7 +1985,7 @@ document.querySelectorAll('.auth-socials [data-provider]').forEach((button) => b
   openPrototype('my');
   showToast(joining ? '꾸덕한 이케멘님, 반가워요 · 이름은 마이에서 바꿀 수 있어요' : `${provider} 계정으로 로그인했어요.`);
 }));
-document.querySelector('.auth-browse').addEventListener('click', () => closePrototype());
+document.querySelector('.auth-social-browse').addEventListener('click', () => closePrototype());
 document.querySelector('[data-auth-help]').addEventListener('click', () => showToast('이메일 또는 비밀번호 찾기 안내를 준비했어요.'));
 
 document.querySelectorAll('[data-toast]').forEach((button) => button.addEventListener('click', () => {
