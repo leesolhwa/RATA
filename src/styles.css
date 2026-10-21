@@ -1388,6 +1388,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
   background-size: auto, 678px 696px;
   background-position: 0 0, -18px -76px;
 }
+.live-auth-screen.social-view .auth-visual > img { left: 18px; top: 250px; }
+.live-auth-screen.social-view .auth-visual h1 { left: 18px; top: 322px; }
 .live-auth-screen.email-login-view .auth-visual {
   background-size: auto, 703px 722px;
   background-position: 0 0, -22px -2px;
