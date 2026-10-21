@@ -1236,7 +1236,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .experience-shell::-webkit-scr
   align-items: flex-start;
   justify-content: center;
   gap: var(--space-6);
-  background-position: center bottom;
+  background-size: 135% auto;
+  background-position: center 58%;
+  background-repeat: no-repeat;
 }
 .live-auth-screen.join-view .auth-visual > img,
 .live-auth-screen.join-view .auth-visual h1 { display: block; }
