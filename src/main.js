@@ -67,15 +67,6 @@ const socialIcon = (provider) => {
 
 const StatusBar = ({ className = 'home-status' } = {}) => `<div class="${className}"><strong>9:41</strong><span class="status-icons"><span class="status-signal" aria-hidden="true"><i></i><i></i><i></i></span><svg class="status-wifi" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 4.2a10.6 10.6 0 0 1 14 0M3.6 7a6.7 6.7 0 0 1 8.8 0M6.2 9.6a2.7 2.7 0 0 1 3.6 0"/></svg><b aria-hidden="true"></b></span></div>`;
 
-const ModeControls = ({ extra = '' } = {}) => `<div class="header-actions">
-  <div class="mode-switch" role="group" aria-label="모드 선택">
-    <button class="mode-btn" data-mode="light" type="button">라이트</button>
-    <button class="mode-btn" data-mode="rata" type="button">라타</button>
-  </div>
-  <button class="icon-btn notify" type="button" data-notifications aria-label="알림">${icon('bell', 23)}<i></i></button>
-  ${extra}
-</div>`;
-
 const ScreenTitleRow = ({ title, action = '' }) => `<div class="screen-title-row"><h1>${title}</h1>${action}</div>`;
 
 let ratingGradientId = 0;
@@ -100,7 +91,7 @@ const modeContent = {
       ['좋아하는 맛', ['구수하고 짭짤한 맛', '얼큰하고 매콤한', '독특하고 이색적인 맛', '풍부하고 깊은 풍미']],
       ['먹는 방식', ['국물에 말아 나오는 방식', '소스에 찍어 먹는 방식', '국물없이 비벼 먹는 방식']]
     ],
-    sheet: { chips: ['츠케멘', '진하고 꾸덕한'], scores: { light: 4.8, rata: 4.6, expected: 4.7 }, matchOffset: 0, description: '진한 어패류 소스와 탄력 있는 굵은 면을 좋아하는 취향에 잘 맞아요.' }
+    sheet: { chips: ['츠케멘', '진하고 꾸덕한'], description: '진한 어패류 소스와 탄력 있는 굵은 면이 특징이에요.' }
   },
   rata: {
     panelSubtitle: '',
@@ -109,7 +100,7 @@ const modeContent = {
       ['', ['농도', '기름기', '짠맛', '면 굵기']],
       ['', ['돼지 • 유화', '쇼유 • 카에시강함', '극태면 • 저가수면']]
     ],
-    sheet: { chips: ['돈코츠 어패류', '쇼유 카에시', '극태 저가수면'], scores: { light: 4.8, rata: 4.6, expected: 4.7 }, matchOffset: 9, description: '육수　돈코츠·어패류 블렌드\n타래　쇼유 카에시\n면　극태 저가수면' }
+    sheet: { chips: ['돈코츠 어패류', '쇼유 카에시', '극태 저가수면'], description: '육수　돈코츠·어패류 블렌드\n타래　쇼유 카에시\n면　극태 저가수면' }
   }
 };
 
@@ -138,11 +129,11 @@ const readStored = (key, fallback) => {
   } catch { return fallback; }
 };
 const appState = {
-  mode: readStored('rata_mode', 'light'),
+  mode: 'light',
   loggedIn: readStored('rata_logged_in', true),
   userName: readStored('rata_user_name', 'Realraota'),
   selectedPostId: 1,
-  selectedPlaceId: 'banrai',
+  selectedPlaceId: null,
   selectedEventId: 'jun-limited',
   rating: 0,
   selectedWriteStore: 'banrai',
@@ -150,9 +141,10 @@ const appState = {
   tasteEdit: readStored('rata_taste_edit', null),
   writeDraft: { title: '', body: '' },
   comments: {},
-  savedEventIds: readStored('rata_saved_events', ['yuzu-koharu', 'jun-limited', 'akari-miso', 'shikou-guest', 'past-clear', 'past-salt']),
+  savedEventIds: readStored('rata_saved_events', []),
   savedStoreIds: readStored('rata_saved_stores', []),
   likedPostIds: readStored('rata_liked_posts', []),
+  explore: readStored('rata_explore_filters', { area: '연남', broth: 'clear', spicy: 'mild', style: 'all', query: '', view: 'list' }),
   notificationItems: [
     { id: 1, title: '유즈시오 × 코하루 콜라보', body: '내일 정오에 연남에서 시작해요.' },
     { id: 2, title: '저장한 일정이 곧 시작해요', body: '멘야준 육해공 시리즈 · 오늘 18:00' }
@@ -177,6 +169,15 @@ const eventCatalog = [
   { id: 'past-clear', date: addDays(today, -12), shop: '한정 메뉴', title: '하쿠텐 가을 이에케 위크', place: '홍대', type: 'limited', time: '11:30', detail: '가을 한정 이에케 라멘', image: ramenPhotos.koreanShoyu },
   { id: 'past-salt', date: addDays(today, -24), shop: '팝업', title: '시오한입 제철채소 팝업', place: '신촌', type: 'popup', time: '12:00', detail: '제철채소를 더한 시오 팝업', image: ramenPhotos.koreanClear }
 ];
+const eventStoreLinks = {
+  'jun-limited': 'menyajun',
+  'akari-miso': 'kuro',
+  'yuzu-koharu': 'yuzushio',
+  'banrai-week': 'banrai',
+  'shikou-guest': 'banrai',
+  'past-clear': 'hakuten'
+};
+eventCatalog.forEach((item) => Object.assign(item, { storeId: eventStoreLinks[item.id] || null, source: '프로토타입 예시 데이터', updatedAt: dateKey(today) }));
 const activeEventCatalog = eventCatalog
   .filter((item) => item.date >= today)
   .sort((a, b) => a.date - b.date);
@@ -262,11 +263,12 @@ const prototypeScreens = {
   calendar: { nav: true },
   calendarMonth: { nav: true },
   calendarDetail: { nav: false },
-  map: { nav: true }, mapSheet: { nav: true }, storeGuest: { nav: false }, storeSaved: { nav: false }, storeLight: { nav: false }, storeRata: { nav: false }, storeRataEdit: { nav: false }, mapPrefsOld: { nav: false }, mapPrefsNew: { nav: false },
+  map: { nav: true }, mapSheet: { nav: true }, storeDetail: { nav: true }, storeGuest: { nav: false }, storeSaved: { nav: false }, storeLight: { nav: false }, storeRata: { nav: false }, storeRataEdit: { nav: false }, mapPrefsOld: { nav: false }, mapPrefsNew: { nav: false },
   ratalk: { nav: true }, ratalkDetail: { nav: false }, writeText: { nav: false }, writePhoto: { nav: false }, writePicker: { nav: false },
   my: { nav: true },
   myLogout: { nav: true },
   mySaved: { nav: false },
+  saved: { nav: true },
   settings: { nav: false },
   settingsLogout: { nav: false },
   myPlate: { nav: false },
@@ -283,9 +285,9 @@ document.querySelector('#app').innerHTML = `
   <div class="desktop-stage">
     <aside class="desktop-intro" aria-label="RATA 소개">
       <span class="desktop-brand-logo" role="img" aria-label="RATA"></span>
-      <h1>당신의<br>깊어질<br>취향을</h1>
+      <h1>처음이라도<br>내 취향의 라멘을<br>고를 수 있도록</h1>
       <span class="desktop-accent-bar" aria-hidden="true"></span>
-      <p>RATA는 취향으로 라멘집과 팝업, 콜라보를 찾아주는 모바일 앱이에요.</p>
+      <p>RATA는 오늘 먹고 싶은 조건으로 가게를 찾고, 메뉴와 방문 정보를 확인해 저장하는 탐색 프로토타입이에요.</p>
     </aside>
     <div class="phone-frame-slot">
       <div class="phone-frame">
@@ -350,9 +352,11 @@ document.querySelector('#app').innerHTML = `
     <header class="app-header">
       <div class="header-top">
         <a href="#top" class="logo" aria-label="RATA 홈"><img src="/brand/txt_logo_RATA.svg" alt="RATA"></a>
-        ${ModeControls()}
+        <div class="header-actions"><button class="icon-btn notify" type="button" data-notifications aria-label="알림">${icon('bell', 23)}<i></i></button></div>
       </div>
     </header>
+
+    <section class="explore-home" aria-label="라멘집 탐색"></section>
 
     <section class="hero" id="top" aria-label="주요 소식 슬라이드">
       <div class="hero-track"></div>
@@ -412,7 +416,7 @@ document.querySelector('#app').innerHTML = `
     <div class="divider rata-only"></div>
 
     <section class="section ranking-section light-only">
-      <div class="section-head compact"><div><h2>요즘 가장 많이 찾는 라멘집</h2><p class="sub">처음이라면 라타인증 맛집부터!</p></div></div>
+      <div class="section-head compact"><div><h2>요즘 가장 많이 찾는 라멘집</h2><p class="sub">집계 기준이 연결되면 제공할 예정이에요.</p></div></div>
       <div class="tabs" role="tablist" aria-label="랭킹 정렬"><button class="tab active" role="tab" aria-selected="true" data-sort="popular">인기순</button><button class="tab" role="tab" aria-selected="false" data-sort="review">리뷰순</button></div>
       <ol class="ranking-list">
         ${rankings.map((r, i) => `<li data-index="${i}" data-popular="${Number(r[3].replace(',', ''))}" data-interest="${r[3]}" data-reviews="${rankingMetrics[i].reviews}" data-latest="${rankingMetrics[i].latest}"><strong class="rank">${i + 1}</strong><div class="rank-copy"><small>${r[1]}</small><h3>${r[0]}</h3><p>${r[2]}</p></div><span class="interest">${r[3]}명 관심중</span></li>`).join('')}
@@ -430,7 +434,7 @@ document.querySelector('#app').innerHTML = `
 
     <nav class="bottom-nav" aria-label="하단 메뉴">
       <span class="nav-highlight" aria-hidden="true"></span>
-      ${[['home','메인'],['calendar','일정'],['map','지도'],['chat','라톡'],['user','마이']].map(([key,label],i) => `<button class="nav-item ${i===0?'active':''}" data-nav="${label}">${icon(key,24)}<span class="nav-label">${label}</span></button>`).join('')}
+      ${[['search','탐색'],['calendar','일정'],['bookmark','저장'],['user','마이']].map(([key,label],i) => `<button class="nav-item ${i===0?'active':''}" data-nav="${label}">${icon(key,24)}<span class="nav-label">${label}</span></button>`).join('')}
     </nav>
     <section class="prototype-screen" aria-hidden="true" inert>
       <div class="prototype-canvas">
@@ -440,30 +444,32 @@ document.querySelector('#app').innerHTML = `
       <section class="live-map-screen" hidden aria-label="라멘 지도">
         <div id="rata-map" class="rata-map" aria-label="홍대 주변 라멘집 지도"></div>
         <div class="map-filters" aria-label="지도 필터">
-          <button class="active" data-map-filter="all">전체</button>
-          <button data-map-filter="rich">백탕</button>
-          <button data-map-filter="clear">청탕</button>
-          <button class="taste-edit-btn">취향편집</button>
+          <button data-map-back>${icon('back', 18)} 목록</button>
+          <button class="active" data-map-filter="all">조건 결과</button>
+          <button data-map-filter="rich">진한 맛</button>
+          <button data-map-filter="clear">담백한 맛</button>
         </div>
         <aside class="store-sheet" aria-hidden="true">
           <button class="sheet-handle" aria-label="매장 정보 펼치기"><i></i></button>
           <div class="sheet-scroll">
             <div class="store-title-row">
-              <div><h2 class="store-name">마포 반라이</h2><span class="store-match">취향 87% 일치</span></div>
+              <div><h2 class="store-name">마포 반라이</h2><span class="store-match">프로토타입 예시 데이터</span></div>
               <div><button class="sheet-save" aria-label="저장">${icon('bookmark', 23)}</button><button class="sheet-close" aria-label="닫기">${icon('close', 24)}</button></div>
             </div>
             <div class="store-chips"></div>
-            <div class="store-scores"><div><span>라이트</span><strong data-store-score="light"></strong></div><div><span>라타</span><strong data-store-score="rata"></strong></div><div><span>내 예상별점</span><strong data-store-score="expected"></strong></div></div>
+            <div class="store-summary"><strong class="store-menu"></strong><span class="store-price"></span></div>
             <div class="store-gallery">
               <img src="${ramenPhotos.banrai}" alt="마포 반라이 츠케멘">
               <img src="${ramenPhotos.koreanShoyu}" alt="마포 반라이 쇼유 라멘">
               <img src="${ramenPhotos.koreanClear}" alt="마포 반라이 맑은 라멘">
             </div>
-            <button class="sheet-more">매장 상세정보 보기 ${icon('chevron', 18)}</button>
+            <button class="sheet-more">메뉴와 방문 조건 확인하기 ${icon('chevron', 18)}</button>
             <div class="store-expanded-content">
-              <section><h3>내 취향과 잘 맞는 이유</h3><p class="mode-taste-copy">진한 육수와 꾸덕한 소스를 좋아하는 취향에 잘 맞아요.</p><div class="store-taste-chart"></div></section>
-              <section><h3>매장정보</h3><dl><div><dt>주소</dt><dd class="store-address">서울 마포구 동교로 212</dd></div><div><dt>영업시간</dt><dd>11:30–21:00</dd></div><div><dt>휴무</dt><dd>매주 월요일</dd></div></dl></section>
-              <section><h3>라타들의 한줄평</h3><p>“면이 단단하고 소스가 끝까지 진해서 좋아요.”</p><p>“스프를 부어 먹는 마지막 한입까지 만족스러워요.”</p></section>
+              <section><h3>방문 조건</h3><dl><div><dt>영업 상태</dt><dd>확인 필요</dd></div><div><dt>영업시간</dt><dd>확인 필요</dd></div><div><dt>휴식·마감</dt><dd>확인 필요</dd></div></dl><p class="data-note">실시간 영업 정보는 아직 연결되지 않았어요. 출발 전 지도 서비스에서 확인해주세요.</p></section>
+              <section><h3>위치와 접근</h3><dl><div><dt>주소</dt><dd class="store-address">서울 마포구 동교로 212</dd></div></dl><a class="store-directions" target="_blank" rel="noopener">네이버 지도에서 길찾기 ${icon('arrow', 18)}</a></section>
+              <section><h3>선택 조건과 비교</h3><p class="store-reason"></p><p class="store-caution"></p></section>
+              <section><h3>방문 후기</h3><div class="store-review-list"></div></section>
+              <details class="store-technical"><summary>육수·타래·면 정보 더 보기 ${icon('chevron',16)}</summary><p class="store-technical-copy"></p></details>
             </div>
           </div>
         </aside>
@@ -524,7 +530,7 @@ document.querySelector('#app').innerHTML = `
       </section>
       <nav class="prototype-nav" aria-label="피그마 하단 메뉴">
         <span class="nav-highlight" aria-hidden="true"></span>
-        ${[['home','메인'],['calendar','일정'],['map','지도'],['chat','라톡'],['user','마이']].map(([key,label], index) => `<button class="nav-item ${index===0?'active':''}" data-prototype-nav="${index}" aria-label="${label}">${icon(key,24)}<span class="nav-label">${label}</span></button>`).join('')}
+        ${[['search','탐색'],['calendar','일정'],['bookmark','저장'],['user','마이']].map(([key,label], index) => `<button class="nav-item ${index===0?'active':''}" data-prototype-nav="${index}" aria-label="${label}">${icon(key,24)}<span class="nav-label">${label}</span></button>`).join('')}
       </nav>
     </section>
     ${Dialog({ id: 'logout-dialog', title: '로그아웃 할까요?', body: '저장한 일정, 취향, 한 그릇은 그대로 남아있어요. 다시 로그인 하면 이어서 볼 수 있어요.', confirmLabel: '로그아웃' })}
@@ -538,14 +544,11 @@ document.querySelector('#app').innerHTML = `
         </div>
       </div>
     </div>
-    <aside class="desktop-modes" aria-label="RATA 모드 선택">
-      <h2>모드를 골라 보세요</h2>
-      <button class="desktop-mode-card" type="button" data-desktop-mode="light" aria-pressed="false">
-        <span class="desktop-mode-copy"><em>라이트 모드</em><strong>쉬운 설명과 추천 위주</strong></span><i aria-hidden="true"></i>
-      </button>
-      <button class="desktop-mode-card" type="button" data-desktop-mode="rata" aria-pressed="false">
-        <span class="desktop-mode-copy"><em>라타 모드</em><strong>육수·타래·면 같은 진한 스토리</strong></span><i aria-hidden="true"></i>
-      </button>
+    <aside class="desktop-modes desktop-experience" aria-label="대표 체험 안내">
+      <p class="overline">대표 체험</p>
+      <h2>취향을 골라<br>가게를 찾아보세요.</h2>
+      <p>연남 · 담백한 맛 · 맵지 않음 조건이 예시로 선택되어 있어요. 폰 화면에서 조건을 바꿔 결과를 확인할 수 있어요.</p>
+      <button class="desktop-start" type="button">탐색 시작하기 ${icon('arrow', 18)}</button>
       <footer>2026 UX / UI Portfolio · Designed by 이솔화</footer>
     </aside>
   </div>
@@ -770,60 +773,8 @@ function renderTasteEditorMode() {
   }).join('')}</div></div>`).join('');
 }
 
-function applySheetModeContent(baseMatch) {
-  const { sheet } = modeContent[appState.mode];
-  const chips = document.querySelector('.store-chips');
-  if (chips) chips.innerHTML = sheet.chips.map((chip) => `<span>${chip}</span>`).join('');
-  Object.entries(sheet.scores).forEach(([key, value]) => {
-    const score = document.querySelector(`[data-store-score="${key}"]`);
-    if (score) score.textContent = value.toFixed(1);
-  });
-  const description = document.querySelector('.mode-taste-copy');
-  if (description) {
-    description.textContent = sheet.description;
-    description.hidden = !sheet.description;
-  }
-  const match = document.querySelector('.store-match');
-  const numericBase = Number.isFinite(baseMatch) ? baseMatch : Number(match?.dataset.baseMatch);
-  if (match && Number.isFinite(numericBase)) match.textContent = `취향 ${Math.min(99, numericBase + sheet.matchOffset)}% 일치`;
-}
-
-function syncModeControls() {
-  document.querySelectorAll('.mode-btn').forEach((button) => button.classList.toggle('active', button.dataset.mode === appState.mode));
-}
-
-function setAppMode(selectedMode, announce = false) {
-  appState.mode = selectedMode;
-  persistState('rata_mode', selectedMode);
-  document.body.classList.toggle('rata-mode', selectedMode === 'rata');
-  if (typeof setFrameStatusSurface === 'function') setFrameStatusSurface();
-  syncModeControls();
-  renderTasteEditorMode();
-  applySheetModeContent();
-  const compose = document.querySelector('.ratalk-compose');
-  if (compose) compose.dataset.mode = selectedMode;
-  const settingsMode = document.querySelector('.settings-current-mode strong');
-  if (settingsMode) settingsMode.textContent = selectedMode === 'rata' ? '라타' : '라이트';
-  document.querySelectorAll('[data-desktop-mode]').forEach((button) => {
-    const selected = button.dataset.desktopMode === selectedMode;
-    button.classList.toggle('selected', selected);
-    button.setAttribute('aria-pressed', String(selected));
-  });
-  if (announce) showToast(selectedMode === 'rata' ? '라타 모드로 전환했어요 · 육수·타래·면 스토리가 보여요' : '라이트 모드로 전환했어요 · 쉬운 설명과 추천이 보여요');
-}
-phoneScreen.addEventListener('click', (event) => {
-  const modeButton = event.target.closest('.mode-btn');
-  if (modeButton) setAppMode(modeButton.dataset.mode, true);
-});
-document.querySelectorAll('[data-desktop-mode]').forEach((button) => button.addEventListener('click', () => setAppMode(button.dataset.desktopMode, true)));
-window.addEventListener('storage', (event) => {
-  if (event.key !== 'rata_mode' || event.newValue == null) return;
-  try {
-    const mode = JSON.parse(event.newValue);
-    if (mode === 'light' || mode === 'rata') setAppMode(mode);
-  } catch {}
-});
-setAppMode(appState.mode);
+document.body.classList.remove('rata-mode');
+renderTasteEditorMode();
 
 const updateDesktopFrameScale = () => {
   const scale = Math.min(1, (window.innerHeight - 48) / 940);
@@ -843,7 +794,6 @@ eventsTrack.addEventListener('click', (event) => {
   const btn = event.target.closest('.bookmark');
   const card = event.target.closest('.event-card');
   if (btn) {
-    if (!ensureLoggedIn()) return;
     const id = card.dataset.eventId;
     const active = !appState.savedEventIds.includes(id);
     appState.savedEventIds = active ? [...appState.savedEventIds, id] : appState.savedEventIds.filter((savedId) => savedId !== id);
@@ -922,17 +872,17 @@ let rataMap;
 let mapMarkers = [];
 let naverMapsPromise;
 const authRoutes = new Set(['loginVisual', 'loginForm', 'join', 'joinInput', 'joinValid', 'socialLogin']);
-const myRoutes = new Set(['my', 'myLogout', 'mySaved', 'settings', 'settingsLogout', 'myPlate']);
+const myRoutes = new Set(['my', 'myLogout', 'mySaved', 'saved', 'settings', 'settingsLogout', 'myPlate']);
 const calendarRoutes = new Set(['calendar', 'calendarMonth', 'calendarDetail']);
-const mapRoutes = new Set(['map','mapSheet','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew']);
+const mapRoutes = new Set(['map','mapSheet','storeDetail','storeGuest','storeSaved','storeLight','storeRata','storeRataEdit','mapPrefsOld','mapPrefsNew']);
 const ratalkSubRoutes = new Set(['ratalkDetail','writeText','writePhoto','writePicker']);
 const stateRoutes=new Set(['stateLoading','stateEmpty','stateError','stateMaintenance','stateUpdate']);
-const navRoutes = ['home', 'calendar', 'map', 'ratalk', 'my'];
+const navRoutes = ['home', 'calendar', 'saved', 'my'];
 const navIndexForRoute = (route) => {
   if (calendarRoutes.has(route)) return 1;
-  if (mapRoutes.has(route)) return 2;
-  if (route === 'ratalk' || ratalkSubRoutes.has(route)) return 3;
-  if (myRoutes.has(route)) return 4;
+  if (route === 'saved' || route === 'mySaved') return 2;
+  if (myRoutes.has(route)) return 3;
+  if (mapRoutes.has(route)) return 0;
   return 0;
 };
 const syncRouteNavigation = (route) => {
@@ -973,15 +923,123 @@ const mapPlaces = [
   { id: 'yuzushio', name: '유즈시오', lat: 37.5551, lng: 126.9284, type: 'clear', address: '서울 마포구 동교로38길 27', tags: ['유자 시오', '산뜻하고 맑은'], match: 91, taste: [1.8, 2.2, 4.9, 0.8, 0.2], image: ramenPhotos.newsShoyu },
   { id: 'kuro', name: '쿠로라멘', lat: 37.5517, lng: 126.9265, type: 'rich', address: '서울 마포구 양화로6길 9', tags: ['카라미소', '얼큰하고 진한'], match: 75, taste: [4.2, 3.7, 3.3, 3.8, 4.8], image: ramenPhotos.mixed }
 ];
+const storeFacts = {
+  banrai: { area: '연남', style: 'dip', spice: 1, menu: '돈코츠 어패류 츠케멘', price: null, broth: '진한 돼지·어패류 소스', caution: '맑고 가벼운 국물을 찾는 날에는 무겁게 느껴질 수 있어요.' },
+  menyajun: { area: '연남', style: 'soup', spice: 0, menu: '쇼유 라멘', price: null, broth: '맑은 닭·간장 국물', caution: '진하고 기름진 국물을 원하면 맛이 가볍게 느껴질 수 있어요.' },
+  hakuten: { area: '홍대', style: 'soup', spice: 1, menu: '이에케 라멘', price: null, broth: '진한 돼지·간장 국물', caution: '간이 진한 편이라 담백한 맛을 원하면 맞지 않을 수 있어요.' },
+  'ramen-truck': { area: '합정', style: 'soup', spice: 0, menu: '시오 라멘', price: null, broth: '맑고 시원한 소금 국물', caution: '굵고 묵직한 면을 선호하면 식감이 가볍게 느껴질 수 있어요.' },
+  kyo: { area: '연남', style: 'soup', spice: 1, menu: '돈코츠 라멘', price: null, broth: '고소하고 진한 돼지 국물', caution: '기름진 국물을 피하고 싶다면 다른 가게를 먼저 살펴보세요.' },
+  yuzushio: { area: '연남', style: 'soup', spice: 0, menu: '유자 시오 라멘', price: null, broth: '맑고 산뜻한 유자 소금 국물', caution: '유자 향을 좋아하지 않으면 향이 강하게 느껴질 수 있어요.' },
+  kuro: { area: '합정', style: 'soup', spice: 5, menu: '카라미소 라멘', price: null, broth: '맵고 진한 된장 국물', caution: '맵지 않은 메뉴를 찾는 조건에는 맞지 않아요.' }
+};
+mapPlaces.forEach((place) => Object.assign(place, storeFacts[place.id], { sample: true }));
+
+const exploreHome = document.querySelector('.explore-home');
+const exploreAreas = ['연남', '합정', '홍대', '망원'];
+const matchesExplore = (place) => {
+  const filters = appState.explore;
+  const queryText = filters.query.trim().toLowerCase();
+  const areaMatch = filters.area === 'all' || place.area === filters.area;
+  const brothMatch = filters.broth === 'all' || place.type === filters.broth;
+  const spicyMatch = filters.spicy === 'all' || (filters.spicy === 'mild' ? place.spice <= 1 : place.spice >= 3);
+  const styleMatch = filters.style === 'all' || place.style === filters.style;
+  const queryMatch = !queryText || `${place.name} ${place.menu} ${place.address} ${place.tags.join(' ')}`.toLowerCase().includes(queryText);
+  return areaMatch && brothMatch && spicyMatch && styleMatch && queryMatch;
+};
+const matchingPlaces = () => mapPlaces.filter(matchesExplore);
+const recommendationCopy = (place) => {
+  const reasons = [];
+  if (appState.explore.broth === place.type) reasons.push(place.type === 'clear' ? '맑고 가벼운 국물' : '진하고 묵직한 맛');
+  if (appState.explore.spicy === 'mild' && place.spice <= 1) reasons.push('맵지 않은 메뉴');
+  if (appState.explore.style !== 'all' && appState.explore.style === place.style) reasons.push(place.style === 'dip' ? '찍어 먹는 방식' : '국물 라멘');
+  return reasons.length ? `선택한 ${reasons.join(' · ')} 조건과 맞아요.` : `${place.area}에서 ${place.menu}를 살펴볼 수 있어요.`;
+};
+const storeCardMarkup = (place) => {
+  const saved = appState.savedStoreIds.includes(place.id);
+  return `<article class="explore-store-card" data-store-id="${place.id}">
+    <button class="explore-store-main" type="button" data-open-store="${place.id}">
+      <img src="${place.image}" alt="${place.menu} 유형 예시 사진"><span class="sample-label">예시 사진</span>
+      <span class="explore-store-copy"><small>${place.area} · ${place.style === 'dip' ? '츠케멘' : '라멘'}</small><strong>${place.name}</strong><b>${place.menu}${place.price ? ` · ${place.price.toLocaleString('ko-KR')}원` : ''}</b><em>${recommendationCopy(place)}</em></span>
+    </button>
+    <button class="explore-store-save ${saved ? 'saved' : ''}" type="button" data-save-store="${place.id}" aria-label="${place.name} ${saved ? '저장 취소' : '저장'}" aria-pressed="${saved}">${icon('bookmark', 22)}</button>
+  </article>`;
+};
+function renderExploreHome() {
+  const results = matchingPlaces();
+  const savedRecent = mapPlaces.filter((place) => appState.savedStoreIds.includes(place.id)).slice(-2).reverse();
+  exploreHome.innerHTML = `<header class="explore-heading"><p>내 취향에 맞고, 오늘 갈 수 있는 라멘집을 골라보세요.</p><h1>${appState.explore.area === 'all' ? '서울 서북권' : appState.explore.area}에서 라멘 찾기</h1></header>
+    <form class="explore-search" role="search"><label><span class="sr-only">가게 또는 메뉴 검색</span>${icon('search', 20)}<input type="search" value="${escapeText(appState.explore.query)}" placeholder="가게 또는 메뉴 검색"></label><button type="submit">검색</button></form>
+    <section class="explore-filter-section"><div class="explore-section-head"><h2>탐색 지역</h2><span>현재 위치 없이 직접 선택</span></div><div class="explore-chips" data-filter-group="area">${['all', ...exploreAreas].map((value) => `<button type="button" data-filter-value="${value}" class="${appState.explore.area === value ? 'active' : ''}" aria-pressed="${appState.explore.area === value}">${value === 'all' ? '전체' : value}</button>`).join('')}</div></section>
+    <section class="explore-filter-section"><div class="explore-section-head"><h2>오늘 먹고 싶은 맛</h2><button type="button" class="reset-filters">초기화</button></div><div class="explore-filter-row"><b>국물</b><div class="explore-chips" data-filter-group="broth">${[['all','상관없음'],['clear','담백한 맛'],['rich','진한 맛']].map(([value,label]) => `<button type="button" data-filter-value="${value}" class="${appState.explore.broth === value ? 'active' : ''}" aria-pressed="${appState.explore.broth === value}">${label}</button>`).join('')}</div></div><div class="explore-filter-row"><b>매운맛</b><div class="explore-chips" data-filter-group="spicy">${[['all','상관없음'],['mild','맵지 않게'],['hot','매운맛']].map(([value,label]) => `<button type="button" data-filter-value="${value}" class="${appState.explore.spicy === value ? 'active' : ''}" aria-pressed="${appState.explore.spicy === value}">${label}</button>`).join('')}</div></div><details class="advanced-taste"><summary>먹는 방식 더 고르기 ${icon('chevron', 16)}</summary><div class="explore-chips" data-filter-group="style">${[['all','상관없음'],['soup','국물'],['dip','찍어 먹기'],['mix','비벼 먹기']].map(([value,label]) => `<button type="button" data-filter-value="${value}" class="${appState.explore.style === value ? 'active' : ''}" aria-pressed="${appState.explore.style === value}">${label}</button>`).join('')}</div></details></section>
+    <section class="explore-results"><div class="explore-section-head"><div><h2>조건에 맞는 가게</h2><span>${results.length}곳 · 프로토타입 예시 데이터</span></div><div class="result-view-tabs" role="tablist" aria-label="결과 보기"><button class="active" role="tab" aria-selected="true">목록</button><button type="button" data-open-results-map role="tab" aria-selected="false">지도</button></div></div><div class="explore-store-list">${results.length ? results.map(storeCardMarkup).join('') : EmptyState({ title: '조건에 맞는 가게가 없어요', description: '지역이나 맛 조건을 바꿔 다시 찾아보세요.', action: Button({ label: '조건 초기화', variant: 'secondary', attributes: { class: 'reset-filters' } }) })}</div></section>
+    <section class="explore-events"><div class="explore-section-head"><div><h2>이번 주 한정 메뉴와 콜라보</h2><span>날짜를 확인하고 방문하세요</span></div><button type="button" data-open-calendar>전체보기 ${icon('chevron', 16)}</button></div><div>${activeEventCatalog.slice(0,2).map((item) => `<button type="button" data-open-event="${item.id}"><img src="${item.image}" alt="${item.title} 예시 사진"><span><small>${dDayLabel(item.date)} · ${shortDate(item.date)} ${item.time}</small><strong>${item.title}</strong><em>서울 ${item.place}</em></span>${icon('chevron', 18)}</button>`).join('')}</div></section>
+    ${savedRecent.length ? `<section class="explore-recent"><div class="explore-section-head"><h2>최근 저장한 가게</h2><button type="button" data-open-saved>저장 전체보기 ${icon('chevron',16)}</button></div><div class="explore-store-list">${savedRecent.map(storeCardMarkup).join('')}</div></section>` : ''}`;
+}
+const persistExplore = () => persistState('rata_explore_filters', appState.explore);
+const applyExploreToMap = () => {
+  const allowed = new Set(matchingPlaces().map((place) => place.id));
+  if (appState.selectedPlaceId) allowed.add(appState.selectedPlaceId);
+  mapMarkers.forEach(({ place, setVisible }) => setVisible(allowed.has(place.id)));
+};
+exploreHome.addEventListener('click', (event) => {
+  const filter = event.target.closest('[data-filter-value]');
+  if (filter) {
+    const group = filter.closest('[data-filter-group]')?.dataset.filterGroup;
+    if (group) appState.explore[group] = filter.dataset.filterValue;
+    persistExplore();
+    renderExploreHome();
+    return;
+  }
+  if (event.target.closest('.reset-filters')) {
+    appState.explore = { area: 'all', broth: 'all', spicy: 'all', style: 'all', query: '', view: 'list' };
+    persistExplore();
+    renderExploreHome();
+    return;
+  }
+  const storeButton = event.target.closest('[data-open-store]');
+  if (storeButton) {
+    appState.homeScrollTop = document.querySelector('.experience-shell').scrollTop;
+    appState.selectedPlaceId = storeButton.dataset.openStore;
+    openPrototype('storeDetail');
+    return;
+  }
+  const saveButton = event.target.closest('[data-save-store]');
+  if (saveButton) {
+    const id = saveButton.dataset.saveStore;
+    const active = !appState.savedStoreIds.includes(id);
+    appState.savedStoreIds = active ? [...appState.savedStoreIds, id] : appState.savedStoreIds.filter((savedId) => savedId !== id);
+    persistState('rata_saved_stores', appState.savedStoreIds);
+    renderExploreHome();
+    showToast(active ? '가게를 이 기기에 저장했어요.' : '가게 저장을 취소했어요.');
+    return;
+  }
+  if (event.target.closest('[data-open-results-map]')) { appState.homeScrollTop = document.querySelector('.experience-shell').scrollTop; openPrototype('map'); return; }
+  if (event.target.closest('[data-open-calendar]')) { appState.homeScrollTop = document.querySelector('.experience-shell').scrollTop; openPrototype('calendar'); return; }
+  if (event.target.closest('[data-open-saved]')) { openPrototype('saved'); return; }
+  const eventButton = event.target.closest('[data-open-event]');
+  if (eventButton) {
+    appState.homeScrollTop = document.querySelector('.experience-shell').scrollTop;
+    appState.selectedEventId = eventButton.dataset.openEvent;
+    openPrototype('calendarDetail');
+  }
+});
+exploreHome.addEventListener('submit', (event) => {
+  if (!event.target.matches('.explore-search')) return;
+  event.preventDefault();
+  appState.explore.query = event.target.querySelector('input').value;
+  persistExplore();
+  renderExploreHome();
+});
+document.querySelector('.desktop-start')?.addEventListener('click', () => {
+  closePrototype();
+  document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
+});
+renderExploreHome();
 const mapMarkerMarkup = (place, selected = false) => `<button class="naver-ratav-marker${selected ? ' featured' : ''}" type="button" aria-label="${place.name}"><img src="/map-markers/marker-${selected ? 'selected' : 'default'}.png" alt="">${selected ? `<span>${place.name.replace(/^마포\s+/, '')}</span>` : ''}</button>`;
 const mapMarkerIcon = (maps, place, selected = false) => ({
   content: mapMarkerMarkup(place, selected),
   anchor: new maps.Point(selected ? 42 : 22, selected ? 77 : 36)
 });
-
-if (appState.tasteEdit?.matches) {
-  mapPlaces.forEach((place) => { if (appState.tasteEdit.matches[place.id]) place.match = appState.tasteEdit.matches[place.id]; });
-}
 
 function loadNaverMaps() {
   if (window.naver?.maps) return Promise.resolve(window.naver.maps);
@@ -1032,6 +1090,7 @@ async function initMap() {
       maps.Event.addListener(marker, 'click', () => selectMapPlace(place.id));
       return { marker, place, type: place.type, setVisible: (visible) => marker.setMap(visible ? rataMap : null) };
     });
+    applyExploreToMap();
     const resizeMap = () => maps.Event.trigger(rataMap, 'resize');
     new ResizeObserver(resizeMap).observe(mapElement);
     requestAnimationFrame(resizeMap);
@@ -1055,7 +1114,7 @@ function setSheetVisible(visible, expanded = false) {
   storeSheet.classList.toggle('expanded', visible && expanded);
   prototypeNav.classList.toggle('sheet-expanded', visible && expanded);
   storeSheet.setAttribute('aria-hidden', String(!visible));
-  if (visible) history.replaceState(null, '', `${location.pathname}?screen=mapSheet`);
+  if (visible && appState.selectedPlaceId) history.replaceState(null, '', `${location.pathname}?screen=${expanded ? 'storeDetail' : 'mapSheet'}&store=${encodeURIComponent(appState.selectedPlaceId)}`);
 }
 function setSheetState(state) {
   if (state === 'hidden') return setSheetVisible(false);
@@ -1085,15 +1144,30 @@ function closeStoreSheet() {
 }
 
 function renderSelectedStore() {
-  const place = mapPlaces.find((item) => item.id === appState.selectedPlaceId) || mapPlaces[0];
+  const place = mapPlaces.find((item) => item.id === appState.selectedPlaceId);
+  if (!place) return;
   document.querySelector('.store-name').textContent = place.name;
-  document.querySelector('.store-match').dataset.baseMatch = place.match;
+  document.querySelector('.store-match').textContent = '프로토타입 예시 데이터';
   document.querySelector('.store-address').textContent = place.address;
-  document.querySelector('.store-taste-chart').innerHTML = `${tasteGraph([4.5, 4, 3.5, 3, 1.8], place.taste)}<div class="taste-chart-legend"><span class="mine">내 취향</span><span class="store">${place.name}</span></div>`;
-  applySheetModeContent(place.match);
+  document.querySelector('.store-chips').innerHTML = place.tags.map((tag) => `<span>${tag}</span>`).join('');
+  document.querySelector('.store-menu').textContent = place.menu;
+  document.querySelector('.store-price').textContent = place.price ? `${place.price.toLocaleString('ko-KR')}원` : '가격 확인 필요';
+  document.querySelector('.store-reason').textContent = recommendationCopy(place);
+  document.querySelector('.store-caution').textContent = place.caution;
+  document.querySelector('.store-technical-copy').textContent = `${place.broth} · ${place.tags.join(' · ')}. 실제 메뉴 정보 연동 전의 분류 예시예요.`;
+  const directions = document.querySelector('.store-directions');
+  directions.href = `https://map.naver.com/p/search/${encodeURIComponent(place.name)}`;
+  directions.setAttribute('aria-label', `${place.name} 네이버 지도에서 길찾기`);
+  const reviews = ratalkPosts.filter((post) => post.place === place.name).slice(0, 3);
+  document.querySelector('.store-review-list').innerHTML = reviews.length
+    ? reviews.map((post) => `<article><strong>${post.title}</strong><p>${post.copy}</p><small>${post.author} · ${post.time} · 방문 날짜·대기 정보 미입력</small></article>`).join('')
+    : `<p>아직 연결된 방문 후기가 없어요.</p>`;
   document.querySelectorAll('.store-gallery img').forEach((image, index) => {
-    image.src = [place.image, ramenPhotos.clear, ramenPhotos.mixed][index];
-    image.alt = `${place.name} 메뉴 사진 ${index + 1}`;
+    image.hidden = index > 0;
+    if (index === 0) {
+      image.src = place.image;
+      image.alt = `${place.menu} 유형 예시 사진`;
+    }
   });
   const saved = appState.savedStoreIds.includes(place.id);
   const saveButton = document.querySelector('.sheet-save');
@@ -1120,9 +1194,13 @@ function selectMapPlace(placeId) {
 }
 
 function showStoreSheet() {
+  if (!appState.selectedPlaceId) return;
   renderSelectedStore();
   setSheetVisible(false);
-  requestAnimationFrame(() => requestAnimationFrame(() => setSheetVisible(true)));
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    setSheetVisible(true);
+    document.querySelector('.sheet-handle')?.focus({ preventScroll: true });
+  }));
 }
 
 function openTasteEditor() {
@@ -1201,19 +1279,33 @@ function renderSavedView() {
   liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>저장</h1></header><nav class="my-tabs"><button class="${savedView === 'upcoming' ? 'active' : ''}" data-saved-view="upcoming">다가오는 일정 ${upcomingCount}</button><button class="${savedView === 'past' ? 'active' : ''}" data-saved-view="past">지난 일정 ${pastCount}</button></nav><div class="my-filterbar"><button data-saved-sort>${savedSort === 'near' ? '날짜 가까운 순' : '날짜 먼 순'} ${icon('chevron', 16)}</button><button class="${savedCollabOnly ? 'active' : ''}" data-collab-filter aria-pressed="${savedCollabOnly}">콜라보만</button></div><section class="my-saved-list">${list}</section>`;
 }
 
+function renderUnifiedSaved() {
+  const stores = mapPlaces.filter((place) => appState.savedStoreIds.includes(place.id));
+  const schedules = savedScheduleItems().sort((a, b) => a.date - b.date);
+  const empty = !stores.length && !schedules.length;
+  liveMyScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '저장' })}
+    <p class="saved-scope-note">이 브라우저에 저장돼요. 로그인 동기화는 아직 연결되지 않았어요.</p>
+    ${empty ? EmptyState({ title: '저장한 항목이 없어요', description: '탐색에서 가게를 저장하면 여기서 다시 찾을 수 있어요.', action: Button({ label: '가게 탐색하기', attributes: { 'data-my-route': 'home' } }) }) : ''}
+    ${stores.length ? `<section class="unified-saved-section"><div class="explore-section-head"><h2>가게 ${stores.length}</h2></div><div class="explore-store-list">${stores.map(storeCardMarkup).join('')}</div></section>` : ''}
+    ${schedules.length ? `<section class="unified-saved-section"><div class="explore-section-head"><h2>일정 ${schedules.length}</h2></div><div class="saved-event-list">${savedRows(schedules)}</div></section>` : ''}`;
+}
+
 function renderMyView(name) {
-  if (name === 'my' || name === 'myLogout') {
+  if (name === 'saved') {
+    renderUnifiedSaved();
+  } else if (name === 'my' || name === 'myLogout') {
     const loggedOut = name === 'myLogout' || !appState.loggedIn;
     const upcomingSaved = savedScheduleItems().filter((item) => item.date >= today);
     const savedCount = upcomingSaved.length;
-    const tasteTitle = appState.mode === 'rata' ? '고농도 돈백탕에<br>극태 저가수면을<br>좋아해요' : '진한 국물에<br>굵은 면, 츠케멘을<br>좋아해요';
-    const tasteSummary = '<span>진한 국물 4.5 · 굵은 면 4.0</span><span>감칠맛 3.5 · 기름기 3.0</span><span>매운맛 1.8</span>';
+    const storedPreferences = readStored(ONBOARDING_CHOICES_KEY, null);
+    const tasteTitle = storedPreferences ? '내가 직접 고른<br>평소 라멘 취향' : '평소 취향을 아직<br>저장하지 않았어요';
+    const tasteSummary = storedPreferences ? '<span>취향 다시 고르기에서 언제든 바꿀 수 있어요.</span>' : '<span>취향 질문에 답하면 여기에 저장돼요.</span>';
     const platePhotos = myPlatePhotos.slice(0, 4);
     liveMyScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '마이', action: `<button class="screen-title-action" type="button" data-my-route="settings" aria-label="설정">${icon('settings', 24)}</button>` })}
-      ${loggedOut ? `<section class="my-login-prompt"><img src="/brand/R_logo_RATA.svg" alt=""><h2>로그인하고 내 취향을<br>저장해보세요</h2><div>${Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } })}${Button({ label: '회원가입', variant: 'secondary', attributes: { 'data-my-route': 'join' } })}</div></section>` : `<section class="my-profile"><span><img src="/brand/R_logo_RATA.svg" alt=""></span><div><h2>${appState.userName} <em>${appState.mode === 'rata' ? '라타' : '라이트'}</em></h2><p>한 그릇의 기록이, 취향이 된다.</p></div></section>`}
-      <section class="my-taste ${loggedOut ? 'locked' : ''}"><div><small>내 취향</small><h2>${loggedOut ? '로그인하면 내 취향이 보여요' : tasteTitle}</h2>${loggedOut ? '' : `<p>${tasteSummary}</p>`}</div>${tasteGraph()}</section>
+      ${loggedOut ? `<section class="my-login-prompt"><img src="/brand/R_logo_RATA.svg" alt=""><h2>로그인하면 여러 기기에서<br>기록을 이어갈 수 있어요</h2><p>현재 저장과 탐색 조건은 이 브라우저에 유지돼요.</p><div>${Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } })}${Button({ label: '회원가입', variant: 'secondary', attributes: { 'data-my-route': 'join' } })}</div></section>` : `<section class="my-profile"><span><img src="/brand/R_logo_RATA.svg" alt=""></span><div><h2>${appState.userName}</h2><p>저장과 기록을 한곳에서 관리해요.</p></div></section>`}
+      <section class="my-taste"><div><small>평소 취향</small><h2>${tasteTitle}</h2><p>${tasteSummary}</p><button type="button" data-restart-onboarding>평소 취향 고르기</button></div></section>
       ${loggedOut ? '' : `<section class="my-block"><header><b>저장됨 ${savedCount}</b><button type="button" data-my-route="mySaved">전체보기 ${icon('chevron', 18)}</button></header>${savedRows(upcomingSaved)}</section>`}
-      <section class="my-block my-plates"><header><b>내 한 그릇 ${loggedOut ? '' : platePhotos.length}</b><button type="button" data-my-route="myPlate">전체보기 ${icon('chevron', 18)}</button></header><div>${platePhotos.map((photo,index)=>`<button type="button" data-my-route="myPlate" aria-label="기록한 라멘 ${index + 1} 보기"><img src="${photo.src}" alt="${photo.alt}"></button>`).join('')}</div></section>`;
+      ${loggedOut ? '' : `<section class="my-block my-plates"><header><b>내 한 그릇 ${platePhotos.length}</b><button type="button" data-my-route="myPlate">전체보기 ${icon('chevron', 18)}</button></header><div>${platePhotos.map((photo,index)=>`<button type="button" data-my-route="myPlate" aria-label="기록한 라멘 ${index + 1} 보기"><img src="${photo.src}" alt="${photo.alt}"></button>`).join('')}</div></section>`}`;
   } else if (name === 'mySaved') {
     if (!appState.loggedIn) {
       liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>저장</h1></header>${EmptyState({ title: '로그인이 필요해요', description: '로그인하면 저장한 일정과 매장을 볼 수 있어요.', action: Button({ label: '로그인', attributes: { 'data-my-route': 'loginVisual' } }) })}`;
@@ -1221,22 +1313,30 @@ function renderMyView(name) {
   } else if (name === 'myPlate') {
     liveMyScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-my-route="my" aria-label="뒤로">${icon('back', 24)}</button><h1>내 한 그릇</h1></header><nav class="my-tabs"><button class="active">전체</button><button>별점남긴 그릇 8</button></nav><p class="plate-summary">다녀온 매장 <b>8</b>　평균 별점 <b>3.9</b></p><div class="plate-grid">${myPlatePhotos.map((photo,i)=>`<button type="button" data-my-route="ratalkDetail"><img src="${photo.src}" alt="${photo.alt}">${i%3===0?'<span>4.5</span>':''}</button>`).join('')}</div><button class="plate-add" type="button" data-my-route="writePhoto" aria-label="한 그릇 추가">${icon('edit', 24)}</button>`;
   } else {
-    liveMyScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '설정', action: `<button class="screen-title-action" type="button" data-my-route="my" aria-label="마이로 돌아가기">${icon('back', 24)}</button>` })}<section class="settings-list"><small>모드</small><div class="settings-current-mode"><span>현재 모드</span><strong>${appState.mode === 'rata' ? '라타' : '라이트'}</strong></div><button type="button" data-open-taste-editor>내 취향 편집 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button" data-restart-onboarding>취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>이메일</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox" checked><i></i></label><label>내 글의 댓글 알림 <input type="checkbox"><i></i></label><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
+    liveMyScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '설정', action: `<button class="screen-title-action" type="button" data-my-route="my" aria-label="마이로 돌아가기">${icon('back', 24)}</button>` })}<section class="settings-list"><small>취향</small><button type="button" data-restart-onboarding>평소 취향 다시 고르기 <b>${icon('chevron', 20)}</b></button><small>계정</small><button type="button" data-profile-edit>프로필 편집 <b>${icon('chevron', 20)}</b></button><button type="button">로그인 방법 <em>${appState.loggedIn ? '이메일' : '로그인 안 함'}</em></button><small>알림</small><label>저장한 일정 알림 <input type="checkbox"><i></i></label><p class="settings-help">알림 서버는 아직 연결되지 않았어요.</p><small>도움말</small><button type="button" data-inquiry>문의하기 <b>${icon('chevron', 20)}</b></button><button type="button" data-legal>이용약관 · 개인정보 <b>${icon('chevron', 20)}</b></button></section>${appState.loggedIn ? `<footer class="settings-actions">${Button({ label: '로그아웃', variant: 'secondary', attributes: { 'data-open-dialog': 'logout-dialog' } })}<button type="button" data-open-dialog="delete-dialog">회원탈퇴</button></footer>` : ''}`;
     if (name === 'settingsLogout') requestAnimationFrame(() => openDialog('logout-dialog'));
   }
   liveMyScreen.scrollTop = 0;
-  syncModeControls();
   setupSnapCarousel(liveMyScreen.querySelector('.my-plates > div'), { itemSelector: ':scope > button' });
 }
 
+let dialogReturnFocus = null;
 function openDialog(id) {
   const dialog = document.getElementById(id);
+  dialogReturnFocus = document.activeElement;
   dialog.hidden = false;
-  requestAnimationFrame(() => dialog.classList.add('visible'));
+  requestAnimationFrame(() => {
+    dialog.classList.add('visible');
+    dialog.querySelector('[data-dialog-confirm], [data-dialog-close]')?.focus();
+  });
 }
 function closeDialog(dialog) {
   dialog.classList.remove('visible');
-  window.setTimeout(() => { dialog.hidden = true; }, 180);
+  window.setTimeout(() => {
+    dialog.hidden = true;
+    dialogReturnFocus?.focus?.();
+    dialogReturnFocus = null;
+  }, 180);
 }
 function ensureLoggedIn() {
   if (appState.loggedIn) return true;
@@ -1261,15 +1361,24 @@ function renderCalendarView(name) {
     const pastMarkup = Object.entries(groups).map(([key, items]) => `<header class="month-title"><h2>${Number(key.split('-')[1])}월</h2><span>${items.length}개 일정</span></header>${items.map((item)=>`<article data-calendar-id="${item.id}"><img src="${item.image}" alt="${item.title}"><button type="button" data-calendar-route="calendarDetail"><span><b>${item.type === 'collab' ? '콜라보' : '한정메뉴'}</b> 종료</span><strong>${item.title}</strong><small>${shortDate(item.date)} | 서울 · ${item.place}</small></button><button type="button" class="calendar-save" aria-label="저장" aria-pressed="false">${icon('bookmark',20)}</button></article>`).join('')}`).join('');
     liveCalendarScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-calendar-route="calendar" aria-label="뒤로">${icon('back', 24)}</button><h1>지난 일정</h1></header><nav class="month-chips"><button>${today.getFullYear()} ${icon('chevron', 16)}</button></nav><section class="past-list">${pastMarkup}</section>`;
   } else {
-    const item = eventCatalog.find((event) => event.id === appState.selectedEventId) || eventCatalog[0];
+    const item = eventCatalog.find((event) => event.id === appState.selectedEventId);
+    if (!item) {
+      liveCalendarScreen.innerHTML = `${screenChrome()}<header class="my-pagebar"><button type="button" data-calendar-route="calendar" aria-label="일정으로 돌아가기">${icon('back',24)}</button><h1>일정을 찾을 수 없어요</h1></header>${EmptyState({ title: '잘못된 일정 주소예요', description: '일정 목록에서 다시 선택해주세요.', action: Button({ label: '일정 목록으로', attributes: { 'data-calendar-route': 'calendar' } }) })}`;
+      return;
+    }
     const detailSaved = appState.savedEventIds.includes(item.id);
-    liveCalendarScreen.innerHTML = `<article class="calendar-detail" data-calendar-id="${item.id}"><header style="--detail:url('${item.image}')">${screenChrome()}<button type="button" data-calendar-route="calendar" aria-label="뒤로">${icon('back', 24)}</button><button type="button" class="calendar-save ${detailSaved ? 'active' : ''}" aria-label="저장" aria-pressed="${detailSaved}">${icon('bookmark',24)}</button></header><section><span class="pill dark">${item.shop}</span><h1>${item.title}</h1><h2>${shortDate(item.date)} ${item.time}</h2><p>서울 ${item.place} · ${item.detail}</p><h3>대표 메뉴</h3><dl><div><dt>${item.title.includes('츠케멘') ? '특제 츠케멘' : '오늘의 한정 라멘'}</dt><dd>16,000 원</dd></div><div><dt>추가 토핑</dt><dd>3,000 원</dd></div></dl><div class="calendar-detail-actions">${Button({label:'가게 지도에서 보기',variant:'secondary',attributes:{'data-calendar-route':'map'}})}${Button({label:`${icon('bookmark', 20)} <span>${detailSaved ? '저장됨' : '일정 저장하기'}</span>`,attributes:{'data-save-detail':true,'aria-pressed':String(detailSaved)}})}</div></section></article>`;
+    const linkedStore = mapPlaces.find((place) => place.id === item.storeId);
+    liveCalendarScreen.innerHTML = `<article class="calendar-detail" data-calendar-id="${item.id}"><header style="--detail:url('${item.image}')">${screenChrome()}<button type="button" data-calendar-route="calendar" aria-label="뒤로">${icon('back', 24)}</button><button type="button" class="calendar-save ${detailSaved ? 'active' : ''}" aria-label="저장" aria-pressed="${detailSaved}">${icon('bookmark',24)}</button></header><section><span class="pill dark">${item.shop}</span><h1>${item.title}</h1><h2>${shortDate(item.date)} ${item.time}</h2><p>서울 ${item.place} · ${item.detail}</p><h3>방문 정보</h3><dl><div><dt>장소</dt><dd>${linkedStore?.name || '장소 확인 필요'}</dd></div><div><dt>행사 메뉴·가격</dt><dd>확인 필요</dd></div><div><dt>예약·수량 제한</dt><dd>확인 필요</dd></div><div><dt>정보 출처</dt><dd>${item.source}</dd></div><div><dt>마지막 확인</dt><dd>${item.updatedAt}</dd></div></dl><p class="data-note">실제 행사 공지 연동 전의 예시 일정입니다. 방문 전 공식 공지를 확인해주세요.</p><div class="calendar-detail-actions">${linkedStore ? Button({label:`${linkedStore.name} 지도에서 보기`,variant:'secondary',attributes:{'data-calendar-store':linkedStore.id}}) : ''}${Button({label:`${icon('bookmark', 20)} <span>${detailSaved ? '저장됨' : '일정 저장하기'}</span>`,attributes:{'data-save-detail':true,'aria-pressed':String(detailSaved)}})}</div></section></article>`;
   }
-  syncModeControls();
   setupSnapCarousel(liveCalendarScreen.querySelector('.calendar-heroes'), { itemSelector: ':scope > button' });
 }
 
 liveCalendarScreen.addEventListener('click',(event)=>{
+  const mapStore = event.target.closest('[data-calendar-store]');
+  if (mapStore) {
+    appState.selectedPlaceId = mapStore.dataset.calendarStore;
+    return openPrototype('storeDetail');
+  }
   const routeTarget = event.target.closest('[data-calendar-route]');
   const route = routeTarget?.dataset.calendarRoute;
   if (route) {
@@ -1279,7 +1388,6 @@ liveCalendarScreen.addEventListener('click',(event)=>{
   }
   const save=event.target.closest('.calendar-save,[data-save-detail]');
   if(save){
-    if (!ensureLoggedIn()) return;
     const id = save.closest('[data-calendar-id]')?.dataset.calendarId || appState.selectedEventId;
     const active = !appState.savedEventIds.includes(id);
     appState.savedEventIds = active ? [...appState.savedEventIds, id] : appState.savedEventIds.filter((savedId) => savedId !== id);
@@ -1309,7 +1417,7 @@ function renderRatalkSub(name) {
   liveRatalkSub.innerHTML = `${screenChrome()}<header class="talk-write-head"><button type="button" data-talk-route="ratalk" aria-label="닫기">${icon('close', 24)}</button><h1>글쓰기</h1></header><nav class="talk-write-tabs ${appState.mode === 'rata' ? 'rata' : 'light'}"><button data-talk-route="writePhoto" class="${story ? '' : 'active'}">한 그릇</button><button data-talk-route="writeText" class="${story ? 'active' : ''}">이야기</button></nav><form class="talk-write-form" data-write-kind="${story ? 'story' : 'plate'}">${story ? `<label>태그 (선택)<div class="tag-row"><button type="button">매장 추가</button><button type="button">콜라보 추가</button><button type="button">일정 추가</button><button type="button">질문 추가</button></div></label><label>제목<input name="title" value="${appState.writeDraft.title}" placeholder="제목을 입력해주세요."></label>` : `<label>사진 (선택)<div class="photo-picker"><label class="photo-upload">${icon('photo', 24)}<span>사진 선택</span><input type="file" accept="image/*" hidden></label>${appState.selectedPhoto ? `<img src="${appState.selectedPhoto}" alt="선택한 라멘 사진">` : ''}</div></label><label>매장 (필수)<button type="button" class="store-pick" data-talk-route="writePicker"><span><b>${selectedStore.name}</b><small>${selectedStore.address}</small></span><i>변경</i></button></label><div class="write-stars" role="radiogroup" aria-label="별점">${RatingStars({ score: appState.rating, interactive: true })}<b>${appState.rating.toFixed(1)}</b></div>`}<label>내용<textarea name="body" maxlength="500" placeholder="라멘과 매장에 대한 이야기를 남겨주세요.">${appState.writeDraft.body}</textarea><span class="write-error" role="alert" ${writeValid ? 'hidden' : ''}>${appState.writeDraft.body.trim() ? '별점을 선택해주세요.' : '내용을 입력해주세요.'}</span></label>${Button({label:'글 올리기',type:'submit',disabled:!writeValid})}</form>${name === 'writePicker' ? `<aside class="write-picker"><i></i><h2>어느 매장에 다녀오셨나요?</h2><input type="search" placeholder="매장 이름 검색" aria-label="매장 검색"><div class="write-store-options">${mapPlaces.map((place) => `<button type="button" data-select-store="${place.id}"><b>${place.name}</b><span>${place.address} · ${place.tags[0]} ${place.id === selectedStore.id ? '· 선택됨' : ''}</span></button>`).join('')}</div></aside>` : ''}`;
   updateRatingStars();
 }
-function renderState(name){const action=Button({label:'다시 시도',attributes:{onclick:'location.reload()'}});const body=name==='stateLoading'?Skeleton({rows:5}):name==='stateEmpty'?EmptyState({title:'아직 저장한 내용이 없어요',description:'마음에 드는 일정과 매장을 저장해보세요.'}):name==='stateError'?ErrorState({description:'네트워크 연결을 확인하고 다시 시도해주세요.',action}):name==='stateMaintenance'?ErrorState({title:'잠시 점검 중이에요',description:'더 안정적인 서비스를 위해 준비하고 있어요.'}):ErrorState({title:'업데이트가 필요해요',description:'새 버전으로 업데이트한 뒤 계속 이용해주세요.',action:Button({label:'업데이트하기',attributes:{onclick:'location.reload()'}})});liveStateScreen.innerHTML=`${screenChrome()}<header class="my-pagebar"><h1>RATA</h1></header><main class="state-content">${body}</main>`;}
+function renderState(name){const action=Button({label:'다시 시도',attributes:{onclick:'location.reload()'}});const routeErrorAction=Button({label:'탐색으로 돌아가기',attributes:{'data-return-explore':true}});const body=name==='stateLoading'?Skeleton({rows:5}):name==='stateEmpty'?EmptyState({title:'아직 저장한 내용이 없어요',description:'마음에 드는 일정과 매장을 저장해보세요.'}):name==='stateError'?ErrorState({title:appState.routeError?.title || '불러오지 못했어요',description:appState.routeError?.description || '네트워크 연결을 확인하고 다시 시도해주세요.',action:appState.routeError ? routeErrorAction : action}):name==='stateMaintenance'?ErrorState({title:'잠시 점검 중이에요',description:'더 안정적인 서비스를 위해 준비하고 있어요.'}):ErrorState({title:'업데이트가 필요해요',description:'새 버전으로 업데이트한 뒤 계속 이용해주세요.',action:Button({label:'업데이트하기',attributes:{onclick:'location.reload()'}})});liveStateScreen.innerHTML=`${screenChrome()}<header class="my-pagebar"><h1>RATA</h1></header><main class="state-content">${body}</main>`;}
 function updateRatingStars() {
   document.querySelectorAll('.write-stars .rating-star').forEach((button) => {
     const star = Number(button.dataset.star);
@@ -1322,6 +1430,12 @@ function updateRatingStars() {
   if (value) value.textContent = appState.rating.toFixed(1);
   updateWriteSubmitState();
 }
+liveStateScreen.addEventListener('click', (event) => {
+  if (event.target.closest('[data-return-explore]')) {
+    appState.routeError = null;
+    closePrototype();
+  }
+});
 function updateWriteSubmitState(showError = false) {
   const form = liveRatalkSub.querySelector('.talk-write-form');
   if (!form) return false;
@@ -1425,6 +1539,13 @@ liveRatalkSub.addEventListener('submit', (event) => {
   showToast('글을 올렸어요.');
 });
 
+const routeUrl = (name) => {
+  const params = new URLSearchParams({ screen: name });
+  if ((mapRoutes.has(name) || name === 'storeDetail') && appState.selectedPlaceId) params.set('store', appState.selectedPlaceId);
+  if (name === 'calendarDetail' && appState.selectedEventId) params.set('event', appState.selectedEventId);
+  if (name === 'ratalkDetail' && appState.selectedPostId) params.set('post', String(appState.selectedPostId));
+  return `${location.pathname}?${params}`;
+};
 function openPrototype(name) {
   const screen = prototypeScreens[name];
   if (!screen) return;
@@ -1432,7 +1553,7 @@ function openPrototype(name) {
   prototypeScreen.setAttribute('aria-hidden', 'false');
   prototypeScreen.inert = false;
   document.body.classList.add('prototype-open');
-  document.querySelectorAll('.hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
+  document.querySelectorAll('.explore-home, .hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
     element.setAttribute('aria-hidden', 'true');
     element.inert = true;
   });
@@ -1470,9 +1591,16 @@ function openPrototype(name) {
     if (name.startsWith('mapPrefs')) { setSheetVisible(false); openTasteEditor(); }
     else if (name === 'map') { setSheetVisible(false); closeTasteEditor(); }
     else if (name === 'mapSheet') showStoreSheet();
+    else if (name === 'storeDetail') { renderSelectedStore(); setSheetVisible(true, true); }
     else setSheetVisible(true, true);
     initMap().then(() => requestAnimationFrame(() => {
       window.naver.maps.Event.trigger(rataMap, 'resize');
+      applyExploreToMap();
+      if (appState.selectedPlaceId) {
+        refreshMapMarkerSelection();
+        const selected = mapPlaces.find((place) => place.id === appState.selectedPlaceId);
+        if (selected) rataMap.panTo(new window.naver.maps.LatLng(selected.lat, selected.lng));
+      }
     })).catch(() => {});
   } else if (isLiveTalk) {
     document.querySelector('.ratalk-feed').scrollTo({ top: 0 });
@@ -1497,14 +1625,14 @@ function openPrototype(name) {
   document.querySelector('.experience-shell').scrollTo({ top: 0 });
   prototypeScreen.scrollTo({ top: 0 });
   resetFrameChrome(name);
-  history.replaceState(null, '', `${location.pathname}?screen=${name}`);
+  history.replaceState(null, '', routeUrl(name));
 }
 
 function closePrototype() {
   prototypeScreen.setAttribute('aria-hidden', 'true');
   prototypeScreen.inert = true;
   document.body.classList.remove('prototype-open');
-  document.querySelectorAll('.hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
+  document.querySelectorAll('.explore-home, .hero, .phone-shell > .divider, .phone-shell > .section, .phone-shell > .light-only, .phone-shell > .rata-only, .bottom-nav').forEach((element) => {
     element.removeAttribute('aria-hidden');
     element.inert = false;
   });
@@ -1520,7 +1648,7 @@ function closePrototype() {
   [liveMapScreen, liveRatalkScreen, liveRatalkSub, liveStateScreen, liveCalendarScreen, liveMyScreen, liveAuthScreen].forEach((view) => { view.inert = true; });
   prototypeCanvas.inert = false;
   syncRouteNavigation('home');
-  document.querySelector('.experience-shell').scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelector('.experience-shell').scrollTo({ top: appState.homeScrollTop || 0, behavior: 'smooth' });
   resetFrameChrome('home');
   history.replaceState(null, '', `${location.pathname}?home`);
 }
@@ -1537,7 +1665,26 @@ liveMyScreen.addEventListener('click', (event) => {
     return;
   }
   const route = event.target.closest('[data-my-route]')?.dataset.myRoute;
-  if (route) return openPrototype(route);
+  if (route) return route === 'home' ? closePrototype() : openPrototype(route);
+  const storeLink = event.target.closest('[data-open-store]');
+  if (storeLink) {
+    appState.selectedPlaceId = storeLink.dataset.openStore;
+    return openPrototype('storeDetail');
+  }
+  const storeSave = event.target.closest('[data-save-store]');
+  if (storeSave) {
+    const id = storeSave.dataset.saveStore;
+    appState.savedStoreIds = appState.savedStoreIds.filter((savedId) => savedId !== id);
+    persistState('rata_saved_stores', appState.savedStoreIds);
+    renderUnifiedSaved();
+    showToast('가게 저장을 취소했어요.');
+    return;
+  }
+  const savedEvent = event.target.closest('.my-saved-row[data-saved-id]');
+  if (savedEvent && !event.target.closest('.saved-bookmark')) {
+    appState.selectedEventId = savedEvent.dataset.savedId;
+    return openPrototype('calendarDetail');
+  }
   const savedViewButton = event.target.closest('[data-saved-view]');
   if (savedViewButton) {
     savedView = savedViewButton.dataset.savedView;
@@ -1582,7 +1729,8 @@ liveMyScreen.addEventListener('click', (event) => {
     const active = !appState.savedEventIds.includes(id);
     appState.savedEventIds = active ? [...appState.savedEventIds, id] : appState.savedEventIds.filter((savedId) => savedId !== id);
     persistState('rata_saved_events', appState.savedEventIds);
-    renderSavedView();
+    if (prototypeScreen.dataset.screen === 'saved') renderUnifiedSaved();
+    else renderSavedView();
     showToast(active ? '일정을 저장했어요.' : '저장을 취소했어요.');
   }
 });
@@ -1641,15 +1789,12 @@ document.querySelector('.app-header .logo').addEventListener('click', (event) =>
   event.preventDefault();
   closePrototype();
 });
-document.querySelector('.taste-edit-btn').addEventListener('click', openTasteEditor);
+document.querySelector('.taste-edit-btn')?.addEventListener('click', openTasteEditor);
 document.querySelector('.taste-close').addEventListener('click', () => closeTasteEditor());
 document.querySelector('.taste-backdrop').addEventListener('click', () => closeTasteEditor());
 document.querySelector('.taste-save').addEventListener('click', () => {
-  const selectedCount = document.querySelectorAll('.taste-pills button.selected').length;
-  mapPlaces.forEach((place, index) => { place.match = Math.min(96, 64 + ((selectedCount * 5 + index * 3) % 31)); });
   appState.tasteEdit = {
-    choices: [...document.querySelectorAll('.taste-pills button.selected')].map((button) => button.textContent.trim()),
-    matches: Object.fromEntries(mapPlaces.map((place) => [place.id, place.match]))
+    choices: [...document.querySelectorAll('.taste-pills button.selected')].map((button) => button.textContent.trim())
   };
   persistState('rata_taste_edit', appState.tasteEdit);
   renderSelectedStore();
@@ -1666,24 +1811,28 @@ document.querySelectorAll('[data-map-filter]').forEach((button) => button.addEve
   document.querySelectorAll('[data-map-filter]').forEach((item) => item.classList.remove('active'));
   button.classList.add('active');
   const filter = button.dataset.mapFilter;
-  mapMarkers.forEach(({ type, setVisible }) => {
-    const visible = filter === 'all' || filter === type;
-    setVisible(visible);
-  });
+  if (filter === 'rich' || filter === 'clear') appState.explore.broth = filter;
+  persistExplore();
+  renderExploreHome();
+  applyExploreToMap();
 }));
+document.querySelector('[data-map-back]').addEventListener('click', closePrototype);
 document.querySelector('.sheet-close').addEventListener('click', () => {
   closeStoreSheet();
 });
 document.querySelector('.sheet-save').addEventListener('click', (event) => {
-  if (!ensureLoggedIn()) return;
   const id = appState.selectedPlaceId;
   const active = !appState.savedStoreIds.includes(id);
   appState.savedStoreIds = active ? [...appState.savedStoreIds, id] : appState.savedStoreIds.filter((savedId) => savedId !== id);
   persistState('rata_saved_stores', appState.savedStoreIds);
   renderSelectedStore();
-  showToast(active ? '매장을 저장했어요' : '저장을 취소했어요');
+  renderExploreHome();
+  showToast(active ? '가게를 이 기기에 저장했어요.' : '저장을 취소했어요.');
 });
-document.querySelector('.sheet-more').addEventListener('click', () => setSheetState('full'));
+document.querySelector('.sheet-more').addEventListener('click', () => {
+  setSheetState('full');
+  if (appState.selectedPlaceId) history.replaceState(null, '', `${location.pathname}?screen=storeDetail&store=${encodeURIComponent(appState.selectedPlaceId)}`);
+});
 document.querySelector('.sheet-handle').addEventListener('click', () => {
   if (sheetDrag.didMove) {
     sheetDrag.didMove = false;
@@ -1876,6 +2025,8 @@ document.addEventListener('click', (event) => {
 });
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
+    const dialog = [...document.querySelectorAll('.ui-dialog')].find((item) => !item.hidden);
+    if (dialog) closeDialog(dialog);
     talkSortMenu.hidden = true;
     talkPlaceMenu.hidden = true;
     talkSortButton.setAttribute('aria-expanded', 'false');
@@ -2126,13 +2277,40 @@ document.querySelectorAll('.later-btn').forEach(button => button.addEventListene
 document.querySelector('.start-btn').addEventListener('click', () => enterHome(true));
 enableSwipe(document.querySelector('.onboarding-window'), () => setOnboardingStep(onboardingStep + 1), () => setOnboardingStep(onboardingStep - 1));
 
+let requestedScreen = query.get('screen');
+if (['mapSheet', 'storeDetail'].includes(requestedScreen) && !query.has('store')) {
+  appState.routeError = { title: '가게를 선택해주세요', description: '탐색 목록에서 가게를 고르면 상세 정보를 볼 수 있어요.' };
+  requestedScreen = 'stateError';
+}
+if (requestedScreen && mapRoutes.has(requestedScreen) && query.has('store')) {
+  const requestedStore = query.get('store');
+  if (mapPlaces.some((place) => place.id === requestedStore)) appState.selectedPlaceId = requestedStore;
+  else {
+    appState.routeError = { title: '가게를 찾을 수 없어요', description: '주소의 가게 ID가 올바르지 않아요. 탐색에서 다시 선택해주세요.' };
+    requestedScreen = 'stateError';
+  }
+}
+if (requestedScreen === 'calendarDetail') {
+  const requestedEvent = query.get('event');
+  if (eventCatalog.some((item) => item.id === requestedEvent)) appState.selectedEventId = requestedEvent;
+  else {
+    appState.routeError = { title: '일정을 찾을 수 없어요', description: '주소의 일정 ID가 올바르지 않아요. 일정 목록에서 다시 선택해주세요.' };
+    requestedScreen = 'stateError';
+  }
+}
+if (requestedScreen === 'ratalkDetail' && query.has('post')) {
+  const requestedPost = Number(query.get('post'));
+  if (ratalkPosts.some((post) => post.id === requestedPost)) appState.selectedPostId = requestedPost;
+  else requestedScreen = 'stateError';
+}
+
 if (query.has('home')) {
   markSplashSeen();
   enterHome(false);
-} else if (query.has('screen') && prototypeScreens[query.get('screen')]) {
+} else if (requestedScreen && prototypeScreens[requestedScreen]) {
   markSplashSeen();
   enterHome(false);
-  openPrototype(query.get('screen'));
+  openPrototype(requestedScreen);
 } else if (query.has('skipSplash')) {
   markSplashSeen();
   if (hasOnboarded()) enterHome(false);
