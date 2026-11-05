@@ -189,12 +189,22 @@ heroSlides = activeEventCatalog.slice(0, 4).map((item, index) => ({
   image: item.image
 }));
 const dDayLabel = (date) => { const diff = Math.round((date - today) / 86400000); return diff === 0 ? 'TODAY' : `D-${diff}`; };
+// D-Day urgency: the closer the date, the stronger the badge (live > urgent > soon > week > far).
+const ddayTier = (diff) => (diff <= 0 ? 'live' : diff === 1 ? 'urgent' : diff <= 3 ? 'soon' : diff <= 7 ? 'week' : 'far');
+const eventTypeLabels = { collab: '콜라보', popup: '팝업', limited: '한정' };
 const events = eventCatalog.filter((item) => item.date >= weekDates[0] && item.date <= weekDates[6]).map((item, order) => ({
-  ...item, date: dateKey(item.date), order, dday: dDayLabel(item.date),
+  ...item, date: dateKey(item.date), order, dday: dDayLabel(item.date), tier: ddayTier(Math.round((item.date - today) / 86400000)),
   time: `${shortDate(item.date)} ${item.time} · 서울 ${item.place}`
 }));
 
+// Sample magazine prices (Seoul vs. Tokyo) and topping prices. Replace with real data later.
+const magazineExtras = [
+  { price: '12,000원~', seoul: '12,000원', tokyo: '¥1,000', tokyoKrw: '약 9,300원', toppings: [['아지타마', '+1,000원'], ['차슈 추가', '+2,000원'], ['파 듬뿍', '+500원']] },
+  { price: '13,000원~', seoul: '13,000원', tokyo: '¥1,150', tokyoKrw: '약 10,700원', toppings: [['반숙란', '+1,000원'], ['김 추가', '+500원'], ['대파 기름', '+500원']] },
+  { price: '11,500원~', seoul: '11,500원', tokyo: '¥980', tokyoKrw: '약 9,100원', toppings: [['차슈 2장', '+2,500원'], ['멘마', '+1,000원'], ['밥 추가', '+1,000원']] }
+];
 const news = activeEventCatalog.slice(0, 3).map((item, index) => ({
+  extra: magazineExtras[index % magazineExtras.length],
   tag: index === 0 ? 'NOW' : 'SOON',
   place: `${item.shop} · ${item.place}`,
   title: item.title,
@@ -203,12 +213,12 @@ const news = activeEventCatalog.slice(0, 3).map((item, index) => ({
 }));
 
 const rankings = [
-  ['라멘바 시코우', '성수', '깔끔하고 담백한 · 깊고 시원한 맛', '1,798'],
-  ['하쿠텐', '이케부쿠로', '짭짤하고 진한 · 시금치 듬뿍', '1,798'],
-  ['쿠로라멘', '합정', '깊은 풍미와 부드러운 면발', '1,200'],
-  ['카라카라멘', '망원', '매운 육수의 진한 국물', '1,500'],
-  ['소바샤', '이태원', '신선한 야채와 가벼운 육수', '950'],
-  ['쇼유라멘', '신촌', '진한 간장 육수와 부드러운 면발', '1,300']
+  ['라멘바 시코우', '성수', '깔끔하고 담백한 · 깊고 시원한 맛', '1,798', '11,000원~', ramenPhotos.clear],
+  ['하쿠텐', '이케부쿠로', '짭짤하고 진한 · 시금치 듬뿍', '1,798', '12,000원~', ramenPhotos.rich],
+  ['쿠로라멘', '합정', '깊은 풍미와 부드러운 면발', '1,200', '13,000원~', ramenPhotos.mixed],
+  ['카라카라멘', '망원', '매운 육수의 진한 국물', '1,500', '10,500원~', ramenPhotos.spicy],
+  ['소바샤', '이태원', '신선한 야채와 가벼운 육수', '950', '11,500원~', ramenPhotos.koreanClear],
+  ['쇼유라멘', '신촌', '진한 간장 육수와 부드러운 면발', '1,300', '10,000원~', ramenPhotos.koreanShoyu]
 ];
 const rankingMetrics = [
   { reviews: 624, latest: 6 }, { reviews: 580, latest: 4 }, { reviews: 580, latest: 5 },
@@ -222,6 +232,10 @@ const talks = [
 ];
 
 const ratalkPosts = [
+  { id: 9, category: 'meetup', author: '츠케멘모임장', badge: '라타', time: '방금', place: '연남', when: '매월 둘째 토 · 오후 2시', title: '연남 츠케멘 정기모임', copy: '츠케멘 입문부터 고수까지 같이 먹고 이야기해요.', joined: 4, capacity: 8, likes: 0, comments: 0, popularity: 110 },
+  { id: 10, category: 'meetup', author: '팝업러버', badge: '라이트', time: '1시간 전', place: '성수', when: '이번 주 일요일 · 낮 12시', title: '줄 서는 팝업, 같이 가요', copy: '혼자 줄 서면 지루하니까 같이 기다려요.', joined: 3, capacity: 4, likes: 0, comments: 0, popularity: 92 },
+  { id: 11, category: 'homemade', author: '라멘하나', badge: '라타', time: '2시간 전', place: '', score: '', title: '집에서 만든 쇼유라멘', copy: '차슈는 저온조리로 만들었어요. 육수는 닭뼈와 다시마로 우렸고, 토핑에 따라 맛이 꽤 달라져요.', image: ramenPhotos.koreanShoyu, likes: 128, comments: 14, popularity: 130 },
+  { id: 12, category: 'homemade', author: '주말요리사', badge: '라이트', time: '어제', place: '', score: '', title: '비벼 먹는 마제소바 도전', copy: '시판 면으로도 충분해요. 달걀노른자를 올리니 확 달라졌어요.', image: ramenPhotos.mixed, likes: 31, comments: 6, popularity: 70 },
   { id: 1, category: 'plate', author: '역삼동 라오타', badge: '라이트', time: '방금', place: '마포 반라이', score: '4.8', title: '처음 먹어본 진한 츠케멘', copy: '면의 탄력이 좋고 소스가 진하지만 마지막 스프와리까지 편안하게 먹었어요.', image: ramenPhotos.banrai, likes: 12, comments: 2, popularity: 98 },
   { id: 2, category: 'story', author: '통풍주의', badge: '라타', time: '3시간 전', place: '웅성', score: '', title: '웅성 콜라보 첫날 가실 분?', copy: '토요일 첫 타임을 예약했어요. 현장에서 같이 줄 서실 분 계신가요?', image: '', likes: 6, comments: 4, popularity: 76 },
   { id: 3, category: 'plate', author: '면발수집가', badge: '라타', time: '어제', place: '하쿠텐', score: '4.8', title: '하쿠텐 오픈런 후기', copy: '단단한 면과 짭짤한 국물이 잘 맞았고 시금치 추가가 특히 좋았습니다.', image: ramenPhotos.clear, likes: 24, comments: 5, popularity: 120 },
@@ -236,7 +250,14 @@ const avatarMarkup = (author) => {
   const variant = [...String(author)].reduce((sum, character) => sum + character.codePointAt(0), 0) % 4;
   return `<span class="user-avatar avatar-${variant}" aria-hidden="true">${escapeText(String(author).trim().charAt(0) || 'R')}</span>`;
 };
-const ratalkPostMarkup = (post) => `<article class="ratalk-post" data-post-id="${post.id}" data-place="${escapeText(post.place || '')}" data-popularity="${post.popularity}" data-category="${post.category}" tabindex="0" aria-label="${escapeText(post.title || `${post.place} 한 그릇 후기`)} 상세 글 보기">
+const meetupMarkup = (post) => `<article class="ratalk-post ratalk-meetup" data-post-id="${post.id}" data-place="${escapeText(post.place || '')}" data-popularity="${post.popularity}" data-category="meetup" tabindex="0" aria-label="${escapeText(post.title)} 소모임">
+  <span class="meetup-when">${escapeText(post.when)}</span>
+  <h2>${escapeText(post.title)}</h2>
+  <p class="talk-copy">${escapeText(post.copy)}</p>
+  <div class="meetup-progress" role="img" aria-label="${post.joined}명 참여, 정원 ${post.capacity}명"><i style="width:${Math.round(post.joined / post.capacity * 100)}%"></i></div>
+  <div class="meetup-foot"><span><b data-meetup-count="${post.id}">${post.joined}</b> / ${post.capacity}명 · ${escapeText(post.place)}</span><button type="button" class="meetup-join" data-meetup-join="${post.id}">참여하기</button></div>
+</article>`;
+const ratalkPostMarkup = (post) => post.category === 'meetup' ? meetupMarkup(post) : `<article class="ratalk-post" data-post-id="${post.id}" data-place="${escapeText(post.place || '')}" data-popularity="${post.popularity}" data-category="${post.category}" tabindex="0" aria-label="${escapeText(post.title || `${post.place} 한 그릇 후기`)} 상세 글 보기">
   <header>${avatarMarkup(post.author)}<strong>${escapeText(post.author)}</strong><em>${post.badge}</em><time>${post.time}</time></header>
   ${post.image ? `<img class="talk-photo" src="${post.image}" alt="${escapeText(post.place)} 라멘">` : ''}
   <div class="talk-post-body">${post.place ? `<p class="talk-place">${icon('pin', 15)} <b>${escapeText(post.place)}</b>${post.score ? `${RatingStars({ score: post.score })}<strong>${Number(post.score).toFixed(1)}</strong>` : ''}</p>` : ''}${post.title ? `<h2>${escapeText(post.title)}</h2>` : ''}<p class="talk-copy">${escapeText(post.copy)}</p></div>
@@ -388,21 +409,22 @@ document.querySelector('#app').innerHTML = `
         <div class="section-head compact"><div><h2>오늘의 라멘은?</h2><p class="sub">라멘 이름을 몰라도 괜찮아요!</p></div></div>
         <div class="today-grid">
           ${[
-            [ramenPhotos.clear, '맑고 시원한 청탕', '가볍게 퍼지는 닭과 해산물 향'],
-            [ramenPhotos.dipping, '소스에 찍어 먹는 츠케멘', '면의 식감이 또렷하게 살아나는'],
-            [ramenPhotos.mixed, '국물 없이 비벼 먹는 마제소바', '꾸덕한 양념과 고소한 토핑'],
-            [ramenPhotos.rich, '진하고 묵직한 백탕', '오래 끓인 육수의 깊은 풍미']
-          ].map(([image,title,copy]) => `<button class="today-card" style="--today:url('${image}')" data-toast="취향별 라멘 목록을 준비 중이에요"><strong>${title}</strong><span>${copy}</span></button>`).join('')}
+            [ramenPhotos.clear, '청탕', '맑고 시원한 청탕', '가볍게 퍼지는 닭과 해산물 향'],
+            [ramenPhotos.dipping, '츠케멘', '소스에 찍어 먹는 츠케멘', '면의 식감이 또렷하게 살아나는'],
+            [ramenPhotos.mixed, '마제소바', '국물 없이 비벼 먹는 마제소바', '꾸덕한 양념과 고소한 토핑'],
+            [ramenPhotos.rich, '백탕', '진하고 묵직한 백탕', '오래 끓인 육수의 깊은 풍미']
+          ].map(([image,kind,title,copy]) => `<button class="today-card" data-toast="취향별 라멘 목록을 준비 중이에요"><span class="today-photo" style="--today:url('${image}')" aria-hidden="true"></span><span class="today-copy"><em>${kind}</em><strong>${title}</strong><small>${copy}</small></span></button>`).join('')}
         </div>
       </section>
       <div class="divider"></div>
     </div>
 
     <section class="section news-section rata-only">
-      <div class="section-head compact"><div><h2>News&Hot</h2><p class="sub">요새 괜찮은 라멘집 찾고 계시진 않나요?</p></div></div>
+      <div class="section-head compact"><div><h2>매거진</h2><p class="sub">요새 괜찮은 라멘집 찾고 계시진 않나요?</p></div></div>
       <div class="news-track">
         ${news.map((item, index) => `<button class="news-card" style="--image: url('${item.image}')" data-news-detail="${index}">
           <span class="pill outline">${item.tag}</span>
+          <span class="news-price">${item.extra.price}</span>
           <span class="news-copy"><small>${item.place}</small><strong>${item.title}</strong><em>${item.copy}</em></span>
           <span class="round-arrow">${icon('arrow', 18)}</span>
         </button>`).join('')}
@@ -415,7 +437,7 @@ document.querySelector('#app').innerHTML = `
       <div class="section-head compact"><div><h2>요즘 가장 많이 찾는 라멘집</h2><p class="sub">처음이라면 라타인증 맛집부터!</p></div></div>
       <div class="tabs" role="tablist" aria-label="랭킹 정렬"><button class="tab active" role="tab" aria-selected="true" data-sort="popular">인기순</button><button class="tab" role="tab" aria-selected="false" data-sort="review">리뷰순</button></div>
       <ol class="ranking-list">
-        ${rankings.map((r, i) => `<li data-index="${i}" data-popular="${Number(r[3].replace(',', ''))}" data-interest="${r[3]}" data-reviews="${rankingMetrics[i].reviews}" data-latest="${rankingMetrics[i].latest}"><strong class="rank">${i + 1}</strong><div class="rank-copy"><small>${r[1]}</small><h3>${r[0]}</h3><p>${r[2]}</p></div><span class="interest">${r[3]}명 관심중</span></li>`).join('')}
+        ${rankings.map((r, i) => `<li data-index="${i}" data-popular="${Number(r[3].replace(',', ''))}" data-interest="${r[3]}" data-reviews="${rankingMetrics[i].reviews}" data-latest="${rankingMetrics[i].latest}"><strong class="rank">${i + 1}</strong><img class="rank-thumb" src="${r[5]}" alt="" loading="lazy"><div class="rank-copy"><small>${r[1]}</small><h3>${r[0]}</h3><p>${r[2]}</p><span class="rank-meta"><b class="rank-price">${r[4]}</b><span class="interest">${r[3]}명 관심중</span></span></div></li>`).join('')}
       </ol>
     </section>
 
@@ -426,6 +448,31 @@ document.querySelector('#app').innerHTML = `
       <ol class="talk-list">
         ${talks.map((talk, i) => `<li><span>${i + 1}</span><button data-toast="토크 상세 화면을 준비 중이에요"><small>${talk[0]}</small><strong>${talk[1]}</strong></button>${icon('chevron', 23)}</li>`).join('')}
       </ol>
+    </section>
+
+    <div class="divider rata-only"></div>
+
+    <section class="section community-section">
+      <div class="section-head compact"><div><h2>라타들의 이야기</h2><p class="sub">같이 먹고, 만들고, 기록해요</p></div><button class="text-btn" data-community-all>라톡 전체 ${icon('chevron', 16)}</button></div>
+      <div class="community-track">
+        <article class="community-card">
+          <div class="community-photo" style="--photo:url('${ramenPhotos.dipping}')"></div>
+          <div class="community-body"><em>소모임 · 모집중</em><strong>연남 츠케멘 정기모임</strong><small>매월 둘째 토요일 · 연남동</small>
+            <div class="community-row"><span>4 / 8명</span><button type="button" class="community-join" data-meetup-join="9">참여하기</button></div></div>
+        </article>
+        <article class="community-card">
+          <div class="community-photo" style="--photo:url('${ramenPhotos.koreanShoyu}')"></div>
+          <div class="community-body"><em>홈메이드</em><strong>집에서 만든 쇼유라멘</strong><small>차슈는 저온조리 · 공감 128</small>
+            <div class="community-row"><span>@라멘하나</span><button type="button" class="community-join dark" data-community-homemade>구경하기</button></div></div>
+        </article>
+        <article class="community-card visit">
+          <em>내가 가본 곳</em>
+          <div class="visit-count">7<span> / 30곳</span></div>
+          <small>이번 달 2곳을 새로 다녀왔어요</small>
+          <div class="visit-stamps" aria-hidden="true">${Array.from({ length: 12 }, (_, index) => `<i class="${index < 7 ? 'on' : ''}"></i>`).join('')}</div>
+          <button type="button" class="community-join" data-community-visit>내 기록 보기</button>
+        </article>
+      </div>
     </section>
 
     <nav class="bottom-nav" aria-label="하단 메뉴">
@@ -445,6 +492,7 @@ document.querySelector('#app').innerHTML = `
           <button data-map-filter="clear">청탕</button>
           <button class="taste-edit-btn">취향편집</button>
         </div>
+        <button class="sheet-scrim" type="button" aria-label="매장 정보 닫기" tabindex="-1"></button>
         <aside class="store-sheet" aria-hidden="true">
           <button class="sheet-handle" aria-label="매장 정보 펼치기"><i></i></button>
           <div class="sheet-scroll">
@@ -480,7 +528,7 @@ document.querySelector('#app').innerHTML = `
         ${ScreenTitleRow({ title: '라톡', action: `<button class="screen-title-action talk-search-toggle" type="button" aria-label="검색">${icon('search', 23)}</button>` })}
         <form class="ratalk-search" hidden><input type="search" aria-label="라톡 검색" placeholder="글, 작성자, 매장 검색"><button type="button" class="talk-search-close">취소</button></form>
         <nav class="ratalk-categories" aria-label="라톡 분류">
-          <button class="active" data-talk-filter="all">전체</button><button data-talk-filter="plate">한 그릇</button><button data-talk-filter="story">이야기</button>
+          <button class="active" data-talk-filter="all">전체</button><button data-talk-filter="plate">한 그릇</button><button data-talk-filter="story">이야기</button><button data-talk-filter="meetup">소모임</button><button data-talk-filter="homemade">홈메이드</button>
         </nav>
         <div class="ratalk-controls">
           <div class="talk-sort-wrap"><button class="talk-sort" aria-expanded="false"><span>최신순</span>${icon('chevron', 16)}</button><div class="talk-sort-menu" hidden><button data-talk-sort="latest">최신순</button><button data-talk-sort="popular">인기순</button></div></div>
@@ -740,7 +788,7 @@ const renderEvents = (selectedDate) => {
   const selectedEvents = events.filter((event) => event.date === selectedDate);
   eventsTrack.innerHTML = selectedEvents.map((event) => `<article class="event-card" data-event-id="${event.id}" tabindex="0">
     <img src="${event.image}" alt="${event.title} 라멘 사진">
-    <div class="event-copy"><div><span class="pill dark">${event.shop}</span><span class="dday schedule-dday">${event.dday}</span></div><h3>${event.title}</h3><p class="event-time schedule-date">${event.time}</p><p class="event-detail">${event.detail}</p></div>
+    <div class="event-copy"><div><span class="pill dark">${event.shop}</span><span class="dday schedule-dday" data-tier="${event.tier}">${event.dday}</span></div><h3>${event.title}</h3><p class="event-time schedule-date">${event.time}</p><p class="event-detail">${event.detail}</p></div>
     <button class="bookmark ${appState.savedEventIds.includes(event.id) ? 'saved' : ''}" aria-label="${event.title} 북마크" aria-pressed="${appState.savedEventIds.includes(event.id)}">${icon('bookmark', 21)}</button>
   </article>`).join('');
   const isEmpty = selectedEvents.length === 0;
@@ -863,11 +911,22 @@ eventsTrack.addEventListener('keydown', (event) => {
   }
 });
 document.querySelector('[data-home-all]').addEventListener('click', () => openPrototype('calendar'));
+setupSnapCarousel(document.querySelector('.community-track'), { itemSelector: ':scope > article' });
+document.querySelector('[data-community-all]').addEventListener('click', () => openPrototype('ratalk'));
+document.querySelector('[data-community-homemade]').addEventListener('click', () => {
+  openPrototype('ratalk');
+  document.querySelector('[data-talk-filter="homemade"]').click();
+});
+document.querySelector('[data-community-visit]').addEventListener('click', () => openPrototype('my'));
+document.querySelector('.community-track [data-meetup-join]').addEventListener('click', (event) => toggleMeetupJoin(event.currentTarget));
 document.querySelectorAll('[data-news-detail]').forEach((button) => button.addEventListener('click', () => {
   const item = news[Number(button.dataset.newsDetail)];
   const dialog = document.getElementById('content-detail-dialog');
   dialog.querySelector('h2').textContent = item.title;
   dialog.querySelector('p').textContent = `${item.place} · ${item.copy}`;
+  let extra = dialog.querySelector('.magazine-extra');
+  if (!extra) { extra = document.createElement('div'); extra.className = 'magazine-extra'; dialog.querySelector('p').after(extra); }
+  extra.innerHTML = `<div class="mag-compare"><div class="jp"><small>도쿄 현지</small><strong>${item.extra.tokyo}</strong><em>${item.extra.tokyoKrw}</em></div><div><small>서울</small><strong>${item.extra.seoul}</strong><em>같은 메뉴 기준</em></div></div><p class="mag-label">토핑을 올리면</p><ul class="mag-toppings">${item.extra.toppings.map(([name, price]) => `<li>${name}<b>${price}</b></li>`).join('')}</ul>`;
   openDialog('content-detail-dialog');
 }));
 
@@ -917,6 +976,7 @@ const liveCalendarScreen = document.querySelector('.live-calendar-screen');
 const liveMyScreen = document.querySelector('.live-my-screen');
 const liveAuthScreen = document.querySelector('.live-auth-screen');
 const storeSheet = document.querySelector('.store-sheet');
+document.querySelector('.sheet-scrim').addEventListener('click', () => closeStoreSheet());
 const tasteModal = document.querySelector('.taste-modal');
 let rataMap;
 let mapMarkers = [];
@@ -1232,6 +1292,8 @@ function renderMyView(name) {
 function openDialog(id) {
   const dialog = document.getElementById(id);
   dialog.hidden = false;
+  // The dialog is absolutely positioned inside the scrolling shell, so pin it to the visible area.
+  dialog.style.top = `${dialog.offsetParent?.scrollTop || 0}px`;
   requestAnimationFrame(() => dialog.classList.add('visible'));
 }
 function closeDialog(dialog) {
@@ -1250,11 +1312,11 @@ const calendarUpcoming = calendarItems.filter((item) => item.date > today);
 const calendarRows = () => calendarUpcoming.map((item) => {
   const diff = Math.ceil((item.date - today) / 86400000);
   const active = appState.savedEventIds.includes(item.id);
-  return `<article class="calendar-row" data-calendar-id="${item.id}"><time><strong class="schedule-dday">D-${diff}</strong><small class="schedule-date">${shortDate(item.date)}</small></time><button type="button" data-calendar-route="calendarDetail"><strong>${item.title}</strong><span>${item.shop} | 서울 · ${item.place}</span></button><button type="button" class="calendar-save ${active ? 'active' : ''}" aria-label="${item.title} 저장" aria-pressed="${active}">${icon('bookmark',20)}</button></article>`;
+  return `<article class="calendar-row" data-calendar-id="${item.id}" data-tier="${ddayTier(diff)}"><time><strong class="schedule-dday">D-${diff}</strong><small class="schedule-date">${shortDate(item.date)}</small></time><button type="button" data-calendar-route="calendarDetail"><strong>${item.title}</strong><span><i class="type-badge" data-type="${item.type}">${eventTypeLabels[item.type] || '팝업'}</i>${item.shop.includes(eventTypeLabels[item.type] || '팝업') ? '' : `${item.shop} | `}서울 · ${item.place}</span></button><button type="button" class="calendar-save ${active ? 'active' : ''}" aria-label="${item.title} 저장" aria-pressed="${active}">${icon('bookmark',20)}</button></article>`;
 }).join('');
 function renderCalendarView(name) {
   if (name === 'calendar') {
-    liveCalendarScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '일정', action: `<button class="screen-title-text" type="button" data-calendar-route="calendarMonth">지난 일정 보기 ${icon('chevron', 16)}</button>` })}<section class="calendar-section"><h2><i></i> 지금 진행중 <b>${calendarCurrent.length}</b></h2><div class="calendar-heroes">${calendarCurrent.map((item,index)=>`<button type="button" data-calendar-route="calendarDetail" data-calendar-id="${item.id}" aria-label="${index+1} / 2" style="--cal:url('${item.image}')"><span>${item.shop}</span><strong>${item.title}</strong><small>${shortDate(item.date)} · 서울 ${item.place}</small></button>`).join('')}</div><h2 class="soon"><i></i> 곧 시작 <b>${calendarUpcoming.length}</b></h2>${calendarRows()}</section>`;
+    liveCalendarScreen.innerHTML = `${screenChrome()}${ScreenTitleRow({ title: '일정', action: `<button class="screen-title-text" type="button" data-calendar-route="calendarMonth">지난 일정 보기 ${icon('chevron', 16)}</button>` })}<section class="calendar-section"><h2><i></i> 지금 진행중 <b>${calendarCurrent.length}</b></h2><div class="calendar-heroes">${calendarCurrent.map((item,index)=>`<button type="button" data-calendar-route="calendarDetail" data-calendar-id="${item.id}" aria-label="${index+1} / 2" style="--cal:url('${item.image}')"><i class="live-badge">진행중</i><span>${item.shop}</span><strong>${item.title}</strong><small>${shortDate(item.date)} · 서울 ${item.place}</small></button>`).join('')}</div><h2 class="soon"><i></i> 곧 시작 <b>${calendarUpcoming.length}</b></h2>${calendarRows()}</section>`;
   } else if (name === 'calendarMonth') {
     const past = savedItems.filter((item) => item.date < today).sort((a, b) => b.date - a.date);
     const groups = past.reduce((result, item) => { const key = `${item.date.getFullYear()}-${item.date.getMonth() + 1}`; (result[key] ||= []).push(item); return result; }, {});
@@ -1300,7 +1362,7 @@ function renderRatalkSub(name) {
   if (name === 'ratalkDetail') {
     const post = ratalkPosts.find((item) => item.id === appState.selectedPostId) || ratalkPosts[0];
     const comments = appState.comments[post.id] || initialComments();
-    liveRatalkSub.innerHTML = `${screenChrome()}<header class="my-pagebar"><button data-talk-route="ratalk" aria-label="뒤로">${icon('back', 24)}</button><h1>${post.category === 'plate' ? '한 그릇' : '이야기'}</h1></header><article class="talk-detail" data-detail-post="${post.id}"><div class="talk-author">${avatarMarkup(post.author)}<b>${post.author}</b><span>${post.badge}</span><time>${post.time}</time></div>${post.image ? `<img class="talk-detail-photo" src="${post.image}" alt="${post.place} 라멘">` : ''}${post.place ? `<button class="talk-store" type="button" data-open-map-store="${post.place}"><span><b>${post.place}</b><small>${mapPlaces.find((place) => place.name === post.place)?.address || '서울 라멘 매장'}</small></span>${icon('chevron', 24)}</button>` : ''}${post.score ? `<p class="talk-rating">${RatingStars({ score: post.score })}<b>${Number(post.score).toFixed(1)}</b></p>` : ''}${post.title ? `<h2>${post.title}</h2>` : ''}<p>${post.copy}</p><div class="talk-actions"><button class="talk-like ${appState.likedPostIds.includes(post.id) ? 'liked' : ''}" data-post-id="${post.id}" aria-pressed="${appState.likedPostIds.includes(post.id)}" aria-label="좋아요">${icon('heart', 20)}<span>${post.likes}</span></button><span class="detail-comment-total">${icon('chat', 20)} <b class="detail-comment-count">${comments.length}</b></span></div><section class="talk-comments"><h2>댓글 ${comments.length}</h2><div class="talk-comment-list">${comments.map((comment) => `<article class="talk-comment-item">${avatarMarkup(comment.author)}<div><b>${comment.author}</b><p>${comment.copy}</p></div></article>`).join('')}</div></section></article><form class="talk-comment-form"><input aria-label="댓글" placeholder="댓글을 남겨보세요"><button type="submit" aria-label="댓글 전송">${icon('send', 22)}</button></form>`;
+    liveRatalkSub.innerHTML = `${screenChrome()}<header class="my-pagebar"><button data-talk-route="ratalk" aria-label="뒤로">${icon('back', 24)}</button><h1>${({ plate: '한 그릇', homemade: '홈메이드' })[post.category] || '이야기'}</h1></header><article class="talk-detail" data-detail-post="${post.id}"><div class="talk-author">${avatarMarkup(post.author)}<b>${post.author}</b><span>${post.badge}</span><time>${post.time}</time></div>${post.image ? `<img class="talk-detail-photo" src="${post.image}" alt="${post.place} 라멘">` : ''}${post.place ? `<button class="talk-store" type="button" data-open-map-store="${post.place}"><span><b>${post.place}</b><small>${mapPlaces.find((place) => place.name === post.place)?.address || '서울 라멘 매장'}</small></span>${icon('chevron', 24)}</button>` : ''}${post.score ? `<p class="talk-rating">${RatingStars({ score: post.score })}<b>${Number(post.score).toFixed(1)}</b></p>` : ''}${post.title ? `<h2>${post.title}</h2>` : ''}<p>${post.copy}</p><div class="talk-actions"><button class="talk-like ${appState.likedPostIds.includes(post.id) ? 'liked' : ''}" data-post-id="${post.id}" aria-pressed="${appState.likedPostIds.includes(post.id)}" aria-label="좋아요">${icon('heart', 20)}<span>${post.likes}</span></button><span class="detail-comment-total">${icon('chat', 20)} <b class="detail-comment-count">${comments.length}</b></span></div><section class="talk-comments"><h2>댓글 ${comments.length}</h2><div class="talk-comment-list">${comments.map((comment) => `<article class="talk-comment-item">${avatarMarkup(comment.author)}<div><b>${comment.author}</b><p>${comment.copy}</p></div></article>`).join('')}</div></section></article><form class="talk-comment-form"><input aria-label="댓글" placeholder="댓글을 남겨보세요"><button type="submit" aria-label="댓글 전송">${icon('send', 22)}</button></form>`;
     return;
   }
   const story = name === 'writeText';
@@ -1826,9 +1888,23 @@ function togglePostLike(postId) {
   });
 }
 
+const toggleMeetupJoin = (button) => {
+  if (!ensureLoggedIn()) return;
+  const post = ratalkPosts.find((item) => item.id === Number(button.dataset.meetupJoin));
+  if (!post) return;
+  const joined = !button.classList.contains('joined');
+  post.joined += joined ? 1 : -1;
+  document.querySelectorAll(`[data-meetup-join="${post.id}"]`).forEach((item) => { item.classList.toggle('joined', joined); item.textContent = joined ? '참여 신청함' : '참여하기'; });
+  document.querySelectorAll(`[data-meetup-count="${post.id}"]`).forEach((item) => { item.textContent = String(post.joined); });
+  document.querySelectorAll(`.ratalk-meetup[data-post-id="${post.id}"] .meetup-progress i`).forEach((bar) => { bar.style.width = `${Math.round(post.joined / post.capacity * 100)}%`; });
+  showToast(joined ? '참여를 신청했어요.' : '참여 신청을 취소했어요.');
+};
 ratalkFeed.addEventListener('click', (event) => {
   const post = event.target.closest('.ratalk-post');
   if (!post) return;
+  const joinButton = event.target.closest('[data-meetup-join]');
+  if (joinButton) { toggleMeetupJoin(joinButton); return; }
+  if (post.classList.contains('ratalk-meetup')) return;
   const postId = Number(post.dataset.postId);
   const like = event.target.closest('.talk-like');
   if (like) {
@@ -1841,7 +1917,7 @@ ratalkFeed.addEventListener('click', (event) => {
 });
 ratalkFeed.addEventListener('keydown', (event) => {
   const post = event.target.closest('.ratalk-post');
-  if (post && (event.key === 'Enter' || event.key === ' ')) {
+  if (post && !post.classList.contains('ratalk-meetup') && (event.key === 'Enter' || event.key === ' ')) {
     event.preventDefault();
     appState.selectedPostId = Number(post.dataset.postId);
     openPrototype('ratalkDetail');
